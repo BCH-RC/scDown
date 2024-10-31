@@ -1,4 +1,4 @@
-## scRDA: pipeline to carry out the scRNASeq downstream analysis
+## scDown: a pipeline for scRNASeq downstream analysis
 
 ### Common Variables
 
