@@ -14,7 +14,33 @@ library(pbapply)
 library(CellChat)
 library(ComplexHeatmap)
 
-#' Do cell-cell communication analysis.
+#' Create result directories for CellChat.
+#'
+#' Takes the folder path to create folers to store the CellChat results 
+#' includeing figures, tables and rds files
+#'
+#' @param dir_cellchat Folder path for CellChat results.
+#' @return NULL
+create_dir_cellchat <- function(dir_cellchat) {
+  # Create folders for storing rds files, figures and tables
+  subdirectories <- c("cellchat",
+                      "cellchat/rds",
+                      "cellchat/csv",
+                      "cellchat/images",
+                      "cellchat/images/aggregate",
+                      "cellchat/images/pathway",
+                      "cellchat/images/comparison",
+                      "cellchat/images/pathway/LR_gene",
+                      "cellchat/images/comparison/Net",
+                      "cellchat/images/comparison/infoFlow",
+                      "cellchat/images/comparison/sidebyside")
+  
+  for(dir.i in subdirectories){
+    dir.create(paste0(dir_cellchat, dir.i), showWarnings = F, recursive = T)
+  }
+}
+
+#' Do cell-cell communication analysis using cellchat
 #'
 #' Takes as input a Seurat object with cell-type labels as identity of the cells.
 #' This Seurat object should have identities populated at Idents(X) and counts
@@ -46,6 +72,80 @@ doCellCom <- function(X, species){
   ccX <- netAnalysis_computeCentrality(ccX)
   return(ccX)
 }
+
+
+
+
+#' Run CellChat
+#'
+#' run CellChat analysis and generate figures, tables and rds files.
+#'
+#' @param dir_cellchat Folder path for CellChat results.
+#' @param seurat_obj Seurat object which contains the counts and 
+#' @param celltype_col
+#' @param celltypes
+#' @param species
+#' @param condition_col
+#' @param conditions_cmp
+#' 
+#' @return NULL
+run_cellchatV2 <- function(dir_cellchat, seurat_obj, celltype_col, celltypes = "ALL", species, condition_col = NULL, conditions_cmp = NULL) {
+  # Create cellchat directory
+  create_dir_cellchat(dir_cellchat)
+  
+  # Check the meta data columns
+  meta <- seurat_obj@meta.data
+  if (!celltype_col %in% colnames(meta)) {
+    stop(celltype_col, " cell type column does not exist in the seurat object meta data!")
+  }
+  
+  # Check cell types of interest
+  if (celltypes == "ALL") {
+    
+  } else {
+    celltypes <- intersect(celltypes, unique(meta.data[, celltype_col]))
+    celltypes_missing <- setdiff(celltypes, unique(meta.data[, celltype_col]))
+    if (length(celltypes_missing)>0) {
+      warning(celltypes_missing, " provided are not found in the cell types!")
+    }
+    if (length(celltypes)<2) {
+      stop("There are not enough cell types! Need to provide at least two cell types of interest!")
+    }
+  }
+  
+  # Check species
+  if (!species %in% c("human", "mouse")) {
+    stop("Please use 'human' or 'mouse' data!")
+  }
+  
+  # Set the Identifications as cell types
+  Idents(seurat_obj) <- seurat_obj@meta.data[, celltype_col]
+  
+  # Run CellChat analysis
+  if (is.null(condition_col)) {
+    cellchat_obj <- doCellCom(seurat_obj, species)
+  } else {
+    if (!condition_col %in% colnames(meta)) {
+      stop(condition_col, " condition column does not exist in the seurat object meta data!")
+    }
+    
+    
+    
+  }
+  
+  
+  
+  
+}
+
+
+
+
+
+
+
+
+####### Functions below this line need to be organized
 
 
 #' Take as inputs two CellChat objects with different cell type labels.
