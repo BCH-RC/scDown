@@ -82,8 +82,7 @@ stat_res <- function(prop_test.i,comparisons_condition, dir_scproportion, i){
 run_scproportion <- function(dir_scproportion,seurat_obj,cluster_col,sample_col,comparision1=NULL,
                              comparision2=NULL,output.format = "png",verbose = TRUE,
                              num_cores = detectCores() - 1){
-  # Capture the start time
-  start_time <- Sys.time()
+  
   # check the sample_col and cluster_col are in the meta data
   meta <- seurat_obj@meta.data
   if(!sample_col %in% colnames(meta)){
@@ -128,11 +127,7 @@ run_scproportion <- function(dir_scproportion,seurat_obj,cluster_col,sample_col,
 
   # Run comparisons in parallel
   mclapply(1:nrow(comparisons_condition), process_comparison, mc.cores = num_cores)
-  # Capture the end time and calculate duration
-  end_time <- Sys.time()
-  duration <- end_time - start_time
-  # Print execution time
-  print(paste("scProportion test completed in", duration))
+  
   if (verbose) message("scProportion test completed.")
 }
 
