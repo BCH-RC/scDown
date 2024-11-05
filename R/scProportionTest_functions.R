@@ -4,6 +4,8 @@ library(SeuratObject)
 library(gtools)
 library(parallel)
 library(ggplot2)
+library(dplyr)
+library(tidyverse)
 
 #' Create result directories for scProportionTest figures
 #'
@@ -23,16 +25,34 @@ create_dir_scproportion <- function(dir_scproportion) {
 #' @param comparisons_condition
 #' @param dir_scproportion
 #' @param cluster_col
-#' @param i The index of the comparision condition
+#' @param i index of the comparision condition
 #'
-#' @return NULL Saves comparison figures in the specified directory.
+#' @return NULL saves comparison figures in the specified directory.
 #'
 generate_figure <- function(prop_test.i, output.format,comparisons_condition, dir_scproportion, cluster_col, i) {
   p <- permutation_plot(prop_test.i) +
     theme_bw(base_size = 12) +
     labs(title = paste0(comparisons_condition[i, 1], " vs ", comparisons_condition[i, 2]),
-         x = "log2(FD)",
-         y = cluster_col)
+         x = cluster_col,
+         y = "log2(FD)") +
+    theme(legend.text = element_text(size = 8)) +
+    scale_shape_manual(
+      name = "significance",
+      labels = c(
+        "FDR < 0.05 &\nabs(Log2FD) > 0.58",  # Add line break with '\n'
+        "n.s."
+      ),
+      values = c(16, 1)  # Customize shape values if needed
+    ) +
+    scale_color_manual(
+      name = "significance",
+      labels = c(
+        "FDR < 0.05 &\nabs(Log2FD) > 0.58",  # Add line break with '\n'
+        "n.s."
+      ),
+      values = c("red", "grey")  # Customize color values if needed
+    )
+
 
   output_format <- match.arg(output.format, choices = c("png", "pdf", "jpeg"))
   file_extension <- switch(output_format, png = "png", pdf = "pdf", jpeg = "jpg")
@@ -54,9 +74,9 @@ generate_figure <- function(prop_test.i, output.format,comparisons_condition, di
 #' @param prop_test.i scProportion object
 #' @param comparisons_condition table of comparisions
 #' @param dir_scproportion directory to save the results table
-#' @param i The index of the comparison condition
+#' @param i index of the comparison condition
 #'
-#' @return NULL Saves comparison figures in the specified directory.
+#' @return NULL saves comparison figures in the specified directory.
 #'
 stat_res <- function(prop_test.i,comparisons_condition, dir_scproportion, i){
   res_tab <- prop_test.i@results %>% as.data.frame()
@@ -75,14 +95,15 @@ stat_res <- function(prop_test.i,comparisons_condition, dir_scproportion, i){
 #' @param comparision2 Optional: name of the second group for comparison (default NULL, which compares all pairs).
 #' @param output.format Format of the output figure
 #' @param verbose Print the processing stept
-#' @param num_cores  Number of the cores for parallel computation
+#' @param num_cores  Numenr of the cores for parallel computation
 #'
-#' @return Saves comparison figures in the specified directory.
+#' @return NULL saves comparison figures in the specified directory.
 #'
 run_scproportion <- function(dir_scproportion,seurat_obj,cluster_col,sample_col,comparision1=NULL,
                              comparision2=NULL,output.format = "png",verbose = TRUE,
                              num_cores = detectCores() - 1){
-  
+  # Capture the start time
+  start_time <- Sys.time()
   # check the sample_col and cluster_col are in the meta data
   meta <- seurat_obj@meta.data
   if(!sample_col %in% colnames(meta)){
@@ -127,7 +148,10 @@ run_scproportion <- function(dir_scproportion,seurat_obj,cluster_col,sample_col,
 
   # Run comparisons in parallel
   mclapply(1:nrow(comparisons_condition), process_comparison, mc.cores = num_cores)
-  
+  # Capture the end time and calculate duration
+  end_time <- Sys.time()
+  duration <- end_time - start_time
+  # Print execution time
+  print(paste("scProportion test completed in", duration))
   if (verbose) message("scProportion test completed.")
 }
-
