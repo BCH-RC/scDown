@@ -36,23 +36,8 @@ generate_figure <- function(prop_test.i, output.format,comparisons_condition, di
          x = cluster_col,
          y = "log2(FD)") +
     theme(legend.text = element_text(size = 8)) +
-    scale_shape_manual(
-      name = "significance",
-      labels = c(
-        "FDR < 0.05 &\nabs(Log2FD) > 0.58",  # Add line break with '\n'
-        "n.s."
-      ),
-      values = c(16, 1)  # Customize shape values if needed
-    ) +
-    scale_color_manual(
-      name = "significance",
-      labels = c(
-        "FDR < 0.05 &\nabs(Log2FD) > 0.58",  # Add line break with '\n'
-        "n.s."
-      ),
-      values = c("red", "grey")  # Customize color values if needed
-    )
-
+    scale_shape_manual(name = "significance",labels = c("FDR < 0.05 &\nabs(Log2FD) > 0.58", "n.s."),values = c(16, 1)) +
+    scale_color_manual(name = "significance",labels = c("FDR < 0.05 &\nabs(Log2FD) > 0.58", "n.s."),values = c("red", "grey") )
 
   output_format <- match.arg(output.format, choices = c("png", "pdf", "jpeg"))
   file_extension <- switch(output_format, png = "png", pdf = "pdf", jpeg = "jpg")
@@ -102,8 +87,8 @@ stat_res <- function(prop_test.i,comparisons_condition, dir_scproportion, i){
 run_scproportion <- function(dir_scproportion,seurat_obj,cluster_col,sample_col,comparision1=NULL,
                              comparision2=NULL,output.format = "png",verbose = TRUE,
                              num_cores = detectCores() - 1){
-  # Capture the start time
-  start_time <- Sys.time()
+  ## Capture the start time
+  #start_time <- Sys.time()
   # check the sample_col and cluster_col are in the meta data
   meta <- seurat_obj@meta.data
   if(!sample_col %in% colnames(meta)){
@@ -148,10 +133,10 @@ run_scproportion <- function(dir_scproportion,seurat_obj,cluster_col,sample_col,
 
   # Run comparisons in parallel
   mclapply(1:nrow(comparisons_condition), process_comparison, mc.cores = num_cores)
-  # Capture the end time and calculate duration
-  end_time <- Sys.time()
-  duration <- end_time - start_time
-  # Print execution time
-  print(paste("scProportion test completed in", duration))
+  ## Capture the end time and calculate duration
+  #end_time <- Sys.time()
+  #duration <- end_time - start_time
+  ## Print execution time
+  #print(paste("scProportion test completed in", duration))
   if (verbose) message("scProportion test completed.")
 }
