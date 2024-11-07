@@ -13,6 +13,8 @@ Depends: R (>= 4.2.3)
 Remotes: 
     jinworks/CellChat
 Imports:
+    CellChat (>= 2.1.0),
+    scProportionTest (>= 0.0.0.9000),
     reticulate (>= 1.28),
     patchwork (>= 1.1.2),
     ComplexHeatmap,
