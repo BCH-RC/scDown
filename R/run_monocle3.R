@@ -35,23 +35,49 @@ run_monocle3 <- function(seurat,species,nDim=30,conditions=NULL,condition_metada
                          deg_method="quasipoisson",metadata_deg_model=NULL,graph_test=FALSE,cores=1,outputDir="."){
 
   ###TODO: Add code to check the input options
+  checkmate::expect_class(seurat,"Seurat",label="seurat")
+  checkmate::expect_choice(species,c("human","mouse"),label = "species")
+  checkmate::expect_numeric(nDim, min.len = 1, max.len = 1, any.missing = FALSE,label="nDim")
 
+  checkmate::expect_character(conditions, min.len = 1, any.missing = FALSE,label="conditions",null.ok = TRUE)
+  if(checkmate::test_character(conditions, min.len = 1, any.missing = FALSE))
+  {
+    checkmate::expect_choice(condition_metadata, colnames(seurat@meta.data),label="condition_metadata",null.ok = TRUE)
+  }
 
+  checkmate::expect_flag(transferUMAP, min.len = 1, max.len = 1, any.missing = FALSE,label="transferUMAP")
+  checkmate::expect_choice(rootNode_method,c("potency","rootNodes"),label = "rootNode_method")
+
+  checkmate::expect_character(rootNodes, min.len = 1, max.len = 1, any.missing = TRUE,label="rootNodes",null.ok = TRUE)
+  checkmate::expect_character(timepoint, min.len = 1, max.len = 1, any.missing = TRUE,label="timepoint",null.ok = TRUE)
+
+  if(checkmate::test_character(conditions, min.len = 1, any.missing = FALSE))
+  {
+    checkmate::expect_choice(timePoint_metadata,colnames(seurat@meta.data),label="timePoint_metadata",null.ok = TRUE)
+  }
+
+  checkmate::expect_choice(batch_metadata, colnames(seurat@meta.data),label="batch_metadata",null.ok = TRUE)
+
+  checkmate::expect_class(celltype_groups,"list",label="celltype_groups",null.ok = TRUE)
+  checkmate::expect_numeric(top_genes, min.len = 1, max.len = 1, any.missing = FALSE,label="top_genes")
+  checkmate::expect_choice(deg_method, c("quasipoisson","negbinomial"),label="deg_method")
+
+  checkmate::expect_choice(metadata_deg_model,colnames(seurat@meta.data),label="metadata_deg_model",null.ok = TRUE)
+  checkmate::expect_flag(graph_test, min.len = 1, max.len = 1, any.missing = FALSE,label="graph_test")
+  checkmate::expect_numeric(cores, min.len = 1, max.len = 1, any.missing = FALSE,label="cores")
+  checkmate::expect_directory(outputDir,access="rw",label = "OutDir")
 
   ##########Create results subdirectories########
-  subdirectories <- c("rds",
-                      "csv",
-                      "images",
-                      "csv/monocle",
-                      "rds/monocle",
-                      "images/monocle",
-                      "images/monocle/pseudotime",
-                      "images/monocle/cellDistribution",
-                      "images/monocle/DEG")
+  subdirectories <- c(file.path("monocle","rds"),
+                      file.path("monocle","csv"),
+                      file.path("monocle","images","pseudotime"),
+                      file.path("monocle","images","cellDistribution"),
+                      file.path("monocle","images","DEG"))
 
   for(i in subdirectories){
-    dir.create(paste0(outputDir,"/",i), showWarnings = F, recursive = T)
+    dir.create(file.path(outputDir,i), showWarnings = F, recursive = T)
   }
+  outputDir <- file.path(outputDir,"monocle")
   ################################################
 
   subset <- ifelse(length(celltype_groups) != 0, TRUE, FALSE)
@@ -109,30 +135,30 @@ run_monocle3 <- function(seurat,species,nDim=30,conditions=NULL,condition_metada
     print(paste0("Regression analysis completed for cds object #",i," completed.", sep=""))
 
     if (graph_test){
-      graphAutoCorrelation(cds=cds.current, colData_name=condition_metadata, top_gene=top_genes, subset=cell_type_use,outputDir=outputDir)
+      graphAutoCorrelation(cds=cds.current, colData_name=condition_metadata, top_gene=top_genes, subset=cell_type_use,outputDir=outputDir,cores=cores)
       print(paste0("Graph autocorrelation analysis for cds object #",i," completed.", sep=""))
     }
 
     if (conditions_to_compare){
       for (condition in conditions){
         cds.condition <- cds.current[ ,cds.current[[condition_metadata]] == condition]
-        cds.condition <- cluster_cells(cds.condition,cluster_method = "louvain")
-        cds.condition <- learn_graph(cds.condition, use_partition = FALSE)
+        cds.condition <- monocle3::cluster_cells(cds.condition,cluster_method = "louvain")
+        cds.condition <- monocle3::learn_graph(cds.condition, use_partition = FALSE)
 
         # plot umap by cell types
-        png(paste0(outputDir,"/images/monocle/pseudotime/umap_celltypes_","transferUMAP_",transferUMAP,transferUMAP,ifelse(!is.null(cell_type_use),paste0("_",paste(cell_type_use,collapse = '_')),""),"_",condition,".png",sep=""), width = 2000*1.4, height = 1500*1.5, res = 400)
-        p4 <- plot_cells(cds.condition, color_cells_by="cell.type", show_trajectory_graph=FALSE) +
-          theme_void() +
-          ggtitle(paste0("UMAP by cell types","\n", "transferUMAP=",transferUMAP, sep=""))
+        png(filename = file.path(outputDir,"images","pseudotime",paste0("umap_celltypes_","transferUMAP_",transferUMAP,transferUMAP,ifelse(!is.null(cell_type_use),paste0("_",paste(cell_type_use,collapse = '_')),""),"_",condition,".png",sep="")), width = 2000*1.4, height = 1500*1.5, res = 400)
+        p4 <- monocle3::plot_cells(cds.condition, color_cells_by="cell.type", show_trajectory_graph=FALSE) +
+          ggplot2::theme_void() +
+          ggplot2::ggtitle(paste0("UMAP by cell types","\n", "transferUMAP=",transferUMAP, sep=""))
         print(p4)
         dev.off()
 
         # plot umap by trajectory
-        png(paste0(outputDir,"/images/monocle/pseudotime/umap_trajectory_","transferUMAP_",transferUMAP,transferUMAP,ifelse(!is.null(cell_type_use),paste0("_",paste(cell_type_use,collapse = '_')),""),"_",condition,".png",sep=""), width = 2000*1.4, height = 1500*1.5, res = 400)
-        p5 <- plot_cells(cds.condition, label_principal_points = TRUE,  color_cells_by = "cell.type", label_cell_groups=FALSE) +
-          theme_void() +
-          guides(color= guide_legend("Cell Type", override.aes = list(size=5), ncol = 2)) +
-          ggtitle(paste0("UMAP by trajectory","\n", "transferUMAP=",transferUMAP,sep=""))
+        png(filename = file.path(outputDir,"images","pseudotime",paste0("umap_trajectory_","transferUMAP_",transferUMAP,transferUMAP,ifelse(!is.null(cell_type_use),paste0("_",paste(cell_type_use,collapse = '_')),""),"_",condition,".png",sep="")), width = 2000*1.4, height = 1500*1.5, res = 400)
+        p5 <- monocle3::plot_cells(cds.condition, label_principal_points = TRUE,  color_cells_by = "cell.type", label_cell_groups=FALSE) +
+          ggplot2::theme_void() +
+          ggplot2::guides(color= ggplot2::guide_legend("Cell Type", override.aes = list(size=5), ncol = 2)) +
+          ggplot2::ggtitle(paste0("UMAP by trajectory","\n", "transferUMAP=",transferUMAP,sep=""))
         print(p5)
         dev.off()
 
@@ -147,4 +173,20 @@ run_monocle3 <- function(seurat,species,nDim=30,conditions=NULL,condition_metada
   }
   return(cds_by_group)
 }
+
+check_character_argument<-function(object,argumentName)
+{
+  ifelse(testCharacter(letters, min.len = 1, any.missing = FALSE),)
+  stop("This is an error message")
+}
+
+#remove.packages("scDown")
+#devtools::check()
+#devtools::build()
+#install.packages("../scDown_0.1.0.tar.gz", repos = NULL, type="source")
+#library("scDown")
+#seurat<-readRDS("../cbl_sub_opc.rds")
+#l<-run_monocle3(seurat,"human")
+#vignette("scDown_monocle",package = "scDown")
+#?run_monocle3
 
