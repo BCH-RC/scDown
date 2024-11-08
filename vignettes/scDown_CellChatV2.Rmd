@@ -51,209 +51,30 @@ species <- "human"
 # Metadata cell type column
 metadata_celltype_col <- "celltype"
 
-# Group information column
+# Group information column (Optional, NULL by default)
 metadata_condition_col <- "group"
 
-# Pairwise condition comparisons. Default is no comparisons
+# Pairwise condition comparisons. Default is no comparisons (Optional, NULL by default).
 comparison_conditions <- list(c("CNV", "CON"), c("ASD", "CON"), c("CNV", "ASD"))
-
-# Cell types of interest. Default is all cell types
+x
+# Cell types of interest. (Optional, 'ALL' by default)
 celltypes_of_interest <- c("Astrocyte I", "Astrocyte II", "Microglia", "OPC", "Astrocyte II", "Inh-VIP", "Neu L4", "Neu L23", "Inh-SV2C")
 
+# Number of top pathways to show
+top_n <- 10
 
-
-
-```
-
-Run CellChatV2
-```{r}
-
-run_cellchatV2(dir_cellchat = workdir, 
-               seurat_obj = scRNAseq_seuratobj, 
-               celltype_col = meta_celltype, 
-               celltypes = celltypes_of_interest, 
+# Run CellChat V2
+run_cellchatV2(dir_cellchat, 
+               seurat_obj, 
+               celltype_col, 
+               celltypes = "ALL", 
+               species, 
                condition_col = metadata_condition_col, 
-               conditions_cmp = comparison_conditions)
-
-
-```
-
-
-
-
-
-
-
-
-
-
-
-
-Load the seurat object which should contain both the sample id and cell type information
-```{r, message = FALSE}
-# Read the seurat object
-seurat_obj <- readRDS("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/inst/extdata/p238_testdata.rds")
-
-# Check the meta data
-head(seurat_obj)
-
-# Set the Idents to cell types
-Idents(seurat_obj) <- seurat_obj$celltype
-
-# Define the species: either "mouse" or "human", since CellChat and PPI database only support these two species for now
-species <- "human"
-
-```
-
-Perform cellchat analysis on entire object when there is no condition specified
-```{r, message = FALSE}
-cellchat_object <- doCellCom(X = seurat_obj, species = species)
-saveRDS(cellchat_object, file = paste0(workdir, "/rds/cellchat_obj_ALL.rds"))
-
-```
-
-Subset out each condition from the Seurat object and perform cellchat analysis
-```{r, message = FALSE}
-# A string specifying a column in seurat_obj@meta.data that contains the condition names, or NULL when no condition is filled in
-condition_col <- "group"
-conditions <- list("CNV", "ASD", "CON")
-
-metadata_cond <- FetchData(object = seurat_obj, vars = condition_col)
-for (condition in conditions) {
-  seurat_obj_condition <- seurat_obj[, which(x = (metadata_cond == condition))]
-  cellchat_object_condition <- doCellCom(seurat_obj_condition, species)
-  saveRDS(cellchat_object_condition, file = paste0(workdir, "/rds/cellchat_obj_", condition, ".rds"))
-}
-
-```
-
-# Create the cellchat object for the cell types of interest.
-```{r, message = FALSE}
-# Cell types of interest
-celltypes_of_interest <- c("Astrocyte I", "Astrocyte II", "Microglia", "OPC", "Astrocyte II", "Inh-VIP", "Neu L4", "Neu L23", "Inh-SV2C")
-# celltypes_of_interest <- unique(seurat_obj$celltype)
-seurat_obj_subset <- seurat_obj[, seurat_obj$celltype %in% celltypes_of_interest]
-# table(seurat_obj_subset@meta.data[, c("celltype", "SampleID")])
-
-# No condition specified
-cellchat_object <- doCellCom(X = seurat_obj_subset, species = species)
-saveRDS(cellchat_object, file = paste0(workdir, "rds/cellchat_obj_ALL_subsettedCTs.rds",sep=""))
-
-# Conditions specified
-metadata_cond <- FetchData(object = seurat_obj_subset, vars = condition_col)
-for (condition in conditions) {
-  seurat_obj_condition <- seurat_obj_subset[, which(x = (metadata_cond == condition))]
-  cellchat_object_condition <- doCellCom(X = seurat_obj_condition, species = species)
-  saveRDS(cellchat_object_condition, file = paste0(workdir, "/rds/cellchat_obj_", condition, "_subsettedCTs.rds"))
-}
-
-```
-
-Save all inferred cell-cell communications at the level of: 1) ligands/receptors, 2) pathways
-```{r}
-cellchat_object <- readRDS(paste0(workdir, "/rds/cellchat_obj_ALL.rds"))
-cellchat_object_net <- subsetCommunication(cellchat_object)
-cellchat_object_netp <- subsetCommunication(cellchat_object, slot.name = "netP")
-write.csv(cellchat_object_net, file=paste0(workdir, "csv/ALL_enriched_LRpairs.csv", sep=""), row.names = F, quote = F)
-write.csv(cellchat_object_netp, file=paste0(workdir, "csv/ALL_enriched_pathways.csv", sep=""), row.names = F, quote = F)
-
-```
-
-Visualizations and graph the aggregated cell-cell communication network.
-```{r}
-groupSize <- as.numeric(table(cellchat_object@idents))
-
-# circle plot: interaction strength and total interactions for all cell types
-par(mfrow = c(1,2), xpd=TRUE)
-netVisual_circle(cellchat_object@net$count, vertex.weight = groupSize, weight.scale = T, label.edge= F, title.name = "Number of interactions")
-netVisual_circle(cellchat_object@net$weight, vertex.weight = groupSize, weight.scale = T, label.edge= F, title.name = "Interaction weights/strength")
-
-# circle plot: interaction strength for each individual cell type
-mat <- cellchat_object@net$weight
-png(paste0(workdir, "images/aggregate/ALL_net_weight_per_celltype.png", sep=""), height = 600*3*ceiling(length(groupSize)/4),width = 600*4*3,res = 300)
-par(mfrow = c(ceiling(length(groupSize)/4),4), xpd=TRUE)
-for (i in 1:nrow(mat)) {
-  mat2 <- matrix(0, nrow = nrow(mat), ncol = ncol(mat), dimnames = dimnames(mat))
-  mat2[i, ] <- mat[i, ]
-  netVisual_circle(mat2, vertex.weight = groupSize, weight.scale = T, edge.weight.max = max(mat), title.name = rownames(mat)[i])
-}
-dev.off()
-
-# signaling role analysis on the aggregated communication network from all signaling pathways
-netAnalysis_signalingRole_scatter(cellchat_object)
-
-# signals contributing most to outgoing or incoming signaling of cell types, need to load ComplexHeatmap library 
-pathway_num <- length(cellchat_object@netP$pathways) # number of pathways that will be shown in heatmap, use this to tune figure height
-netAnalysis_signalingRole_heatmap(cellchat_object, pattern = "outgoing", height=10*ceiling(pathway_num/50), width = 10*ceiling(length(groupSize)/30), font.size=6)
-netAnalysis_signalingRole_heatmap(cellchat_object, pattern = "incoming", height=10*ceiling(pathway_num/50), width = 10*ceiling(length(groupSize)/30), font.size=6)
-
-
-```
-
-Visualization for communication at signaling pathway level
-```{r}
-# Pathways
-pathways_to_show <- top_pathways(X1=cellchat_object, top_n=10)
-pathways_to_show <- pathways_to_show[!is.na(pathways_to_show)]
-
-pathway <- pathways_to_show[1]
-
-# Interaction strength for the pathway
-# Chord plot
-netVisual_aggregate(cellchat_object, signaling = pathway, title.space=4, layout = "chord")
-# Circle plot
-netVisual_aggregate(cellchat_object, signaling = pathway, title.space=4, layout = "circle")
-# Heatmap
-netVisual_heatmap(cellchat_object, signaling = pathway, color.heatmap = "Reds")
-
-# Contribution of specific ligand/receptor pair to this pathway
-netAnalysis_contribution(cellchat_object, signaling = pathway)
-
-# extract significant L-R pairs contributing to the pathway
-pairLR <- extractEnrichedLR(cellchat_object, signaling = pathway, geneLR.return = FALSE)
-# cell-cell communication mediated by a single ligand-receptor pair
-for (LR in pairLR$interaction_name){
-  png(paste0(workdir, "images/pathway/LR_gene/", pathway, "_ALL_", LR, ".png", sep=""), height = 600*2,width = 600*2, res=200,pointsize = 8)
-  netVisual_individual(cellchat_object, signaling = pathway, pairLR.use = LR, layout = "chord")
-  dev.off()
-}
-
-# Plot signaling gene expression distribution related to the pathway
-LRs_uni <- unique(unlist(strsplit(split = "_", x = pairLR$interaction_name)))
-VlnPlot(object = seurat_obj,
-  features = LRs_uni, 
-  pt.size = -1,
-  stack = TRUE)
-
-# signaling role analysis on pathway of interest
-# Centric plot
-netAnalysis_signalingRole_network(cellchat_object, signaling = pathway)
-netAnalysis_signalingRole_scatter(cellchat_object, signaling = pathway)
-
-# Bubble plots for LR pairs
-netVisual_bubble(cellchat_object, signaling = pathway, remove.isolate = TRUE, font.size = 7)
-  
-
-
-```
-
-Pairwise differential analysis by comparing different conditions
-```{r}
-condition1 <- "CNV"
-cellchat_cond_1 <- readRDS(workdir, "/rds/cellchat_obj_", condition, ".rds")
-condition2 <- "CON"
-
-# merge cellchat objects from 2 biological conditions, the objects being merged need to have the same cell type annotations
-object_list <- list()
-object_list[conditions_vector[1]] <- cellchat_cond_one
-object_list[conditions_vector[2]] <- cellchat_cond_two
-cellchat <- mergeCellChat(object_list, add.names = names(object_list))
-
+               conditions_cmp = comparison_conditions,
+               top_n = 10)
 
 
 
 ```
-
-
 
 
