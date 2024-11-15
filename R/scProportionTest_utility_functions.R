@@ -76,3 +76,26 @@ stat_res <- function(prop_test.i,comparisons_condition, output_dir, i){
                         comparisons_condition[i, 1], "vs", comparisons_condition[i, 2], ".csv")
   write.csv(res_tab, output_path, row.names = FALSE)
 }
+
+#' Check the required input objects to run scProportionTest the functions.
+#'
+#' @description This function checks the required input objects and variables for scProportionTest function
+#' in the scDown package using checkmate package
+#'
+#' @param seurat_obj character string of full path to the h5ad file.
+#' @param output_dir output_dir
+#' @param annotation_column annotation_column
+#' @param group_column group_column
+#'
+#' @noRd
+
+check_required_variables<-function(seurat_obj,annotation_column,group_column,comparision1,comparision2,output_dir,output.format){
+  checkmate::expect_class(seurat_obj,"Seurat",label="seurat_obj")
+  checkmate::expect_choice(group_column, colnames(seurat_obj@meta.data),label="group_column",null.ok = FALSE)
+  checkmate::expect_choice(annotation_column, colnames(seurat_obj@meta.data),label="annotation_column",null.ok = FALSE)
+  checkmate::expect_directory(output_dir,access="rw",label = "output_dir")
+  checkmate::expect_choice(comparision1,unique(seurat_obj@meta.data[,group_column]),label = "comparision1",null.ok = TRUE)
+  checkmate::expect_choice(comparision2,unique(seurat_obj@meta.data[,group_column]),label = "comparision2",null.ok = TRUE)
+  checkmate::expect_choice(output.format,c("png","pdf","jpeg"),label = "output.format")
+}
+
