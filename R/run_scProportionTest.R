@@ -19,8 +19,8 @@
 #' @export
 #' 
 #'
-run_scproportion <- function(output_dir=".",seurat_obj,annotation_column,group_column,comparision1=NULL,
-                             comparision2=NULL,output.format = "png",verbose = TRUE,cores = detectCores() - 1){
+run_scproportion <- function(seurat_obj,annotation_column,group_column,comparision1=NULL,comparision2=NULL,
+                             output_dir=".",output.format = "png",verbose = TRUE,cores = detectCores() - 1){
 
   # check the input data format 
   #checkmate::expect_class(seurat_obj,"Seurat",label="seurat_obj")
