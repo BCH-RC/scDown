@@ -12,9 +12,9 @@
 #' @param condition_metadata A character variable specifying the metdata name contating conditions in the seurat object
 #' @param transferUMAP A boolean variable specifying whether to transfer UMAP coordinates or not from Seurat object
 #' @param rootNode_method A character variable specifying the method to identify root node (Either potency or rootNodes)
-#' @param rootNodes A character vector specifying the principal point on the trajectory, in the format of "Y_<node number>".
-#' @param timepoint A character vector specifying the category inside a metadata to be used to automcatically decide the root node.
-#' @param timePoint_metadata A character vector specifying the metadata to be used to automcatically decide the root node.
+#' @param rootNode A character variable specifying the principal point on the trajectory, in the format of "Y_<node number>".
+#' @param timepoint A character variable specifying the category inside a metadata to be used to automcatically decide the root node.
+#' @param timePoint_metadata A character variable specifying the metadata to be used to automatically decide the root node.
 #' @param batch_metadata A character vector specifying the name of metadata column with batch information to perform batch correction
 #' @param celltype_groups A list of character vectors that represents a group of cell types to be subsetted and constructed trajectory by monocle
 #' @param top_genes A numeric variable to set the number of top significant genes to visualize from DEG results
@@ -31,7 +31,7 @@
 #'
 
 run_monocle3 <- function(seurat,species,nDim=30,conditions=NULL,condition_metadata=NULL,transferUMAP=TRUE,rootNode_method="potency",
-                         rootNodes = NULL, timepoint = NULL,timePoint_metadata=NULL,batch_metadata=NULL,celltype_groups=NULL,top_genes=10,
+                         rootNode = NULL, timepoint = NULL,timePoint_metadata=NULL,batch_metadata=NULL,celltype_groups=NULL,top_genes=10,
                          deg_method="quasipoisson",metadata_deg_model=NULL,graph_test=FALSE,cores=1,outputDir="."){
 
   ###TODO: Add code to check the input options
@@ -48,12 +48,22 @@ run_monocle3 <- function(seurat,species,nDim=30,conditions=NULL,condition_metada
   checkmate::expect_flag(transferUMAP, min.len = 1, max.len = 1, any.missing = FALSE,label="transferUMAP")
   checkmate::expect_choice(rootNode_method,c("potency","rootNodes"),label = "rootNode_method")
 
-  checkmate::expect_character(rootNodes, min.len = 1, max.len = 1, any.missing = TRUE,label="rootNodes",null.ok = TRUE)
-  checkmate::expect_character(timepoint, min.len = 1, max.len = 1, any.missing = TRUE,label="timepoint",null.ok = TRUE)
-
-  if(checkmate::test_character(conditions, min.len = 1, any.missing = FALSE))
+  if(rootNode_method == "rootNodes")
   {
-    checkmate::expect_choice(timePoint_metadata,colnames(seurat@meta.data),label="timePoint_metadata",null.ok = TRUE)
+    # if "rootNodes", need to supply either @rootNode, or a combination of @timePoint and @timePoint_metadata
+    checkmate::expect_character(rootNode, min.len = 1, max.len = 1, any.missing = TRUE,label="rootNode",null.ok = TRUE)
+    if(checkmate::test_character(rootNode, min.len = 1, any.missing = FALSE))
+    {
+      checkmate::expect_character(timepoint, min.len = 1, max.len = 1, any.missing = TRUE,label="timepoint",null.ok = TRUE)
+      if(checkmate::test_character(timepoint, min.len = 1, any.missing = FALSE))
+      {
+        checkmate::expect_choice(timePoint_metadata,colnames(seurat@meta.data),label="timePoint_metadata",null.ok = TRUE)
+      }
+    }
+    if(!checkmate::test_character(rootNode, min.len = 1, any.missing = FALSE) && !checkmate::test_character(timepoint, min.len = 1, any.missing = FALSE))
+    {
+      stop("For rootNodes method, user need to supply either rootNode, or a combination of timePoint and timePoint_metadata")
+    }
   }
 
   checkmate::expect_choice(batch_metadata, colnames(seurat@meta.data),label="batch_metadata",null.ok = TRUE)
@@ -91,7 +101,7 @@ run_monocle3 <- function(seurat,species,nDim=30,conditions=NULL,condition_metada
 
   # Trajectory and pseudotime for the whole object
   cds <- getTrajectory(X=seurat, nDim=nDim, batch=batch_metadata, transferUMAP=transferUMAP,outputDir=outputDir)
-  cds <- orderCells(cds=cds, method=rootNode_method, rootNodes=rootNodes, timePoint=timePoint, timePointCol=timePoint_metadata, species=species,outputDir=outputDir)
+  cds <- orderCells(cds=cds, method=rootNode_method, rootNodes=rootNode, timePoint=timePoint, timePointCol=timePoint_metadata, species=species,outputDir=outputDir)
   cellTypeDistribution(cds=cds, colData_name=condition_metadata,outputDir=outputDir)
   #cds_by_group <- c(cds_by_group, list(cds)) # add cds with completed trrajectory inference to list
   cds_by_group <- list("ALL"=cds) # add cds with completed trrajectory inference to list
@@ -102,7 +112,7 @@ run_monocle3 <- function(seurat,species,nDim=30,conditions=NULL,condition_metada
     for (cell_group in celltype_groups){
       # trajectory and pseudotime for selected cell types
       cds.sub <- getTrajectory(X=seurat, nDim=nDim, batch=batch_metadata, transferUMAP=transferUMAP, subset=unlist(cell_group),outputDir=outputDir)
-      cds.sub <- orderCells(cds=cds.sub, method=rootNode_method, rootNodes=rootNodes, timePoint=timePoint, timePointCol=timePoint_metadata, species=species, subset=unlist(cell_group),outputDir=outputDir)
+      cds.sub <- orderCells(cds=cds.sub, method=rootNode_method, rootNodes=rootNode, timePoint=timePoint, timePointCol=timePoint_metadata, species=species, subset=unlist(cell_group),outputDir=outputDir)
       cellTypeDistribution(cds=cds.sub, colData_name=condition_metadata, subset=unlist(cell_group),outputDir=outputDir)
       # add cds with completed trajectory inference to list
       #cds_by_group <- c(cds_by_group, list(cds.sub))
@@ -135,7 +145,7 @@ run_monocle3 <- function(seurat,species,nDim=30,conditions=NULL,condition_metada
     print(paste0("Regression analysis completed for cds object #",i," completed.", sep=""))
 
     if (graph_test){
-      graphAutoCorrelation(cds=cds.current, colData_name=condition_metadata, top_gene=top_genes, subset=cell_type_use,outputDir=outputDir,cores=cores)
+      graphAutoCorrelation(cds=cds.current,conditions_all=conditions,colData_name=condition_metadata, top_gene=top_genes, subset=cell_type_use,deg_method=deg_method,batch=batch_metadata,outputDir=outputDir,cores=cores)
       print(paste0("Graph autocorrelation analysis for cds object #",i," completed.", sep=""))
     }
 
@@ -163,7 +173,7 @@ run_monocle3 <- function(seurat,species,nDim=30,conditions=NULL,condition_metada
         dev.off()
 
         # order cells
-        cds.condition <- orderCells(cds=cds.condition, method=rootNode_method, rootNodes=rootNodes, timePoint=timePoint, timePointCol=timePoint_metadata, species=species, subset=cell_type_use, cond=condition,outputDir=outputDir)
+        cds.condition <- orderCells(cds=cds.condition, method=rootNode_method, rootNodes=rootNode, timePoint=timePoint, timePointCol=timePoint_metadata, species=species, subset=cell_type_use, cond=condition,outputDir=outputDir)
 
         # cell/cell type distribution
         cellTypeDistribution(cds=cds.condition, colData_name=condition_metadata, subset=cell_type_use, cond=condition,outputDir=outputDir)

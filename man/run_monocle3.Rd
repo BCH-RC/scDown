@@ -12,7 +12,7 @@ run_monocle3(
   condition_metadata = NULL,
   transferUMAP = TRUE,
   rootNode_method = "potency",
-  rootNodes = NULL,
+  rootNode = NULL,
   timepoint = NULL,
   timePoint_metadata = NULL,
   batch_metadata = NULL,
@@ -40,11 +40,11 @@ run_monocle3(
 
 \item{rootNode_method}{A character variable specifying the method to identify root node (Either potency or rootNodes)}
 
-\item{rootNodes}{A character vector specifying the principal point on the trajectory, in the format of "Y_<node number>".}
+\item{rootNode}{A character variable specifying the principal point on the trajectory, in the format of "Y_<node number>".}
 
-\item{timepoint}{A character vector specifying the category inside a metadata to be used to automcatically decide the root node.}
+\item{timepoint}{A character variable specifying the category inside a metadata to be used to automcatically decide the root node.}
 
-\item{timePoint_metadata}{A character vector specifying the metadata to be used to automcatically decide the root node.}
+\item{timePoint_metadata}{A character variable specifying the metadata to be used to automatically decide the root node.}
 
 \item{batch_metadata}{A character vector specifying the name of metadata column with batch information to perform batch correction}
 
