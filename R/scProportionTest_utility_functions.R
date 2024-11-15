@@ -31,16 +31,16 @@ create_dir <- function(output_dir) {
 #' @param output.format  The format of output figure
 #' @param comparisons_condition table of all the pairwise comparison
 #' @param output_dir path to save the figures 
-#' @param cluster_col the column name in the meta, cluster or celltype
+#' @param annotation_column the column name in the meta, cluster or celltype
 #' @param i index of the comparison condition
 #' @return NULL saves comparison figures in the specified directory.
 #' @noRd
 
-generate_figure <- function(prop_test.i, output.format="png",comparisons_condition, output_dir=".", cluster_col, i) {
+generate_figure <- function(prop_test.i, output.format="png",comparisons_condition, output_dir=".", annotation_column, i) {
   p <- permutation_plot(prop_test.i) +
     theme_bw(base_size = 12) +
     labs(title = paste0(comparisons_condition[i, 1], " vs ", comparisons_condition[i, 2]),
-         x = cluster_col,
+         x = annotation_column,
          y = "log2(FD)") +
     theme(legend.text = element_text(size = 8)) +
     scale_shape_manual(name = "significance",labels = c("FDR < 0.05 &\nabs(Log2FD) > 0.58", "n.s."),values = c(16, 1)) +
