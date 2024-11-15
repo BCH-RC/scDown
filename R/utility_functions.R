@@ -40,3 +40,29 @@ h5adToSeurat <- function(h5ad_file, annotation_column){
 
   return(data)
 }
+
+
+#' Check the required input objects for all the functions.
+#'
+#' @description This function checks the required input objects and variables for all the functions
+#' in the scDown package using checkmate package
+#'
+#'
+#' @param seurat_obj character string of full path to the h5ad file.
+#' @param species species
+#' @param output_dir output_dir
+#' @param annotation_column annotation_column
+#' @param group_column group_column
+#'
+#' @noRd
+
+check_required_variables<-function(seurat_obj,species,output_dir,annotation_column,group_column)
+{
+  checkmate::expect_class(seurat_obj,"Seurat",label="seurat_obj")
+  checkmate::expect_choice(species,c("human","mouse"),label = "species")
+  checkmate::expect_choice(group_column, colnames(seurat_obj@meta.data),label="group_column",null.ok = TRUE)
+  ###Be default we use seurat Idents
+  checkmate::expect_choice(annotation_column, colnames(seurat_obj@meta.data),label="annotation_column",null.ok = TRUE)
+  checkmate::expect_directory(output_dir,access="rw",label = "output_dir")
+}
+
