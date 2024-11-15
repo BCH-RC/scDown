@@ -26,7 +26,7 @@ create_dir <- function(output_dir) {
   return(file.path(output_dir, "scproportion"))
 }
 
-#' Generate plot for each comparision
+#' Generate plot for each comparison
 #' @param prop_test.i scProportion object
 #' @param output.format  The format of output figure
 #' @param comparisons_condition table of all the pairwise comparison
