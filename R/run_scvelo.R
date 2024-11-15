@@ -1,36 +1,48 @@
-## RNA Velocity Pipeline
-# Estimate RNA velocity for inputted Seurat objects.
+#' Function to run the scVelo pipeline using velociraptor 
+#'
+#' This function performs RNA velocity calculations from .loom files with the scVelo package.
+#' In this function, users can calculate RNA velocity of the whole data as well as a subset of time points.
+#'
+#' @param seurat_object Seurat object containing the scRNA-seq data (Required)
+#' @param loom_files Spliced and unspliced counts of the scRNA-seq data (Required)
+#' @param output_dir A character vector specifying the output directory
+#' @param loom_file_subset_by A character variable specifying how the Seurat object should be subsetted in order to match the loom files - the order of conditions must match the order of loom files for them to be matched
+#' @param loom_file_subset_column A character variable specifying which metadata column of the Seurat object should be used for subsetting to match each of the loom files
+#' @param mode Mode for scVelo velocity calculation, default stochastic - can be one of four options: "steady_state" (original), "deterministic", "stochastic" (fastest:recommended), "dynamical"
+#' @param grid_resolutions A vector of integers specifying the number of grids along each axis, essentially controlling the number of vectors on umap, default 50.
+#' @param arrow_sizes A vector of integer or float controlling velocity vector size (arrow head size), default 0.5
+#' @param vector_widths A vector of integer or float controlling velocity vector size (vector width), default 0.5
+#' @param time_point A list of character vectors representing a group of time points used to calculate RNA velocity together, can be left blank
+#' @param time_point_column A character variable specify which metadata column of the Seurat object should be used for subsetting the group of time points
+#' @param color_scale A character vector of colors to be used in plotting, must match number of unique values in the metadata column marked by @name_by
+#' @param name_by A character variable specify which metadata column of the Seurat object should be used for colors
+#'
+#' @return A list of scVelo data objects
+#'
+#' @export
+#'
+#' Estimate RNA velocity for spliced and unspliced counts of scRNA-seq data
 
-### read arguments from command line
-args <- commandArgs(trailingOnly = TRUE)
-if (length(args)!=0) {
-    data_dir_name <- args[1]
-    code_dir_name <- args[2]
-    source(paste(code_dir_name,"/universal_variables.R", sep=""))
-    source(paste(code_dir_name,"/RNAvelocity_functions.R", sep=""))
-    source(paste(code_dir_name,"/utility_functions.R", sep=""))
 
+run_scvelo <- function(seurat_object,loom_files,output_dir=".",loom_file_subset_by=c(),loom_file_subset_column=NULL,
+                    mode='stochastic',grid_resolutions=c(50),arrow_sizes=c(0.5),vector_widths=c(0.5),
+                    time_point=list(),time_point_column=NULL,color_scale=NULL,name_by=NULL){
 
-### Input
-object_annotated <- readRDS(file = paste0(data_dir_name,"/",seurat_object, sep=""))
+# create subdirectories in the output directory
+setwd(output_dir)
+subdirectories <- c("rds",
+                    "csv",
+                    "images",
+                    "csv/RNA_velocity",
+                    "rds/RNA_velocity",
+                    "images/RNA_velocity")
 
-# if the current input object does not have cell type labels, run symphony to populate Idents(X) with cell type annotations
-if (transfer_label) {
-    # read in reference object
-    object_reference <- readRDS(file = paste0(data_dir_name,"/",reference_object, sep=""))
-    # umap before label transfer
-    p1 <- DimPlot(object_annotated)
-    ggsave(file="images/symphony/objectUMAP_before_label_transfer.png", plot=p1)
-    # perform label transfer
-    object_annotated <- doTransferLabel(object_reference, object_annotated, varToHarmonize = varToHarmonize, transferCoordinates = transferCoordinates)
-    # umap after label transfer
-    p2 <- DimPlot(object_annotated)
-    ggsave(file="images/symphony/objectUMAP_after_label_transfer.png", plot=p2)
-    # save annotated object
-    saveRDS(object_annotated, file="rds/seurat_object_annotated_by_symphony.rds")
+for(i in subdirectories){
+    dir.create(file.path(output_dir,i), showWarnings = F, recursive = T)
 }
 
-## RNA velocity analysis
+### Input
+object_annotated <- readRDS(file = seurat_object)
 
 # add cell barcode as metadata
 object_annotated$orig.bc <- colnames(object_annotated)
@@ -68,6 +80,7 @@ if (!file.exists("rds/RNA_velocity/obj_spliced_unspliced.h5ad")) {
 }
 
 
+### RNA velocity analysis
 
 # RNA velocity for the entire Seurat object
 tpV <- doVelocity(object_annotated, mode=mode)

@@ -3,35 +3,6 @@ import numpy as np
 import pandas as pd
 import scvelo as scv
 
-# ========================== VARIABLES TO DEFINE ==========================
-# ============
-# Change these variables accordingly:
-# ============
-# code directory, this should be the same with code_dir path in universal_variables.R
-code_dir = "/lab-share/RC-Data-Science-e2/Public/Ivy/scRNAseq_downstream_pipeline"
-# data directory, change this to where the input h5ad file is at
-data_dir = "/lab-share/RC-Data-Science-e2/Public/Ivy/scRNAseq_downstream_pipeline/results/rds/RNA_velocity"
-# input h5ad file, if running after p3.1 this object will have a fixed name and does not need to be changed
-h5ad_file = 'obj_spliced_unspliced.h5ad'
-# the column name that contains cell type annotations
-annotation_column = 'ID'
-# mode to conduct scvelo velocity calculation, either 'stochastic (default)', 'deterministic', or 'dynamical (slowest)'
-mode = 'stochastic'
-# number of differential velocity genes to plot phase portrait for
-top_gene = 5
-
-# ============
-# These variables shouldn't need to be changed:
-# ============
-# working directory
-work_dir = os.path.join(code_dir, 'results')
-# sub directories
-sub_dir = ['rds/RNA_velocity','csv/RNA_velocity']
-
-os.makedirs(work_dir, exist_ok=True)
-os.chdir(work_dir)
-for path in sub_dir:
-    os.makedirs(path, exist_ok=True)
 
 # ========================== SCVELO FUNCTIONS ==========================
 # This function takes in an AnnData object and performs all basic velocity calculations
@@ -140,14 +111,15 @@ def PAGA_trajectory_inference(adata, group_by):
     return
 
 
-# ========================== MAIN FUNCTION ========================== 
-if __name__ == "__main__":
+# Main function of scvelo workflow in python
+# 
+def run_scvelo_workflow(h5ad_file='rds/RNA_velocity/obj_spliced_unspliced.h5ad', annotation_column='ID', mode='stochastic', top_gene=5):
     # basic scvelo settings
     scv.settings.verbosity = 3  # show errors(0), warnings(1), info(2), hints(3)
     scv.set_figure_params('scvelo', transparent=False, format='png')  # set figure format for visualization
 
     # reading data
-    adata = scv.read(os.path.join(data_dir, h5ad_file))
+    adata = scv.read(h5ad_file)
 
     # Workflow:
     # 1. calculate RNA velocity using scVelo workflow
@@ -158,3 +130,6 @@ if __name__ == "__main__":
     PAGA_trajectory_inference(adata, group_by=annotation_column)
 
     print('scVelo analysis completed.')
+
+
+
