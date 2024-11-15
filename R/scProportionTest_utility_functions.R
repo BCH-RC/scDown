@@ -28,7 +28,7 @@ create_dir <- function(output_dir) {
 
 #' Generate plot for each comparison
 #' @param prop_test.i scProportion object
-#' @param output.format  The format of output figure
+#' @param output_format  The format of output figure
 #' @param comparisons_condition table of all the pairwise comparison
 #' @param output_dir path to save the figures 
 #' @param annotation_column the column name in the meta, cluster or celltype
@@ -36,7 +36,7 @@ create_dir <- function(output_dir) {
 #' @return NULL saves comparison figures in the specified directory.
 #' @noRd
 
-generate_figure <- function(prop_test.i, output.format="png",comparisons_condition, output_dir=".", annotation_column, i) {
+generate_figure <- function(prop_test.i, output_format="png",comparisons_condition, output_dir=".", annotation_column, i) {
   p <- permutation_plot(prop_test.i) +
     theme_bw(base_size = 12) +
     labs(title = paste0(comparisons_condition[i, 1], " vs ", comparisons_condition[i, 2]),
@@ -46,7 +46,7 @@ generate_figure <- function(prop_test.i, output.format="png",comparisons_conditi
     scale_shape_manual(name = "significance",labels = c("FDR < 0.05 &\nabs(Log2FD) > 0.58", "n.s."),values = c(16, 1)) +
     scale_color_manual(name = "significance",labels = c("FDR < 0.05 &\nabs(Log2FD) > 0.58", "n.s."),values = c("red", "grey") )
   
-  output_format <- match.arg(output.format, choices = c("png", "pdf", "jpeg"))
+  output_format <- match.arg(output_format, choices = c("png", "pdf", "jpeg"))
   file_extension <- switch(output_format, png = "png", pdf = "pdf", jpeg = "jpg")
   
   output_path <- paste0(output_dir, "scproportion/images/scProportiontest_",
