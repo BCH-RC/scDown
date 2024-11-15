@@ -4,7 +4,7 @@
 #' in parallel and generate figures and table of results.
 #' The user can aslo chose specific conditions for comparsion rather than all the comparision.
 #' 
-#' @param dir_scproportion Directory path where output figures will be saved.
+#' @param output_dir Directory path where output figures will be saved.
 #' @param seurat_obj A Seurat object containing count data and metadata.
 #' @param annotation_column The name of the metadata column in `seurat_obj` containing cluster labels or cell type names.
 #' @param group_column The name of the metadata column in `seurat_obj` that contains sample identifiers.
@@ -19,7 +19,7 @@
 #' @export
 #' 
 #'
-run_scproportion <- function(dir_scproportion=".",seurat_obj,annotation_column,group_column,comparision1=NULL,
+run_scproportion <- function(output_dir=".",seurat_obj,annotation_column,group_column,comparision1=NULL,
                              comparision2=NULL,output.format = "png",verbose = TRUE,cores = detectCores() - 1){
 
   # check the input data format 
@@ -44,13 +44,13 @@ run_scproportion <- function(dir_scproportion=".",seurat_obj,annotation_column,g
     comparisons_condition <- permutations(length(conditions), 2, conditions)
   }
   
-  create_dir(dir_scproportion)
+  create_dir(output_dir)
   #subdirectories <- c(file.path("scproportion", "images"),file.path("scproportion","results"))
   
   #for(dir.i in subdirectories){
   #  dir.create(dir.i, showWarnings = F, recursive = T)
   #}
-  #dir_scproportion <- file.path(dir_scproportion,"scproportion")
+  #output_dir <- file.path(output_dir,"scproportion")
   prop_test <- scProportionTest::sc_utils(seurat_obj)
   
   # Function to process each comparison
@@ -64,10 +64,10 @@ run_scproportion <- function(dir_scproportion=".",seurat_obj,annotation_column,g
                                     sample_identity = group_column)
     
     # save the figure
-    generate_figure(prop_test_i, output.format,comparisons_condition, dir_scproportion, annotation_column, i)
+    generate_figure(prop_test_i, output.format,comparisons_condition, output_dir, annotation_column, i)
     
     # save the results
-    stat_res(prop_test_i,comparisons_condition, dir_scproportion, i)
+    stat_res(prop_test_i,comparisons_condition, output_dir, i)
     
     if (verbose) message("Completed comparison: ", comparisons_condition[i, 1], " vs ", comparisons_condition[i, 2])
   }
