@@ -112,6 +112,7 @@ getTrajectory <- function(X, nDim=30, batch=NULL, transferUMAP=TRUE, subset=NULL
 #' @param subset a character vector of cell types to subset for, purely for output naming purpose
 #' @param cond a character string specifying a condition, purely for output naming purpose
 #' @return cds, a cell_data_set object with pseudotime values
+#'
 #' @noRd
 
 orderCells <- function(cds, method, rootNodes=NULL, timePoint=NULL, timePointCol=NULL, species="mouse", subset=NULL, cond=NULL,outputDir="."){
@@ -350,12 +351,18 @@ print_violinPlot<-function(O,filename,top_gene)
 #' Finding genes that change as a function of pseudotime using graph auto-correlation method.
 #'
 #' @param cds a cell_data_set object with learned trajectory.
+#' @param conditions_all conditions_all
 #' @param colData_name a character string of the name of metadata that has the conditions.
 #' @param top_gene an integer number of top differentially expressed genes to plot.
 #' @param subset a character vector of cell types to subset for, for result naming purpose.
+#' @param deg_method deg_method
+#' @param batch batch
+#' @param outputDir outputDir
+#' @param cores cores
+#'
 #' @noRd
 
-graphAutoCorrelation <- function(cds, colData_name, top_gene, subset=NULL,outputDir=".",cores=6){
+graphAutoCorrelation <- function(cds,conditions_all,colData_name, top_gene, subset=NULL,deg_method="quasipoisson",batch=NULL,outputDir=".",cores=6){
 
   # test whether cells at similar positions on the trajectory have correlated expression
   pr_graph_test_res <- monocle3::graph_test(cds, neighbor_graph = "principal_graph", cores = cores)
@@ -434,13 +441,13 @@ graphAutoCorrelation <- function(cds, colData_name, top_gene, subset=NULL,output
         cds_for_compare <- cds[pr_graph_test_sig$gene_short_name, cds[[colData_name]] == c(conditions_all[i], conditions_all[j])]
 
         # run regression analysis
-        regressionAnalysis(cds_for_compare , colData_name, batch, DEG_distribution, top_gene, subset, conditions_all[i], conditions_all[j])
+        regressionAnalysis(cds_for_compare , colData_name, batch, deg_method, top_gene, subset, conditions_all[i], conditions_all[j])
 
         # read in csv of significant differential gene along the trajectory AND between two conditions
-        gene_csv <- read.csv(file=file.path(outputDir,"csv",paste0("monocleDEG_significant_by_",colData_name,"+trajectory",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""), "_",conditions_all[i],"_",conditions_all[j],".csv", sep="")))
+        gene_csv <- read.csv(file=file.path(outputDir,"csv",paste0("monocleDEG_significant_by_",colData_name,ifelse(is.null(batch),"",paste0("+",batch)),"+trajectory",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""), "_",conditions_all[i],"_",conditions_all[j],".csv", sep="")))
         top_diff_genes <- dplyr::slice_min(gene_csv, q_value, n=top_gene)
         # plot expression dynamics as a function of pseudotime for top differential gene along the trajectory AND between two conditions
-        png(filename = file.path(outputDir,"images","DEG",paste0("significant_by_",colData_name,"+trajectory",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""), "_",conditions_all[i],"_",conditions_all[j],"_genesInPseudotime",".png",sep="")), width = 1000*sqrt(top_gene), height = 875*sqrt(top_gene), res = 300)
+        png(filename = file.path(outputDir,"images","DEG",paste0("significant_by_",colData_name,ifelse(is.null(batch),"",paste0("+",batch)),"+trajectory",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""), "_",conditions_all[i],"_",conditions_all[j],"_genesInPseudotime",".png",sep="")), width = 1000*sqrt(top_gene), height = 875*sqrt(top_gene), res = 300)
         #p4 <- plot_genes_in_pseudotime(cds_for_compare[rowData(cds_for_compare)$gene_short_name %in% (top_diff_genes$gene_short_name) , ], nrow = ceiling(top_gene/4), ncol = 4,color_cells_by=colData_name, min_expr=0.5)
         p4 <-monocle3::plot_genes_in_pseudotime(cds_for_compare[rowData(cds_for_compare)$gene_short_name %in% (top_diff_genes$gene_short_name) , ], ncol = ceiling(sqrt(top_gene)),color_cells_by=colData_name, min_expr=0.5)
         print(p4)
