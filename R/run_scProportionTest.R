@@ -6,8 +6,8 @@
 #' 
 #' @param dir_scproportion Directory path where output figures will be saved.
 #' @param seurat_obj A Seurat object containing count data and metadata.
-#' @param cluster_col The name of the metadata column in `seurat_obj` containing cluster labels or cell type names.
-#' @param sample_col The name of the metadata column in `seurat_obj` that contains sample identifiers.
+#' @param annotation_column The name of the metadata column in `seurat_obj` containing cluster labels or cell type names.
+#' @param group_column The name of the metadata column in `seurat_obj` that contains sample identifiers.
 #' @param comparision1 Optional: name of the first group for comparison (default NULL, which compares all pairs).
 #' @param comparision2 Optional: name of the second group for comparison (default NULL, which compares all pairs).
 #' @param output.format Format of the output figure
@@ -19,22 +19,22 @@
 #' @export
 #' 
 #'
-run_scproportion <- function(dir_scproportion=".",seurat_obj,cluster_col,sample_col,comparision1=NULL,
+run_scproportion <- function(dir_scproportion=".",seurat_obj,annotation_column,group_column,comparision1=NULL,
                              comparision2=NULL,output.format = "png",verbose = TRUE,cores = detectCores() - 1){
 
   # check the input data format 
   #checkmate::expect_class(seurat_obj,"Seurat",label="seurat_obj")
   #checkmate::expect_numeric(cores, min.len = 1, max.len = detectCores() - 1, any.missing = FALSE,label="cores")
-  # check the sample_col and cluster_col are in the meta data
+  # check the group_column and annotation_column are in the meta data
   meta <- seurat_obj@meta.data
-  if(!sample_col %in% colnames(meta)){
+  if(!group_column %in% colnames(meta)){
     stop("Sample name does not exits in the seurat object meta data!")
   }
-  if(!cluster_col %in% colnames(meta)){
+  if(!annotation_column %in% colnames(meta)){
     stop("Cluster column does not exits in the seurat object meta data!")
   }
   
-  conditions <- unique(meta[,sample_col])
+  conditions <- unique(meta[,group_column])
   if (!is.null(comparision1) && !is.null(comparision2)) {
     if (!(comparision1 %in% conditions) || !(comparision2 %in% conditions)) {
       stop("One or both specified comparison conditions do not exist in the meta data!")
@@ -58,13 +58,13 @@ run_scproportion <- function(dir_scproportion=".",seurat_obj,cluster_col,sample_
     if (verbose) message("Running comparison: ", comparisons_condition[i, 1], " vs ", comparisons_condition[i, 2])
     
     prop_test_i <- scProportionTest::permutation_test(prop_test,
-                                    cluster_identity = cluster_col,
+                                    cluster_identity = annotation_column,
                                     sample_1 = comparisons_condition[i, 1],
                                     sample_2 = comparisons_condition[i, 2],
-                                    sample_identity = sample_col)
+                                    sample_identity = group_column)
     
     # save the figure
-    generate_figure(prop_test_i, output.format,comparisons_condition, dir_scproportion, cluster_col, i)
+    generate_figure(prop_test_i, output.format,comparisons_condition, dir_scproportion, annotation_column, i)
     
     # save the results
     stat_res(prop_test_i,comparisons_condition, dir_scproportion, i)
