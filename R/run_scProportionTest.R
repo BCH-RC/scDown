@@ -10,7 +10,7 @@
 #' @param group_column The name of the metadata column in `seurat_obj` that contains sample identifiers.
 #' @param comparision1 Optional: name of the first group for comparison (default NULL, which compares all pairs).
 #' @param comparision2 Optional: name of the second group for comparison (default NULL, which compares all pairs).
-#' @param output.format Format of the output figure
+#' @param output_format Format of the output figure
 #' @param verbose Print the processing stept
 #' @param cores  Numenr of the cores for parallel computation
 #'
@@ -20,7 +20,7 @@
 #' 
 #'
 run_scproportion <- function(seurat_obj,annotation_column,group_column,comparision1=NULL,comparision2=NULL,
-                             output_dir=".",output.format = "png",verbose = TRUE,cores = detectCores() - 1){
+                             output_dir=".",output_format = "png",verbose = TRUE,cores = detectCores() - 1){
 
   # check the input data format 
   #checkmate::expect_class(seurat_obj,"Seurat",label="seurat_obj")
@@ -64,7 +64,7 @@ run_scproportion <- function(seurat_obj,annotation_column,group_column,comparisi
                                     sample_identity = group_column)
     
     # save the figure
-    generate_figure(prop_test_i, output.format,comparisons_condition, output_dir, annotation_column, i)
+    generate_figure(prop_test_i, output_format,comparisons_condition, output_dir, annotation_column, i)
     
     # save the results
     stat_res(prop_test_i,comparisons_condition, output_dir, i)
