@@ -59,7 +59,7 @@ h5adToSeurat <- function(h5ad_file, annotation_column){
 check_required_variables<-function(seurat_obj,species=NULL,output_dir,annotation_column,group_column)
 {
   checkmate::expect_class(seurat_obj,"Seurat",label="seurat_obj")
-  checkmate::expect_choice(species,c("human","mouse"),label = "species",null.ok = FALSE)
+  checkmate::expect_choice(species,c("human","mouse"),label = "species",null.ok = TRUE)
   checkmate::expect_choice(group_column, colnames(seurat_obj@meta.data),label="group_column",null.ok = TRUE)
   ###Be default we use seurat Idents
   checkmate::expect_choice(annotation_column, colnames(seurat_obj@meta.data),label="annotation_column",null.ok = TRUE)
