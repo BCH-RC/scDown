@@ -23,9 +23,10 @@ run_scproportion <- function(seurat_obj,annotation_column,group_column,comparisi
                              output_dir=".",output_format = "png",verbose = TRUE,cores = detectCores() - 1){
 
   # check the input data format 
-  #checkmate::expect_class(seurat_obj,"Seurat",label="seurat_obj")
-  #checkmate::expect_numeric(cores, min.len = 1, max.len = detectCores() - 1, any.missing = FALSE,label="cores")
-  # check the group_column and annotation_column are in the meta data
+  check_required_variables(seurat_obj,species=NULL,output_dir,annotation_column,group_column)
+  checkmate::expect_choice(comparision1,unique(seurat_obj@meta.data[,group_column]),label = "comparision1",null.ok = TRUE)
+  checkmate::expect_choice(comparision2,unique(seurat_obj@meta.data[,group_column]),label = "comparision2",null.ok = TRUE)
+  checkmate::expect_choice(output.format,c("png","pdf","jpeg"),label = "output.format")
   meta <- seurat_obj@meta.data
   if(!group_column %in% colnames(meta)){
     stop("Sample name does not exits in the seurat object meta data!")
