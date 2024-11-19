@@ -48,6 +48,10 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
   }
 
   #checkmate::expect_choice(annotation_column, colnames(seurat_obj@meta.data),label="annotation_column",null.ok = TRUE)
+  if(checkmate::test_character(annotation_column, min.len = 1, max.len = 1, any.missing = FALSE))
+  {
+    Idents(seurat_obj) <- seurat_obj[[annotation_column]]
+  }
   checkmate::expect_flag(transferUMAP, min.len = 1, max.len = 1, any.missing = FALSE,label="transferUMAP")
   checkmate::expect_choice(rootNode_method,c("potency","rootNodes"),label = "rootNode_method")
 
@@ -68,6 +72,7 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
       stop("For rootNodes method, user need to supply either rootNode, or a combination of timePoint and timePoint_metadata")
     }
   }
+
 
   checkmate::expect_choice(batch_metadata, colnames(seurat_obj@meta.data),label="batch_metadata",null.ok = TRUE)
 
