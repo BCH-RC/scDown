@@ -22,7 +22,7 @@
 #' Estimate RNA velocity for spliced and unspliced counts of scRNA-seq data
 
 
-run_scvelo_py <- function(h5ad_file="rds/RNA_velocity/obj_spliced_unspliced.h5ad", 
+run_scvelo_py <- function(h5ad_file="scvelo/rds/obj_spliced_unspliced.h5ad", 
                         output_dir=".", 
                         annotation_column = 'ID', 
                         mode = 'stochastic', 
@@ -33,9 +33,9 @@ setwd(output_dir)
 subdirectories <- c("rds",
                     "csv",
                     "images",
-                    "csv/RNA_velocity",
-                    "rds/RNA_velocity",
-                    "images/RNA_velocity")
+                    "scvelo/csv",
+                    "scvelo/rds",
+                    "scvelo/images")
 
 for(i in subdirectories){
     dir.create(file.path(output_dir,i), showWarnings = F, recursive = T)

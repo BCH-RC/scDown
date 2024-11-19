@@ -30,12 +30,10 @@ run_scvelo <- function(seurat_obj,loom_files,output_dir=".",loom_file_subset_by=
 
 # create subdirectories in the output directory
 setwd(output_dir)
-subdirectories <- c("rds",
-                    "csv",
-                    "images",
-                    "csv/RNA_velocity",
-                    "rds/RNA_velocity",
-                    "images/RNA_velocity")
+subdirectories <- c("scvelo",
+                    "scvelo/csv",
+                    "scvelo/rds",
+                    "scvelo/images")
 
 for(i in subdirectories){
     dir.create(file.path(output_dir,i), showWarnings = F, recursive = T)
@@ -72,11 +70,11 @@ if (length(loom_files) > 1){
 
 # save to h5ad so if needed, can be used to conduct scvelo downstream analysis
 #To prevent overwriting error, only saves if the file does not exist
-if (!file.exists("rds/RNA_velocity/obj_spliced_unspliced.h5Seurat")) {
-    SaveH5Seurat(object_annotated, filename = "rds/RNA_velocity/obj_spliced_unspliced.h5Seurat")
+if (!file.exists("scvelo/rds/obj_spliced_unspliced.h5Seurat")) {
+    SaveH5Seurat(object_annotated, filename = "scvelo/rds/obj_spliced_unspliced.h5Seurat")
 }
-if (!file.exists("rds/RNA_velocity/obj_spliced_unspliced.h5ad")) {
-    Convert("rds/RNA_velocity/obj_spliced_unspliced.h5Seurat", dest = "h5ad")
+if (!file.exists("scvelo/rds/obj_spliced_unspliced.h5ad")) {
+    Convert("scvelo/rds/obj_spliced_unspliced.h5Seurat", dest = "h5ad")
 }
 
 
@@ -86,7 +84,7 @@ if (!file.exists("rds/RNA_velocity/obj_spliced_unspliced.h5ad")) {
 tpV <- doVelocity(object_annotated, mode=mode)
 for (grid_resolution in grid_resolutions){
     tpVF <- getVectorField(object_annotated, tpV, reduction = 'umap', resolution = grid_resolution)
-    save(tpVF, file = paste0('rds/RNA_velocity/ALL_gridRes', grid_resolution,'.RData',sep=""))
+    save(tpVF, file = paste0('scvelo/rds/ALL_gridRes', grid_resolution,'.RData',sep=""))
 
     for (arrow_size in arrow_sizes){
         for (vector_width in vector_widths){
@@ -104,7 +102,7 @@ if (length(time_point) != 0){
         tpV <- doVelocity(tpData, mode=mode)
         for (grid_resolution in grid_resolutions){
             tpVF <- getVectorField(tpData, tpV, reduction = 'umap', resolution = grid_resolution)
-            save(tpVF, file = paste0('rds/RNA_velocity/',paste(time, collapse="_"),'_gridRes',grid_resolution,'.RData',sep=""))
+            save(tpVF, file = paste0('scvelo/rds/',paste(time, collapse="_"),'_gridRes',grid_resolution,'.RData',sep=""))
 
             for (arrow_size in arrow_sizes){
                 for (vector_width in vector_widths){

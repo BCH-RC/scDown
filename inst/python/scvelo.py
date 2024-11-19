@@ -4,7 +4,7 @@ import pandas as pd
 import scvelo as scv
 
 
-# ========================== SCVELO FUNCTIONS ==========================
+# ========================== SCVELO FUNCTIONSƒ ==========================
 # This function takes in an AnnData object and performs all basic velocity calculations
 # enabled by scVelo. It also outputs basic figures such as spliced/unspliced count proportion
 # and RNA velocity vectors on umap.
@@ -35,7 +35,7 @@ def velocity_calculation(adata, group_by, mode='stochastic'):
 
     # save adata object after velocity calculation, since these results can take time to re-run.
     adata.__dict__['_raw'].__dict__['_var'] = adata.__dict__['_raw'].__dict__['_var'].rename(columns={'_index': 'features'}) # for getting around a bug
-    adata.write(f'rds/RNA_velocity/scvelo_withVelocity_{mode}.h5ad', compression='gzip')
+    adata.write(f'scvelo/rds/scvelo_withVelocity_{mode}.h5ad', compression='gzip')
 
     # basic RNA velocity visualizations in various formats
     scv.pl.velocity_embedding_stream(adata, basis='umap', save=True, **kwargs)
@@ -64,7 +64,7 @@ def differential_velocity_genes(adata, group_by, top_gene=5):
 
     # extract top-ranking genes into pandas dataframe
     df = pd.DataFrame(adata.uns['rank_velocity_genes']['names'])
-    df.to_csv(f'csv/RNA_velocity/scvelo_differential_velocity_genes_by_{group_by}.csv')
+    df.to_csv(f'scvelo/csv/scvelo_differential_velocity_genes_by_{group_by}.csv')
 
     # set parameters for plotting
     kwargs = dict(color=group_by, figsize=(10, 10), dpi=500, show=False)
@@ -103,7 +103,7 @@ def PAGA_trajectory_inference(adata, group_by):
     # perform PAGA calculation
     scv.tl.paga(adata, groups=group_by)
     df = scv.get_df(adata, 'paga/transitions_confidence', precision=2).T
-    df.to_csv('csv/RNA_velocity/scvelo_paga_transition_confidence_matrix.csv')
+    df.to_csv('scvelo/csv/scvelo_paga_transition_confidence_matrix.csv')
 
     # generate a directed graph superimposed onto the UMAP embedding
     scv.pl.paga(adata, basis='umap', dashed_edges=None, size=50, alpha=.05, min_edge_width=2, node_size_scale=1.5, figsize=(10, 10), dpi=500, show=False, save="paga_graph")
@@ -113,7 +113,7 @@ def PAGA_trajectory_inference(adata, group_by):
 
 # Main function of scvelo workflow in python
 # 
-def run_scvelo_workflow(h5ad_file='rds/RNA_velocity/obj_spliced_unspliced.h5ad', annotation_column='ID', mode='stochastic', top_gene=5):
+def run_scvelo_workflow(h5ad_file='scvelo/rds/obj_spliced_unspliced.h5ad', annotation_column='ID', mode='stochastic', top_gene=5):
     # basic scvelo settings
     scv.settings.verbosity = 3  # show errors(0), warnings(1), info(2), hints(3)
     scv.set_figure_params('scvelo', transparent=False, format='png')  # set figure format for visualization

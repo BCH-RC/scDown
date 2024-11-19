@@ -177,7 +177,7 @@ plotVectorField <- function(X, tpVF, time_point=NULL, time_point_column=NULL, co
         D$Color[!X[[time_point_column]][[time_point_column]] %in% time_point] <- 'gray95'
     }
 
-    png(file=paste0("images/RNA_velocity/velocityField_",paste(time_point, collapse="_"),"_gridRes",grid_res,"_arrowSize",arrow_size,"_width",vector_width,".png",sep=""), width = 1800, height = 1800, res = 300)
+    png(file=paste0("scvelo/images/velocityField_",paste(time_point, collapse="_"),"_gridRes",grid_res,"_arrowSize",arrow_size,"_width",vector_width,".png",sep=""), width = 1800, height = 1800, res = 300)
     P <- ggplot(D, aes(UMAP_1, UMAP_2)) +
             geom_point(color = D$Color, size = 0.01) +
             theme_void() +
