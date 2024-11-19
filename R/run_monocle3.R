@@ -38,21 +38,26 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
   ###TODO: Add code to check the input options
   check_required_variables(seurat_obj,species,output_dir,annotation_column,group_column)
   #checkmate::expect_class(seurat_obj,"Seurat",label="seurat_obj")
-  #checkmate::expect_choice(species,c("human","mouse"),label = "species")
+  checkmate::expect_choice(species,c("human","mouse"),label = "species")
   checkmate::expect_numeric(nDim, min.len = 1, max.len = 1, any.missing = FALSE,label="nDim")
 
   checkmate::expect_character(conditions, min.len = 1, any.missing = FALSE,label="conditions",null.ok = TRUE)
   if(checkmate::test_character(conditions, min.len = 1, any.missing = FALSE))
   {
     checkmate::expect_choice(group_column, colnames(seurat_obj@meta.data),label="group_column")
+    #checkmate::expect_choice(conditions, names(table(seurat_obj@meta.data[,group_column])),label="group_column")
+    if(!all(conditions %in% names(table(seurat_obj@meta.data[,group_column]))))
+    {
+      stop("The conditions should be the elements in the ",group_column," metadata. {",paste(names(table(seurat_obj@meta.data[,group_column])),collapse = ","),"}")
+    }
   }
 
   #checkmate::expect_choice(annotation_column, colnames(seurat_obj@meta.data),label="annotation_column",null.ok = TRUE)
   if(checkmate::test_character(annotation_column, min.len = 1, max.len = 1, any.missing = FALSE))
   {
-    Idents(seurat_obj) <- seurat_obj[[annotation_column]]
+    Seurat::Idents(seurat_obj) <- seurat_obj[[annotation_column]]
   }
-  checkmate::expect_flag(transferUMAP, min.len = 1, max.len = 1, any.missing = FALSE,label="transferUMAP")
+  checkmate::expect_flag(transferUMAP,label="transferUMAP")
   checkmate::expect_choice(rootNode_method,c("potency","rootNodes"),label = "rootNode_method")
 
   if(rootNode_method == "rootNodes")
@@ -75,13 +80,12 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
 
 
   checkmate::expect_choice(batch_metadata, colnames(seurat_obj@meta.data),label="batch_metadata",null.ok = TRUE)
-
   checkmate::expect_class(celltype_groups,"list",label="celltype_groups",null.ok = TRUE)
+
   checkmate::expect_numeric(top_genes, min.len = 1, max.len = 1, any.missing = FALSE,label="top_genes")
-  checkmate::expect_choice(deg_method, c("quasipoisson","negbinomial"),label="deg_method")
 
   checkmate::expect_choice(metadata_deg_model,colnames(seurat_obj@meta.data),label="metadata_deg_model",null.ok = TRUE)
-  checkmate::expect_flag(graph_test, min.len = 1, max.len = 1, any.missing = FALSE,label="graph_test")
+  checkmate::expect_flag(graph_test,label="graph_test")
   checkmate::expect_numeric(cores, min.len = 1, max.len = 1, any.missing = FALSE,label="cores")
   #checkmate::expect_directory(output_dir,access="rw",label = "output_dir")
 
@@ -96,9 +100,19 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
     dir.create(file.path(output_dir,i), showWarnings = F, recursive = T)
   }
   output_dir <- file.path(output_dir,"monocle")
-  ################################################
 
-  subset <- ifelse(length(celltype_groups) != 0, TRUE, FALSE)
+  ################################################
+  subset <- ifelse(!is.null(celltype_groups) || length(celltype_groups) != 0, TRUE, FALSE)
+  if(subset)
+  {
+    for (cell_group in celltype_groups){
+      if(!all(cell_group %in% names(table(Seurat::Idents(seurat_obj)))))
+      {
+        stop("The cell types should be the elements in the data {",paste(names(table(Seurat::Idents(seurat_obj))),collapse = ","),"}")
+      }
+    }
+  }
+
   regression <- ifelse(length(metadata_deg_model) != 0, TRUE, FALSE)
   conditions_to_compare <- ifelse(length(conditions) > 1, TRUE, FALSE)
   if (length(conditions) == 0){
@@ -128,7 +142,6 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
     }
     print("Trajectory and pseudotime for all subsetted objects completed.")
   }
-
 
   # loop over each cell_data_set object (whole and subsetted, if any) and perform:
   #   - regression analysis on predefined variable (@DEG_models), if any
@@ -190,12 +203,6 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
     }
   }
   return(cds_by_group)
-}
-
-check_character_argument<-function(object,argumentName)
-{
-  ifelse(testCharacter(letters, min.len = 1, any.missing = FALSE),)
-  stop("This is an error message")
 }
 
 #remove.packages("scDown")
