@@ -25,9 +25,9 @@ addSUmatrices <- function(X, loomFile){
     # Reading spliced/unspliced matrices
     SU <- read.loom.matrices(loomFile)
 
-    # Getting standardized barcodes
+    # Getting standardized cell barcodes by removing prefix and suffix
     colnames(SU[[1]]) <- colnames(SU[[2]]) <- gsub('^[[:print:]]+\\:|x$', '', colnames(SU[[1]]))
-    X <- RenameCells(X, new.names= gsub('-[[:print:]]+$', '', colnames(X)))
+    X <- RenameCells(X, new.names= gsub('^.*_|-[^-]*$', '', colnames(X)))
 
     # Identifying shared barcodes
     sharedBarcodes <- intersect(colnames(SU[[1]]), colnames(X))
@@ -39,6 +39,9 @@ addSUmatrices <- function(X, loomFile){
     # Adding spliced/unspliced matrices as assays
     X[['spliced']] <- CreateAssayObject(SU[[1]][sharedGenes,sharedBarcodes])
     X[['unspliced']] <- CreateAssayObject(SU[[2]][sharedGenes,sharedBarcodes])
+
+    # Reverting to the original cell barcodes 
+    X <- RenameCells(X, new.names = X$orig.bc)
 
     # Returning object with new assays
     return(X)
@@ -192,7 +195,7 @@ plotVectorField <- function(X, tpVF, time_point=NULL, time_point_column=NULL, co
                 y=start.2, 
                 xend=end.1, 
                 yend=end.2), 
-            size = vector_width,
+            linewidth = vector_width,
             lineend = 'round', 
             linejoin = 'round',
             arrow=arrow(length=unit(arrow_size, "mm")))

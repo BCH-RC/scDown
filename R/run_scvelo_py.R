@@ -30,9 +30,7 @@ run_scvelo_py <- function(h5ad_file="scvelo/rds/obj_spliced_unspliced.h5ad",
 
 # create subdirectories in the output directory
 setwd(output_dir)
-subdirectories <- c("rds",
-                    "csv",
-                    "images",
+subdirectories <- c("scvelo",
                     "scvelo/csv",
                     "scvelo/rds",
                     "scvelo/images")
