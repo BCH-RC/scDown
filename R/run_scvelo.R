@@ -4,6 +4,8 @@
 #' In this function, users can calculate RNA velocity of the whole data as well as a subset of time points.
 #'
 #' @param seurat_obj Seurat object containing the scRNA-seq data (Required)
+#' @param annotation_column A character variable specifying the metdata column name of cell typeannotations. Default: 
+#' NULL, uses Idents(seurat_obj)
 #' @param loom_files Spliced and unspliced counts of the scRNA-seq data (Required)
 #' @param output_dir A character vector specifying the output directory
 #' @param loom_file_subset_by A character variable specifying how the Seurat object should be subsetted in order 
@@ -36,7 +38,7 @@
 
 
 run_scvelo <- function(seurat_obj,loom_files,output_dir=".",loom_file_subset_by=c(),loom_file_subset_column="orig.ident",
-                    mode='stochastic',grid_resolutions=c(50),arrow_sizes=c(0.5,1),vector_widths=c(0.25,0.5),
+                    annotation_column=NULL,mode='stochastic',grid_resolutions=c(50),arrow_sizes=c(0.5,1),vector_widths=c(0.25,0.5),
                     time_point=list(),time_point_column=NULL,color_scale=NULL,name_by=NULL){
 
 # create subdirectories in the output directory
@@ -52,6 +54,12 @@ for(i in subdirectories){
 
 ### Input
 object_annotated <- seurat_obj
+
+# use cell type annotation column as identity
+  if(checkmate::test_character(annotation_column, min.len = 1, max.len = 1, any.missing = FALSE))
+  {
+    Seurat::Idents(seurat_obj) <- seurat_obj[[annotation_column]]
+  }
 
 # add cell barcode as metadata
 object_annotated$orig.bc <- colnames(object_annotated)
