@@ -9,7 +9,8 @@
 #' the phase portrait (ratio of spliced/unspliced RNA abundance) for top differential genes, 
 #' and directed graphs of predicted lineages from PAGA trajectory inference 
 #'
-#' @param h5ad_file input h5ad file, if running after run_scvelo(), this object will have a fixed name and does not need to be changed
+#' @param env_path A character specifying your Conda environment path and name. Default: "/path/conda_environment/envs/scvelo"; optional
+#' @param h5ad_file input h5ad file path and name, if running after run_scvelo(), this object has a fixed name and does not need to be changed
 #' @param output_dir A character vector specifying the output directory
 #' @param annotation_column A character variable specifying which metadata column of the h5ad object contains cell type annotations
 #' @param mode Mode to conduct scvelo velocity calculation, either 'stochastic (default)', 'deterministic', or 'dynamical (slowest)'
@@ -39,13 +40,17 @@ for(i in subdirectories){
     dir.create(file.path(output_dir,i), showWarnings = F, recursive = T)
 }
 
+
 # Call the main python function from scvelo.py with parameters
 library(reticulate)
-reticulate::source_python("inst/python/scvelo.py")
 
+# Set Python environment (e.g., specify a Conda environment or system Python)
+# use_condaenv("/path/conda_environment/envs/scvelo", required = TRUE)  # Replace with your Conda environment path and name
+# use_virtualenv("/path/name", required = TRUE)
+
+# Call the main python function from scvelo.py with parameters
+reticulate::source_python("inst/python/scvelo_py.py")
 run_scvelo_workflow(h5ad_file,annotation_column,mode,top_gene)
-
-
 
 sessionInfo()
 
