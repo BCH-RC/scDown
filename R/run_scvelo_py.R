@@ -41,7 +41,7 @@ for(i in subdirectories){
 }
 
 
-# Call the main python function from scvelo.py with parameters
+# Call the main python function from scvelo_py.py with parameters
 library(reticulate)
 
 # Set Python environment (e.g., specify a Conda environment or system Python)
