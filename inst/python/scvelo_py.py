@@ -58,6 +58,7 @@ def differential_velocity_genes(adata, group_by, top_gene=5):
     df.to_csv(f'scvelo/csv/scvelo_differential_velocity_genes_by_{group_by}.csv')
     # set parameters for plotting
     # plot top 'top_gene' number of genes' phase portrait for each category in 'group_by'
+    top_gene = int(top_gene)
     for item in adata.obs[group_by].unique():
         kwargs = dict(color=group_by, figsize=(2, 2), dpi=500, show=False)
         scv.pl.scatter(adata, df[item][:top_gene], ylabel=item, frameon=False, linewidth=1.5, save=f'scvelo/images/{item}_genePhase', fontsize=8, **kwargs)
