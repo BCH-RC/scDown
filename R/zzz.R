@@ -1,6 +1,6 @@
 #' R/zzz.R 
 #' 
-#' install required python dependencies for scvelo_py.py
+#' install required python dependencies for scvelo_workflow.py
 .onLoad <- function(libname, pkgname) {
   library(reticulate)
 
@@ -30,7 +30,8 @@
       stop("Unable to install Python packages.")
     })
   } else {
-    stop("Neither Conda nor Python is installed. Please install either Conda or Python to continue.")
+    stop("Neither Conda nor Python is installed. Please install either Conda or Python
+     to run run_scvelo_full(). Otherwise, use run_scvelo() that doesn't require Python.")
   }
 
 
