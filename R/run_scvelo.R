@@ -58,7 +58,7 @@ object_annotated <- seurat_obj
 # use cell type annotation column as identity
   if(checkmate::test_character(annotation_column, min.len = 1, max.len = 1, any.missing = FALSE))
   {
-    Seurat::Idents(seurat_obj) <- seurat_obj[[annotation_column]]
+    Seurat::Idents(object_annotated) <- object_annotated[[annotation_column]]
   }
 
 # add cell barcode as metadata
