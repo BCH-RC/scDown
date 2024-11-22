@@ -40,10 +40,9 @@ for(i in subdirectories){
 }
 
 
-# Call the main python function from scvelo_py.py with parameters
+# Call the main python function from scvelo_workflow.py with parameters
 library(reticulate)
 
-# Call the main python function from scvelo.py with parameters
 reticulate::source_python("inst/python/scvelo_workflow.py")
 run_scvelo_workflow(h5ad_file,annotation_column,mode,top_gene)
 
