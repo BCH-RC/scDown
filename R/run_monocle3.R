@@ -83,6 +83,7 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
   checkmate::expect_class(celltype_groups,"list",label="celltype_groups",null.ok = TRUE)
 
   checkmate::expect_numeric(top_genes, min.len = 1, max.len = 1, any.missing = FALSE,label="top_genes")
+  checkmate::expect_choice(deg_method,c("quasipoisson","negbinomial","poisson","binomial"),label="metadata_deg_model",null.ok = TRUE)
 
   checkmate::expect_choice(metadata_deg_model,colnames(seurat_obj@meta.data),label="metadata_deg_model",null.ok = TRUE)
   checkmate::expect_flag(graph_test,label="graph_test")
