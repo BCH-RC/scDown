@@ -16,7 +16,7 @@ h5adToSeurat <- function(h5ad_file, annotation_column=NULL){
     reticulate::install_miniconda()
   }
 
-  # Convert .h5ad with spliced and unspliced data to Seurat object
+  # Convert .h5ad to Seurat object
   library(zellkonverter)
   # Read the .h5ad file
   ad <- readH5AD(h5ad_file)
