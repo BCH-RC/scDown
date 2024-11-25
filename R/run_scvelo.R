@@ -6,7 +6,7 @@
 #' @param seurat_obj Seurat object containing the scRNA-seq data (Required)
 #' @param annotation_column A character variable specifying the metdata column name of cell typeannotations. Default: 
 #' NULL, uses Idents(seurat_obj)
-#' @param loom_files Spliced and unspliced counts of the scRNA-seq data (Required)
+#' @param loom_files Spliced and unspliced counts of the scRNA-seq data (Required if not provided in seurat_obj)
 #' @param output_dir A character vector specifying the output directory
 #' @param loom_file_subset_by A character variable specifying how the Seurat object should be subsetted in order 
 #' to match each indivdidual loom file name - the order of the character variable must match the order of loom_files
@@ -37,7 +37,7 @@
 #' Estimate RNA velocity for spliced and unspliced counts of scRNA-seq data
 
 
-run_scvelo <- function(seurat_obj,loom_files,output_dir=".",loom_file_subset_by=c(),loom_file_subset_column="orig.ident",
+run_scvelo <- function(seurat_obj,loom_files=NULL,output_dir=".",loom_file_subset_by=c(),loom_file_subset_column="orig.ident",
                     annotation_column=NULL,mode='stochastic',grid_resolutions=c(50),arrow_sizes=c(0.5,1),vector_widths=c(0.25,0.5),
                     time_point=list(),time_point_column=NULL,color_scale=NULL,name_by=NULL){
 
@@ -58,14 +58,18 @@ object_annotated <- seurat_obj
 # use cell type annotation column as identity
   if(checkmate::test_character(annotation_column, min.len = 1, max.len = 1, any.missing = FALSE))
   {
-    Seurat::Idents(seurat_obj) <- seurat_obj[[annotation_column]]
+    Seurat::Idents(object_annotated) <- object_annotated[[annotation_column]]
   }
 
-# add cell barcode as metadata
-object_annotated$orig.bc <- colnames(object_annotated)
 
-# add spliced and unspliced matrices as new assays
-if (length(loom_files) > 1){
+# check if spliced and unspliced data is already in seurat_obj
+if(!(("spliced" %in% names(object_annotated@assays) & ("unspliced" %in% names(object_annotated@assays))))){
+
+  # add cell barcode as metadata
+  object_annotated$orig.bc <- colnames(object_annotated)
+
+  # add spliced and unspliced matrices as new assays
+  if (length(loom_files) > 1){
     
     if(length(loom_file_subset_by)==0){
         loom_file_subset_by=gsub(".loom","",gsub(".*/","",loom_files))
@@ -87,8 +91,10 @@ if (length(loom_files) > 1){
     object_annotated <- merge(object_SU_list[[1]], object_SU_list[-1], merge.dr = "umap")
     object_annotated <- RenameCells(object_annotated, new.names = object_annotated$orig.bc)
 
-} else {
+  } else {
     object_annotated <- addSUmatrices(object_annotated, loom_files[1])
+  }
+
 }
 
 # save to h5ad so if needed, can be used to conduct scvelo downstream analysis
