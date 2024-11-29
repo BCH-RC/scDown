@@ -25,27 +25,34 @@ h5adToSeurat <- function(h5ad_file, annotation_column=NULL){
 
   # Convert the main count matrix X to a Seurat object
   X <- as.Seurat(ad, counts = "X", data = NULL)
-  X@assays[["RNA"]]<-X@assays$originalexp
+  X@assays[["RNA"]]<-X@assays[["originalexp"]]
+  X@assays[["RNA"]]@key<-"rna_"
+  DefaultAssay(X) <- "RNA"
 
   # Convert lower dimensional embeddings (pca and umap)
   if ('X_pca' %in% names(X@reductions)){
-    X@reductions[["pca"]]<-X@reductions$X_pca
+    X@reductions[["pca"]]<-X@reductions[["X_pca"]]
     colnames(X@reductions[["pca"]]@cell.embeddings)<-gsub("Xpca","PCA",colnames(X@reductions[["pca"]]@cell.embeddings))
+    X@reductions[["pca"]]@key<-"PCA_"
   }
+
   if ('X_umap' %in% names(X@reductions)){
-    X@reductions[["umap"]]<-X@reductions$X_umap
+    X@reductions[["umap"]]<-X@reductions[["X_umap"]]
     colnames(X@reductions[["umap"]]@cell.embeddings)<-gsub("Xumap","UMAP",colnames(X@reductions[["umap"]]@cell.embeddings))
+    X@reductions[["umap"]]@key<-"UMAP_"
   }
 
   # Convert spliced and unspliced layers if available to Seurat objects
   if("spliced" %in% names(ad@assays)){
     s <- as.Seurat(ad, counts = "spliced", data = NULL)
-    X@assays[["spliced"]]<-s@assays$originalexp
+    X@assays[["spliced"]]<-s@assays[["originalexp"]]
+    X@assays[["spliced"]]@key<-"spliced_"
     file_sub<-paste0(file_sub,"_spliced")
   }
   if("unspliced" %in% names(ad@assays)){
     un <- as.Seurat(ad, counts = "unspliced", data = NULL)
-    X@assays[["unspliced"]]<-un@assays$originalexp
+    X@assays[["unspliced"]]<-un@assays[["originalexp"]]
+    X@assays[["unspliced"]]@key<-"unspliced_"
     file_sub<-paste0(file_sub,"_unspliced")
   }
 
@@ -55,7 +62,6 @@ h5adToSeurat <- function(h5ad_file, annotation_column=NULL){
   } 
 
   # save converted Seurat object
-  DefaultAssay(X) <- "RNA"
   saveRDS(X, file=paste0(file_sub,".rds"))
 
   return(X)
