@@ -1,15 +1,15 @@
 ---
 title: "scDown: A pipeline to carry out the scRNASeq downstream analysis"
-author: |
-    | Liang Sun, Ashish Jain, Chunhui Cai, Qianyi Ma
-    | Research Computing, IT Department
-    | Boston Children's Hospital, Boston, MA
+subtitle: "CellChat V2 Analysis"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 output: 
   rmarkdown::html_document:
     highlight: pygments
     toc: true
-    #number_sections: true  ## if you want number sections at each table header
+    toc_depth: 3        # Set the depth of the outline (1 for main headers, 2 for subheaders, etc.)
+    number_sections: true  # Automatically number sections
+    css: "CellChat_styles.css"   # Link to an external CSS file
+    #number_sections: true  ## if you want numbered sections at each table header
     #theme: united  # many options for theme, this one is my favorite.
 #bibliography: library.bib
 fig_width: 8 
@@ -25,56 +25,227 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   echo = TRUE,
+  eval = FALSE, # Ensure code is not run by default
   message = FALSE,
   warning = FALSE,
-  fig.width=8, fig.height=5
+  fig.width = 8, 
+  fig.height = 5
 )
-
 ```
 
-Load the libraries and define universal variables for running CellChat V2
+# Define Universal Variables for CellChat V2
+Set up the environment for running CellChat V2 by defining key variables. Specify the working directory (output_dir) which is optional, and load a Seurat object (seurat_obj) containing single-cell RNA sequencing data is loaded. The species is set to either "human" or "mouse," as CellChat V2 supports only these two species. The metadata column (annotation_column) is defined to specify the cell type or other annotation labels, ensuring the analysis runs with the correct input data.
 ```{r, message = FALSE}
-library(Seurat)
-library(patchwork)
-library(ComplexHeatmap)
-source("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/R/cellchat_functions.R")
-
-# Set the work directory
-workdir <- "/Users/chunhui/BCH_projects/scDown_pipeline/scDown_CellChatV2/"
+# Set the working directory
+output_dir <- ""
 
 # Seurat object
-scRNAseq_seuratobj <- readRDS("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/inst/extdata/p238_testdata.rds")
+seurat_obj <- readRDS("scDown/inst/extdata/10X43_1_spliced_unspliced.rds")
 
 # Define the species: either "mouse" or "human", since CellChat and PPI database only support these two species for now
-species <- "human"
+species <- "mouse"
 
 # Metadata cell type column
-metadata_celltype_col <- "celltype"
+annotation_column <- "clusters"
 
-# Group information column (Optional, NULL by default)
-metadata_condition_col <- "group"
-
-# Pairwise condition comparisons. Default is no comparisons (Optional, NULL by default).
-comparison_conditions <- list(c("CNV", "CON"), c("ASD", "CON"), c("CNV", "ASD"))
-x
-# Cell types of interest. (Optional, 'ALL' by default)
-celltypes_of_interest <- c("Astrocyte I", "Astrocyte II", "Microglia", "OPC", "Astrocyte II", "Inh-VIP", "Neu L4", "Neu L23", "Inh-SV2C")
-
-# Number of top pathways to show
-top_n <- 10
-
-# Run CellChat V2
-run_cellchatV2(dir_cellchat, 
-               seurat_obj, 
-               celltype_col, 
-               celltypes = "ALL", 
-               species, 
-               condition_col = metadata_condition_col, 
-               conditions_cmp = comparison_conditions,
-               top_n = 10)
-
-
+# Number of most significant pathways to visualize
+top_n = 10
 
 ```
 
+# Run CellChat
+## Run CellChat with all conditions and all cell types
+We run CellChat using the entire dataset, including all cells and cell types, without specifying any particular conditions or groups. However, it is also possible to run CellChat for specific treatments, or groups by defining 'group_column'. Additionally, pairwise comparisons can be performed to analyze differences between these groups. A demonstration of how to set up and run these comparisons will be provided in a later session.
+```{r}
+# Run CellChat V2
+run_cellchatV2(seurat_obj = seurat_obj,
+               output_dir = output_dir,
+               annotation_column = annotation_column,
+               species = species)
+
+```
+
+### Aggregated views
+#### Aggregated circle plot
+This plot visualizes the overall interactions between different cell types in the dataset. The circle plot shows the interactions and their weights, providing a high-level view of the communication network across all cells. It helps to understand the general communication patterns between cell types in the context of signaling pathways.
+
+```{r, echo = FALSE, eval = TRUE}
+
+knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/ALL/images/cellchat/aggregate/ALL_net_interaction_and_weight.png")
+
+```
+
+#### Aggregated scatter plot
+The scatter plot displays the signaling roles of different cell types in the communication network. It offers a visual representation of how cells are involved in the overall signaling, highlighting their contributions and interactions with other cells in the network.
+
+```{r, echo = FALSE, eval = TRUE, out.width = "60%", out.height = "60%"}
+
+knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/ALL/images/cellchat/aggregate/ALL_signaling_role.png")
+
+```
+
+#### Aggregated heatmap plot
+This heatmap shows the incoming and outgoing signals between cell types, summarizing the interactions at a global level. It helps to identify which cell types are the primary senders and receivers of signals in the network, aiding in the understanding of signaling flow and patterns.
+
+```{r, echo = FALSE, eval = TRUE, out.width = "60%", out.height = "60%"}
+
+knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/ALL/images/cellchat/aggregate/ALL_outgoing_incoming_signal.png")
+
+```
+
+#### Aggregated circle plot for significant pathways
+This aggregated circle plot highlights the most significant pathways by visualizing the weighted interactions between cell types for each pathway. It helps in understanding the strength of interactions for key pathways and how they contribute to the overall signaling network.
+
+```{r, echo = FALSE, eval = TRUE}
+
+knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/ALL/images/cellchat/aggregate/ALL_net_weight_per_celltype.png")
+
+```
+
+### Pathways views
+#### Signaling strength among different cell types for each pathway
+This heatmap shows the signaling strength for a specific pathway across various cell types. It visualizes how different cell types contribute to or receive signals for that particular pathway, providing insights into the role of each cell type in the signaling network.
+
+```{r, echo = FALSE, eval = TRUE, out.width = "60%", out.height = "60%"}
+
+knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/ALL/images/cellchat/pathway/APP_ALL_signaling_strength_heatmap.png")
+
+```
+
+#### Ligand-Receptor gene expression violin plot for each pathway
+This violin plot visualizes the distribution of gene expression levels for a specific pathway across different cell types. The width of the violin plot indicates the density of gene expression values at various levels, providing insights into the variability and spread of gene expression within the pathway. It helps to identify which cell types have higher or lower expression levels for genes associated with the pathway, giving a clearer understanding of how these genes are regulated in different cell types.
+
+```{r, echo = FALSE, eval = TRUE, out.width = "60%", out.height = "60%"}
+cat("Pathway APP:\n")
+knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/ALL/images/cellchat/pathway/LR_gene/APP_ALL_signaling_gene.png")
+
+```
+
+#### Ligand-Receptor pairs bubble plot for each pathway
+This bubble plot displays the ligand-receptor pairs involved in signaling for a specific pathway. Each bubble represents a ligand-receptor interaction, with the size of the bubble indicating the strength of the interaction. It helps to identify the most prominent ligand-receptor pairs that mediate the pathway-specific cell communication.
+
+```{r, echo = FALSE, eval = TRUE}
+cat("Pathway APP:\n")
+knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/ALL/images/cellchat/pathway/LR_gene/APP_ALL_LR_bubble_plot.png")
+
+```
+
+## Run CellChat with user defined groups
+In this step, we run CellChat with user-defined groups. The group information is specified in the "age.days." column of the metadata, which contains two distinct values: 35 and 12. By setting the group_column to "age.days.", CellChat will analyze the cell communication network separately for these two age groups, allowing for comparison between them. This approach enables the exploration of differences in cell-to-cell interactions based on age, providing insights into how communication networks vary across distinct groups.
+
+```{r}
+# Group information column
+group_column <- "age.days."
+
+# Run CellChat V2
+run_cellchatV2(seurat_obj = seurat_obj,
+               output_dir = output_dir,
+               annotation_column = annotation_column,
+               species = species,
+               group_column = group_column)
+
+```
+
+The plots generated in this analysis represent cell-to-cell interactions for both age groups (35 and 12). For instance, the circle view shows the signaling strength across the two age groups, providing a comparative analysis of how the cell communication network differs between them. 
+
+```{r, echo = FALSE, eval = TRUE}
+cat("Age group: 12\n")
+knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/by_age_groups/images/cellchat/aggregate/12_net_interaction_and_weight.png")
+
+cat("Age group: 35\n")
+knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/by_age_groups/images/cellchat/aggregate/35_net_interaction_and_weight.png")
+
+```
+
+Similarly, for pathway views visualize the interactions for both age groups, highlighting the heatmaps and ligand-receptor pairs involved in signaling and their relative strengths in each group. These visualizations allow for a side-by-side comparison of the cell communication dynamics across different age groups.
+
+Heatmap
+
+```{r, echo = FALSE, eval = TRUE, out.width = "60%", out.height = "60%"}
+cat("Age group: 12\n")
+knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/by_age_groups/images/cellchat/pathway/APP_12_signaling_strength_heatmap.png")
+
+cat("Age group: 35\n")
+knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/by_age_groups/images/cellchat/pathway/APP_35_signaling_strength_heatmap.png")
+
+```
+
+The bubble plot of ligand-receptor pairs
+
+```{r, echo = FALSE, eval = TRUE, out.width = "75%", out.height = "75%"}
+cat("Age group: 12\n")
+knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/by_age_groups/images/cellchat/pathway/LR_gene/APP_12_LR_bubble_plot.png")
+
+cat("Age group: 35\n")
+knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/by_age_groups/images/cellchat/pathway/LR_gene/APP_35_LR_bubble_plot.png")
+
+```
+
+## Run CellChat with user defined conditions and cell annotations of interest
+Our pipeline also allows for a more focused analysis by selecting specific cell types of interest. In this example, the variable celltypes_of_interest is defined to include a list of selected cell types, such as "Granule immature", "Radial Glia-like", "Granule mature", and "Microglia". By setting the annotation_selected parameter to these cell types, CellChat V2 is run specifically on this subset, performing cell-to-cell communication analysis and visualization only for the selected cell types. This feature enables users to concentrate on particular cell populations, making the analysis more targeted and relevant to specific biological questions.
+
+```{r}
+# Cell types of interest. (Optional, 'ALL' by default)
+celltypes_of_interest <- c("Granule immature", "Radial Glia-like", "Granule mature", "Neuroblast", "Microglia", "Cajal Retzius", "OPC", "Cck-Tox")
+
+# Run CellChat V2
+run_cellchatV2(seurat_obj = seurat_obj,
+               output_dir = output_dir,
+               annotation_column = annotation_column,
+               annotation_selected = celltypes_of_interest,
+               species = species,
+               group_column = group_column)
+
+```
+
+
+
+## Run CellChat with user-defined groups and perform pairwise comparisons between the selected groups.
+Our pipeline also supports pairwise comparisons between different groups using the comparison_conditions parameter. In this example, the comparison_conditions variable is defined as a list of conditions to compare, such as comparing age groups "35" and "12". By specifying the group_cmp parameter, CellChat V2 performs the analysis and visualization specifically for these pairwise conditions, allowing for a direct comparison of cell-to-cell communication networks between the selected groups. This feature is useful for investigating how the communication patterns differ between different conditions, treatments, or time points.
+
+```{r}
+# Pairwise condition comparisons.
+comparison_groups <- list(c("35", "12"))
+
+# Run CellChat V2
+run_cellchatV2(seurat_obj = seurat_obj,
+               output_dir = output_dir,
+               annotation_column = annotation_column,
+               species = species,
+               group_column = group_column, 
+               group_cmp = comparison_groups)
+
+```
+
+The rankNet plot compares the relative importance of different signaling pathways between groups, such as age group 35 vs. 12. When stacked = TRUE (left panel), the x-axis shows "Relative information flow", which represents the proportional contribution of each pathway to the total communication between cell types. This normalization allows for a comparison of how each pathway ranks relative to others within the group. When stacked = FALSE (right panel), the x-axis shows "Information flow", which indicates the absolute communication strength for each pathway without normalization. This provides the raw magnitude of signaling for each pathway. The rankNet plot, therefore, helps to identify which pathways are most influential in mediating communication between the groups, allowing for insights into age-related differences in cell-to-cell signaling.
+
+```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "80%"}
+
+knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/by_age_groups/images/cellchat/comparison/infoFlow/35_12_significant_pathway_rank.png")
+
+```
+
+The signaling changes scatter plot visualizes differences in cell-to-cell signaling between conditions, such as comparing age groups (e.g., 35 vs. 12). The x-axis shows the differential outgoing interaction strength, which quantifies the difference in signaling strength for outgoing interactions, while the y-axis represents the differential incoming interaction strength, measuring the difference in signaling strength for incoming interactions for each pathway. The plot helps identify pathways with significant changes in communication, with points farther along the x-axis indicating stronger signaling. The color of the points indicates which group the pathway is specific to. This scatter plot provides a clear overview of pathways where signaling is differentially regulated between groups, helping to identify key pathways that drive communication specific to either age group or are shared by both.
+
+```{r, echo = FALSE, eval = TRUE, out.width = "50%", out.height = "50%"}
+
+knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/by_age_groups/images/cellchat/comparison/Net/35_12_signaling_change_nIPC.png")
+
+knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/by_age_groups/images/cellchat/comparison/Net/35_12_signaling_change_OL.png")
+
+```
+
+We also provide a side-by-side plot to visualize cell-to-cell communication strength for each cell type when comparing different groups. This plot allows for a direct comparison of how communication strength varies across cell types between the age groups, highlighting any differences or similarities in signaling. By displaying the data side by side, it becomes easier to identify which cell types exhibit stronger or weaker communication in one group compared to the other, providing a clearer understanding of how age-related changes may influence cell-to-cell interactions.
+
+```{r, echo = FALSE, eval = TRUE}
+
+knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/by_age_groups/images/cellchat/comparison/sidebyside/35_12_ApoE_sidebyside_strength.png")
+
+```
+
+# Sumamry
+
+This document outlines a pipeline for analyzing cell-to-cell communication using CellChat V2. The pipeline begins by defining key variables, such as the working directory, Seurat object, species, and metadata for cell type annotations. It runs CellChat V2 on the entire dataset to explore global interactions across all cells and generates visualizations like aggregated circle plots, scatter plots, heatmaps, and violin plots, which highlight signaling strength, interaction patterns, and ligand-receptor pairs.
+
+Additionally, the pipeline supports focused analysis by selecting specific cell types or comparing user-defined groups (e.g., age groups 35 and 12). Pairwise comparisons are made to examine differences in cell signaling, with rankNet plots and signaling change scatter plots identifying differentially regulated pathways. Side-by-side plots also allow for direct comparison of communication strength across cell types between groups, offering insights into age-related signaling changes. This pipeline provides a comprehensive tool for exploring and comparing cell communication networks.
 
