@@ -5,6 +5,7 @@
 #'
 #' @param dir_cellchat The folder path where CellChat results will be stored, including subdirectories for RDS files, figures, and tables.
 #' @return NULL
+#' 
 #' @noRd
 
 create_dir_cellchat <- function(dir_cellchat) {
@@ -40,6 +41,7 @@ create_dir_cellchat <- function(dir_cellchat) {
 #' @param condition_col Name of the metadata column for conditions or groups in the Seurat object.
 #' @param conditions_cmp List containing the pairwise condition comparisons for CellChat analysis.
 #' @return NULL
+#' 
 #' @noRd
 
 cellchat_input_check <- function(dir_cellchat, seurat_obj, celltype_col, celltypes = "ALL", species, condition_col = NULL, conditions_cmp = NULL) {
@@ -99,6 +101,9 @@ cellchat_input_check <- function(dir_cellchat, seurat_obj, celltype_col, celltyp
 #' @param X a Seurat object.
 #' @param species Species for the data, either 'human' or 'mouse'.
 #' @return A CellChat object with cell-cell communication analysis results.
+#' 
+#' @noRd
+
 doCellCom <- function(X, species) {
   ccMetaData <- data.frame(label = Idents(X))
   ccMetaData <- cbind(ccMetaData, X@meta.data)
@@ -131,6 +136,8 @@ doCellCom <- function(X, species) {
 #'
 #' @param X a CellChat object.
 #' @param condition the condition of the object used for naming files.
+#' 
+#' @noRd
 
 aggregate_visu <- function(X, condition, dir_cellchat){
   
@@ -195,8 +202,10 @@ aggregate_visu <- function(X, condition, dir_cellchat){
 #' @param Y a Seurat object which is corresponding to X.
 #' @param pathway a signaling pathway in interest. 
 #' @param condition the condition of the object used for naming files. 
+#' 
+#' @noRd
 
-pathway_visu <- function(X, Y, pathway, condition, dir_cellchat){
+pathway_visu <- function(X, Y, pathway, condition, dir_cellchat, species){
   
   # interaction strength for the pathway
   png(paste0(dir_cellchat, "/cellchat/images/pathway/", pathway, "_", condition, "_signaling_strength_chord.png", sep=""), height = 600*2, width = 600*2, res = 300, pointsize = 8)
@@ -226,7 +235,13 @@ pathway_visu <- function(X, Y, pathway, condition, dir_cellchat){
   }
   
   # plot signaling gene expression distribution related to the pathway
+  pairLR <- extractEnrichedLR(X, signaling = pathway, geneLR.return = FALSE) # The extractEnrichedLR() function from CellChat returns ligand-receptor (LR) pairs in upper case by default, even if the CellChat object is based on mouse data.
   LRs_uni <- unique(unlist(strsplit(split = "_", x = pairLR$interaction_name)))
+  if (species == "mouse") {
+    genes <- rownames(X@data)
+    indices <- match(LRs_uni, toupper(genes))
+    LRs_uni <- genes[indices]
+  }
   if (length(LRs_uni) == 1) {
     p2 <- VlnPlot(
       object = Y,
@@ -270,15 +285,17 @@ pathway_visu <- function(X, Y, pathway, condition, dir_cellchat){
 #' @param Y a Seurat object which is corresponding to X.
 #' @param pathways_to_show a vector of pathway names.
 #' @param condition the condition of the object.
+#' 
+#' @noRd
 
-doCellComVisu <- function(X, Y, pathways_to_show, condition, dir_cellchat){
+doCellComVisu <- function(X, Y, pathways_to_show, condition, dir_cellchat, species){
   
   # communication at aggregated network level
   aggregate_visu(X, condition, dir_cellchat)
   
   # communication at signaling pathway level
   for (path in pathways_to_show) {
-    pathway_visu(X, Y, path, condition, dir_cellchat)
+    pathway_visu(X, Y, path, condition, dir_cellchat, species)
   }
   
 }
@@ -311,6 +328,8 @@ top_pathways <- function(X1, X2=NULL, top_n=10){
 #' @param X1 a CellChat object.
 #' @param X2 a CellChat object.
 #' @return CellChat objects with aligned labels.
+#' 
+#' @noRd
 
 align_cell_labels <- function(X1, X2){
   
@@ -341,6 +360,8 @@ align_cell_labels <- function(X1, X2){
 #' @param top_n the number of pathways.
 #' 
 #' @return NULL
+#' 
+#' @noRd
 
 run_cellchatV2_cmp <- function(dir_cellchat, seurat_obj_cond1, cellchat_obj_cond1, seurat_obj_cond2, cellchat_obj_cond2, celltype_col, condition_col, condition_1, condition_2, top_n) {
   
@@ -375,11 +396,6 @@ run_cellchatV2_cmp <- function(dir_cellchat, seurat_obj_cond1, cellchat_obj_cond
   message("CellChat V2 Differential analysis completed.")
 }
 
-
-
-
-
-
 ####### Functions below this line need to be organized
 
 
@@ -390,6 +406,8 @@ run_cellchatV2_cmp <- function(dir_cellchat, seurat_obj_cond1, cellchat_obj_cond
 #' @param X a merged CellChat object with two biological conditions.
 #' @param object_list a list of CellChat objects before the merge.
 #' @param cond_in_compare a vector of condition names in comparison.
+#' 
+#' @noRd
 
 network_comparison <- function(X, object_list, cond_in_compare){
 
@@ -452,6 +470,8 @@ network_comparison <- function(X, object_list, cond_in_compare){
 #' @param X a CellChat object. 
 #' @param cond_in_compare a vector of condition names in comparison.
 #' @return X a CellChat object with manifold learning results. 
+#' 
+#' @noRd
 
 manifold_learning <- function(X, cond_in_compare){
 
@@ -489,6 +509,8 @@ manifold_learning <- function(X, cond_in_compare){
 #' @param X a merged CellChat object with two biological conditions.
 #' @param object_list a list of CellChat objects before the merge.
 #' @param cond_in_compare a vector of condition names in comparison.
+#' 
+#' @noRd
 
 information_flow <- function(X, object_list,cond_in_compare){
  
@@ -522,13 +544,14 @@ information_flow <- function(X, object_list,cond_in_compare){
 
 }
 
-
 #' Take as input a CellChat object and output the differential
 #' ligand/receptor pair analysis result.
 #' 
 #' @param X a merged CellChat object with two biological conditions.
 #' @param cond_in_compare a vector of condition names in comparison.
 #' @return X a CellChat object with differential LR pair results.
+#' 
+#' @noRd
 
 differential_ligand_receptor <- function(X, cond_in_compare){
 
@@ -557,7 +580,6 @@ differential_ligand_receptor <- function(X, cond_in_compare){
 
 }
 
-
 #' Take as input a CellChat object and output the side-by-side comparison
 #' of a pathway's signaling strength in chord diagram.
 #' 
@@ -565,6 +587,8 @@ differential_ligand_receptor <- function(X, cond_in_compare){
 #' @param object_list a list of CellChat object before the merge.
 #' @param cond_in_compare a vector of condition names in comparison.
 #' @param pathway a pathway of interest.
+#' 
+#' @noRd
 
 side_by_side_path_compr <- function(X, object_list, cond_in_compare, pathway){
   
@@ -589,7 +613,6 @@ side_by_side_path_compr <- function(X, object_list, cond_in_compare, pathway){
 
 }
 
-
 #' Do the workflow for cell-cell communication analysis on two
 #' biological conditions and output relevant visualizations.
 #'
@@ -598,6 +621,8 @@ side_by_side_path_compr <- function(X, object_list, cond_in_compare, pathway){
 #' @param cond_in_compare a vector of condition names in comparison.
 #' @param pathways_to_compare a vector of pathway names.
 #' @return X a CellChat object after pairwise comparison workflow.
+#' 
+#' @noRd
 
 compareCellComVisu <- function(X, object_list, cond_in_compare, pathways_to_compare){
   
@@ -617,7 +642,6 @@ compareCellComVisu <- function(X, object_list, cond_in_compare, pathways_to_comp
   return(X)
 
 }
-
 
 # modified original subsetCellChat() soure code so it will not raise dimension error
 # See https://github.com/sqjin/CellChat/issues/210 for more information
@@ -791,39 +815,42 @@ subsetCellChatMod <- function(object, cells.use = NULL, idents.use = NULL, group
 
 
 
-# ##################### NOT USED FOR NOW ######################
-#' Reorder the cell identities and net calculation results based on given input levels.
-#' https://github.com/sqjin/CellChat/issues/149#issuecomment-788102884
-#'
-#' @param object a CellChat object
-#' @param ident.use the name of the variable in object.meta
-#' @param levels set the levels of factor
-#' @return a CellChat object with updated cell type and net order.
+# # ##################### NOT USED FOR NOW ######################
+# #' Reorder the cell identities and net calculation results based on given input levels.
+# #' https://github.com/sqjin/CellChat/issues/149#issuecomment-788102884
+# #'
+# #' @param object a CellChat object
+# #' @param ident.use the name of the variable in object.meta
+# #' @param levels set the levels of factor
+# #' @return a CellChat object with updated cell type and net order.
+# #' 
+# #' @noRd
 
-reorder_ident <- function(object, ident.use, levels){
+# reorder_ident <- function(object, ident.use, levels){
 
-  object@idents <- as.factor(object@meta[[ident.use]])
+#   object@idents <- as.factor(object@meta[[ident.use]])
   
-  if (!is.null(levels)) {
-    object@idents <- factor(object@idents, levels = levels)
-  }
+#   if (!is.null(levels)) {
+#     object@idents <- factor(object@idents, levels = levels)
+#   }
   
-  if (length(object@net) > 0) {
-    if (all(dimnames(object@net$prob)[[1]] %in% levels(object@idents) )) {
-      message("Reorder cell groups! ")
-      idx <- match(dimnames(object@net$prob)[[1]], levels(object@idents))
-      object@net$prob <- object@net$prob[idx, idx, ]
-      object@net$pval <- object@net$pval[idx, idx, ]
-      cat("The cell group order after reordering is ", dimnames(object@net$prob)[[1]],'\n')
-    } else {
-      message("Rename cell groups but do not change the order! ")
-      cat("The cell group order before renaming is ", dimnames(object@net$prob)[[1]],'\n')
-      dimnames(object@net$prob) <- list(levels(object@idents), levels(object@idents), dimnames(object@net$prob)[[3]])
-      dimnames(object@net$pval) <- dimnames(object@net$prob)
-      cat("The cell group order after renaming is ", dimnames(object@net$prob)[[1]],'\n')
-    }
-  }
+#   if (length(object@net) > 0) {
+#     if (all(dimnames(object@net$prob)[[1]] %in% levels(object@idents) )) {
+#       message("Reorder cell groups! ")
+#       idx <- match(dimnames(object@net$prob)[[1]], levels(object@idents))
+#       object@net$prob <- object@net$prob[idx, idx, ]
+#       object@net$pval <- object@net$pval[idx, idx, ]
+#       cat("The cell group order after reordering is ", dimnames(object@net$prob)[[1]],'\n')
+#     } else {
+#       message("Rename cell groups but do not change the order! ")
+#       cat("The cell group order before renaming is ", dimnames(object@net$prob)[[1]],'\n')
+#       dimnames(object@net$prob) <- list(levels(object@idents), levels(object@idents), dimnames(object@net$prob)[[3]])
+#       dimnames(object@net$pval) <- dimnames(object@net$prob)
+#       cat("The cell group order after renaming is ", dimnames(object@net$prob)[[1]],'\n')
+#     }
+#   }
 
-  return(object)
+#   return(object)
 
-}
+# }
+

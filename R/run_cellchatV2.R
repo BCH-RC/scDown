@@ -95,7 +95,7 @@ run_cellchatV2 <- function(output_dir, seurat_obj, sample_column = NULL, annotat
   }
   
   # CellChat visualization at signaling pathway level
-  if (is.null(group_column)) {
+  if (is.null(group_cmp)) {
     condition <- "ALL"
     # Get the top n pathways
     cellchat_object <- readRDS(paste0(output_dir, "/cellchat/rds/cellchat_obj_", condition, ".rds"))
@@ -108,8 +108,8 @@ run_cellchatV2 <- function(output_dir, seurat_obj, sample_column = NULL, annotat
     if (length(pathways_top) == 0) {
       warning("No top pathways found for condition: ", condition)
     } else {
-      seurat_obj <- readRDS(paste0(output_dir, "/cellchat/rds/cellchat_obj_", condition, ".rds"))
-      doCellComVisu(X = cellchat_object, Y = seurat_obj, pathways_to_show = pathways_top, condition = condition, dir_cellchat = output_dir)
+      seurat_obj <- readRDS(paste0(output_dir, "/cellchat/rds/seurat_obj_", condition, ".rds"))
+      doCellComVisu(X = cellchat_object, Y = seurat_obj, pathways_to_show = pathways_top, condition = condition, dir_cellchat = output_dir, species = species)
     }
   } else {
     for (condition in conditions) {
@@ -124,15 +124,15 @@ run_cellchatV2 <- function(output_dir, seurat_obj, sample_column = NULL, annotat
       if (length(pathways_top) == 0) {
         warning("No top pathways found for condition: ", condition)
       } else {
-        seurat_obj <- readRDS(paste0(output_dir, "/cellchat/rds/cellchat_obj_", condition, ".rds"))
-        doCellComVisu(X = cellchat_object, Y = seurat_obj, pathways_to_show = pathways_top, condition = condition, dir_cellchat = output_dir)
+        seurat_obj <- readRDS(paste0(output_dir, "/cellchat/rds/seurat_obj_", condition, ".rds"))
+        doCellComVisu(X = cellchat_object, Y = seurat_obj, pathways_to_show = pathways_top, condition = condition, dir_cellchat = output_dir, species = species)
       }
     }
   }
   
   # Perform pairwise CellChat comparisons
-  if (!is.null(conditions_cmp)) {
-    for (cmp in conditions_cmp) {
+  if (!is.null(group_cmp)) {
+    for (cmp in group_cmp) {
       # Conditions for pair wise comparison
       cond_1 <- cmp[1]
       cond_2 <- cmp[2]
