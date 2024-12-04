@@ -1,40 +1,25 @@
-# library(dplyr)
-# library(Matrix)
-# library(gdata)
-# library(tibble)
-# library(DT)
-# library(webshot)
-# library(tidyverse)
-# library(htmlwidgets)
-# library(stringr) 
-# library(Seurat)
-# library(SeuratDisk)
-# library(pheatmap)
-# library(pbapply)
-# library(CellChat)
-# library(ComplexHeatmap)
-
-#' Create result directories for CellChat.
+#' Create directories for storing CellChat results.
 #'
-#' Takes the folder path to create folers to store the CellChat results 
-#' includeing figures, tables and rds files
+#' This function creates a set of subdirectories under the specified folder path 
+#' to organize CellChat results, including directories for figures, tables, and RDS files.
 #'
-#' @param dir_cellchat Folder path for CellChat results.
+#' @param dir_cellchat The folder path where CellChat results will be stored, including subdirectories for RDS files, figures, and tables.
 #' @return NULL
+#' @noRd
 
 create_dir_cellchat <- function(dir_cellchat) {
   # Create folders for storing rds files, figures and tables
-  subdirectories <- c("cellchat",
-                      "cellchat/rds",
-                      "cellchat/csv",
-                      "cellchat/images",
-                      "cellchat/images/aggregate",
-                      "cellchat/images/pathway",
-                      "cellchat/images/comparison",
-                      "cellchat/images/pathway/LR_gene",
-                      "cellchat/images/comparison/Net",
-                      "cellchat/images/comparison/infoFlow",
-                      "cellchat/images/comparison/sidebyside")
+  subdirectories <- c("/cellchat",
+                      "/cellchat/rds",
+                      "/cellchat/csv",
+                      "/cellchat/images",
+                      "/cellchat/images/aggregate",
+                      "/cellchat/images/pathway",
+                      "/cellchat/images/comparison",
+                      "/cellchat/images/pathway/LR_gene",
+                      "/cellchat/images/comparison/Net",
+                      "/cellchat/images/comparison/infoFlow",
+                      "/cellchat/images/comparison/sidebyside")
   
   for(dir.i in subdirectories){
     dir.create(paste0(dir_cellchat, dir.i), showWarnings = F, recursive = T)
@@ -55,6 +40,7 @@ create_dir_cellchat <- function(dir_cellchat) {
 #' @param condition_col Name of the metadata column for conditions or groups in the Seurat object.
 #' @param conditions_cmp List containing the pairwise condition comparisons for CellChat analysis.
 #' @return NULL
+#' @noRd
 
 cellchat_input_check <- function(dir_cellchat, seurat_obj, celltype_col, celltypes = "ALL", species, condition_col = NULL, conditions_cmp = NULL) {
   
@@ -146,13 +132,13 @@ doCellCom <- function(X, species) {
 #' @param X a CellChat object.
 #' @param condition the condition of the object used for naming files.
 
-aggregate_visu <- function(X, condition){
+aggregate_visu <- function(X, condition, dir_cellchat){
   
   groupSize <- as.numeric(table(X@idents))
   
   # Circle plot: interaction strength and total interactions for all cell types
   # According to https://github.com/sqjin/CellChat/issues/499, position of vertex labels cannot be changed?
-  png(paste0(dir_cellchat, "cellchat/images/aggregate/", condition, "_net_interaction_and_weight.png", sep=""), height = 600*2, width = 800*3, res=300)
+  png(paste0(dir_cellchat, "/cellchat/images/aggregate/", condition, "_net_interaction_and_weight.png", sep=""), height = 600*2, width = 800*3, res=300)
   par(mfrow = c(1, 2), xpd=TRUE)
   netVisual_circle(X@net$count, vertex.weight = groupSize, weight.scale = T, label.edge= F, title.name = "Number of interactions")
   netVisual_circle(X@net$weight, vertex.weight = groupSize, weight.scale = T, label.edge= F, title.name = "Interaction weights/strength")
@@ -160,7 +146,7 @@ aggregate_visu <- function(X, condition){
   
   # Circle plot: interaction strength for each individual cell type
   mat <- X@net$weight
-  png(paste0(dir_cellchat, "cellchat/images/aggregate/", condition, "_net_weight_per_celltype.png", sep=""), height = 600*3*ceiling(length(groupSize)/4), width = 600*4*3, res = 300)
+  png(paste0(dir_cellchat, "/cellchat/images/aggregate/", condition, "_net_weight_per_celltype.png", sep=""), height = 600*3*ceiling(length(groupSize)/4), width = 600*4*3, res = 300)
   par(mfrow = c(ceiling(length(groupSize)/4),4), xpd=TRUE)
   for (i in 1:nrow(mat)) {
     mat2 <- matrix(0, nrow = nrow(mat), ncol = ncol(mat), dimnames = dimnames(mat))
@@ -171,7 +157,7 @@ aggregate_visu <- function(X, condition){
   
   # Signaling role analysis on the aggregated communication network from all signaling pathways
   p1 <- netAnalysis_signalingRole_scatter(X)
-  ggsave(file=paste0(dir_cellchat, "cellchat/images/aggregate/", condition, "_signaling_role.png", sep=""), plot=p1, height = 6, width = 6)
+  ggsave(file=paste0(dir_cellchat, "/cellchat/images/aggregate/", condition, "_signaling_role.png", sep=""), plot=p1, height = 6, width = 6)
   
   # Signals contributing most to outgoing or incoming signaling of cell types, need to load ComplexHeatmap library 
   tryCatch(
@@ -180,7 +166,7 @@ aggregate_visu <- function(X, condition){
       # "/50" is used here because even with really large datasets, number of pathways normally won't exceed 100.
       # "/30" is used here because 30 cell types are the maximum a png figure of width 800*2.7 can take.
       # these values can be modified to tune to different figure sizes.
-      png(paste0(dir_cellchat, "cellchat/images/aggregate/", condition, "_outgoing_incoming_signal.png", sep=""), height = 600*1.8*(ceiling(pathway_num/50)), width = 800*2.7*ceiling(length(groupSize)/30), res = 300)
+      png(paste0(dir_cellchat, "/cellchat/images/aggregate/", condition, "_outgoing_incoming_signal.png", sep=""), height = 600*1.8*(ceiling(pathway_num/50)), width = 800*2.7*ceiling(length(groupSize)/30), res = 300)
       ht1 <- netAnalysis_signalingRole_heatmap(X, pattern = "outgoing", height = 10*ceiling(pathway_num/50), width = 10*ceiling(length(groupSize)/30), font.size = 6)
       ht2 <- netAnalysis_signalingRole_heatmap(X, pattern = "incoming", height = 10*ceiling(pathway_num/50), width = 10*ceiling(length(groupSize)/30), font.size = 6)
       draw(ht1 + ht2)
@@ -210,31 +196,31 @@ aggregate_visu <- function(X, condition){
 #' @param pathway a signaling pathway in interest. 
 #' @param condition the condition of the object used for naming files. 
 
-pathway_visu <- function(X, Y, pathway, condition){
+pathway_visu <- function(X, Y, pathway, condition, dir_cellchat){
   
   # interaction strength for the pathway
-  png(paste0(dir_cellchat, "cellchat/images/pathway/", pathway, "_", condition, "_signaling_strength_chord.png", sep=""), height = 600*2, width = 600*2, res = 300, pointsize = 8)
+  png(paste0(dir_cellchat, "/cellchat/images/pathway/", pathway, "_", condition, "_signaling_strength_chord.png", sep=""), height = 600*2, width = 600*2, res = 300, pointsize = 8)
   netVisual_aggregate(X, signaling = pathway, title.space = 4, layout = "chord")
   dev.off()
-  png(paste0(dir_cellchat, "cellchat/images/pathway/",pathway,"_",condition,"_signaling_strength_circle.png", sep=""), height = 600*2.5, width = 600*2, res = 300)
+  png(paste0(dir_cellchat, "/cellchat/images/pathway/",pathway,"_",condition,"_signaling_strength_circle.png", sep=""), height = 600*2.5, width = 600*2, res = 300)
   netVisual_aggregate(X, signaling = pathway, title.space=4, layout = "circle")
   dev.off()
   
   # need to load ComplexHeatmap
-  png(paste0(dir_cellchat, "cellchat/images/pathway/", pathway, "_", condition,"_signaling_strength_heatmap.png", sep=""),height = 600*3, width = 600*3, res = 300)
+  png(paste0(dir_cellchat, "/cellchat/images/pathway/", pathway, "_", condition,"_signaling_strength_heatmap.png", sep=""),height = 600*3, width = 600*3, res = 300)
   ht3 <- netVisual_heatmap(X, signaling = pathway, color.heatmap = "Reds")
   draw(ht3)
   dev.off()
   
   # contribution of specific ligand/receptor pair to this pathway
   p1 <- netAnalysis_contribution(X, signaling = pathway)
-  ggsave(file = paste0(dir_cellchat, "cellchat/images/pathway/LR_gene/", pathway, "_", condition, "_LR_contribution.png", sep=""), plot = p1, height = 6, width = 8)
+  ggsave(file = paste0(dir_cellchat, "/cellchat/images/pathway/LR_gene/", pathway, "_", condition, "_LR_contribution.png", sep=""), plot = p1, height = 6, width = 8)
   
   # extract significant L-R pairs contributing to the pathway
   pairLR <- extractEnrichedLR(X, signaling = pathway, geneLR.return = FALSE)
   # cell-cell communication mediated by a single ligand-receptor pair
   for (eachLR in pairLR$interaction_name){
-    png(paste0("cellchat/images/pathway/LR_gene/", pathway, "_", condition, "_", eachLR, ".png", sep=""), height = 600*2, width = 600*2, res = 300, pointsize = 8)
+    png(paste0(dir_cellchat, "/cellchat/images/pathway/LR_gene/", pathway, "_", condition, "_", eachLR, ".png", sep=""), height = 600*2, width = 600*2, res = 300, pointsize = 8)
     netVisual_individual(X, signaling = pathway, pairLR.use = eachLR, layout = "chord")
     dev.off()
   }
@@ -247,7 +233,7 @@ pathway_visu <- function(X, Y, pathway, condition){
       features = LRs_uni, 
       pt.size = -1,
     )
-    png(paste0(dir_cellchat, "cellchat/images/pathway/LR_gene/", pathway, "_", condition, "_signaling_gene.png", sep=""), width = 300+150*length(levels(Y)), height = 1200, res = 300)
+    png(paste0(dir_cellchat, "/cellchat/images/pathway/LR_gene/", pathway, "_", condition, "_signaling_gene.png", sep=""), width = 300+150*length(levels(Y)), height = 1200, res = 300)
     print(p2)
     dev.off()
   } else {
@@ -257,21 +243,21 @@ pathway_visu <- function(X, Y, pathway, condition){
       pt.size = -1,
       stack = TRUE
     )
-    png(paste0(dir_cellchat, "cellchat/images/pathway/LR_gene/", pathway, "_", condition, "_signaling_gene.png", sep=""), width = 300+150*length(levels(Y)), height = 600+300*length(LRs_uni), res = 300)
+    png(paste0(dir_cellchat, "/cellchat/images/pathway/LR_gene/", pathway, "_", condition, "_signaling_gene.png", sep=""), width = 300+150*length(levels(Y)), height = 600+300*length(LRs_uni), res = 300)
     print(p2)
     dev.off()
   }
 
   # signaling role analysis on pathway of interest
-  png(paste0(dir_cellchat, "cellchat/images/pathway/", pathway, "_", condition, "_signaling_role_heatmap.png", sep=""),height = 600*1.2,width = 800*1.5, res=300)
+  png(paste0(dir_cellchat, "/cellchat/images/pathway/", pathway, "_", condition, "_signaling_role_heatmap.png", sep=""),height = 600*1.2,width = 800*1.5, res=300)
   netAnalysis_signalingRole_network(X, signaling = pathway, font.size=6)
   dev.off()
   p3 <- netAnalysis_signalingRole_scatter(X, signaling = pathway)
-  ggsave(file=paste0(dir_cellchat, "cellchat/images/pathway/", pathway, "_", condition, "_signaling_role_scatter.png", sep=""), plot=p3, height = 6, width = 6)
+  ggsave(file=paste0(dir_cellchat, "/cellchat/images/pathway/", pathway, "_", condition, "_signaling_role_scatter.png", sep=""), plot=p3, height = 6, width = 6)
   
   # Bubble plots for LR pairs
   p <- netVisual_bubble(X, signaling = pathway, remove.isolate = TRUE, font.size = 7)
-  png(file=paste0(dir_cellchat, "cellchat/images/pathway/LR_gene/", pathway, "_", condition, "_LR_bubble_plot.png"), res = 300, height = 600+120*length(unique(p$data$interaction_name)), width = 600+25*length(unique(p$data$source.target)))
+  png(file=paste0(dir_cellchat, "/cellchat/images/pathway/LR_gene/", pathway, "_", condition, "_LR_bubble_plot.png"), res = 300, height = 600+120*length(unique(p$data$interaction_name)), width = 600+25*length(unique(p$data$source.target)))
   print(p)
   dev.off()
 }
@@ -285,14 +271,14 @@ pathway_visu <- function(X, Y, pathway, condition){
 #' @param pathways_to_show a vector of pathway names.
 #' @param condition the condition of the object.
 
-doCellComVisu <- function(X, Y, pathways_to_show, condition){
+doCellComVisu <- function(X, Y, pathways_to_show, condition, dir_cellchat){
   
   # communication at aggregated network level
-  aggregate_visu(X, condition)
+  aggregate_visu(X, condition, dir_cellchat)
   
   # communication at signaling pathway level
   for (path in pathways_to_show) {
-    pathway_visu(X, Y, path, condition)
+    pathway_visu(X, Y, path, condition, dir_cellchat)
   }
   
 }
@@ -384,7 +370,7 @@ run_cellchatV2_cmp <- function(dir_cellchat, seurat_obj_cond1, cellchat_obj_cond
   cellchat <- compareCellComVisu(cellchat, object_list, cond_in_compare, pathways_to_compare)
   
   # save merged cellchat object
-  saveRDS(cellchat, file = paste0(dir_cellchat, "cellchat/rds/", cond_in_compare[1], "_", cond_in_compare[2], "_CellChat.rds"))
+  saveRDS(cellchat, file = paste0(dir_cellchat, "/cellchat/rds/", cond_in_compare[1], "_", cond_in_compare[2], "_CellChat.rds"))
   
   message("CellChat V2 Differential analysis completed.")
 }
@@ -411,12 +397,12 @@ network_comparison <- function(X, object_list, cond_in_compare){
   gg1 <- compareInteractions(X, show.legend = F, group = c(1,2))
   gg2 <- compareInteractions(X, show.legend = F, group = c(1,2), measure = "weight")
   p1 <- gg1 + gg2
-  ggsave(file=paste0("images/cellchat/comparison/Net/",cond_in_compare[1],"_",cond_in_compare[2],"_interactNum_histo", ".png", sep=""), plot=p1, height = 6, width = 8)
+  ggsave(file=paste0(dir_cellchat, "/cellchat/images/comparison/Net/",cond_in_compare[1],"_",cond_in_compare[2],"_interactNum_histo", ".png", sep=""), plot=p1, height = 6, width = 8)
 
   # differential number of interactions and strength for each cell type in heatmap
   gg1 <- netVisual_heatmap(cellchat)
   gg2 <- netVisual_heatmap(cellchat, measure = "weight")
-  png(paste0("images/cellchat/comparison/Net/",cond_in_compare[1],"_",cond_in_compare[2],"_diff_interaction", ".png", sep=""),height = 600*3,width = 800*4, res=300)
+  png(paste0(dir_cellchat, "/cellchat/images/comparison/Net/",cond_in_compare[1],"_",cond_in_compare[2],"_diff_interaction", ".png", sep=""),height = 600*3,width = 800*4, res=300)
   draw(gg1 + gg2)
   dev.off()
 
@@ -428,7 +414,7 @@ network_comparison <- function(X, object_list, cond_in_compare){
     gg[[i]] <- netAnalysis_signalingRole_scatter(object_list[[i]], title = names(object_list)[i], weight.MinMax = weight.MinMax)
   }
   p2 <- patchwork::wrap_plots(plots = gg)
-  ggsave(file=paste0("images/cellchat/comparison/Net/",cond_in_compare[1],"_",cond_in_compare[2],"_diff_outgo_income_strength",".png", sep=""), plot=p2, height = 6, width = 10)
+  ggsave(file=paste0(dir_cellchat, "/cellchat/images/comparison/Net/",cond_in_compare[1],"_",cond_in_compare[2],"_diff_outgo_income_strength",".png", sep=""), plot=p2, height = 6, width = 10)
 
   # take cell type labels
   cell_groups <- levels(X@idents$joint)
@@ -442,7 +428,7 @@ network_comparison <- function(X, object_list, cond_in_compare){
     tryCatch(
     {
       p <- netAnalysis_signalingChanges_scatter(X, idents.use = i)
-      ggsave(file=paste0("images/cellchat/comparison/Net/",cond_in_compare[1],"_",cond_in_compare[2],"_signaling_change_",i,".png", sep=""), plot=p, height = 6, width = 6)
+      ggsave(file=paste0(dir_cellchat, "/cellchat/images/comparison/Net/",cond_in_compare[1],"_",cond_in_compare[2],"_signaling_change_",i,".png", sep=""), plot=p, height = 6, width = 6)
     },
     error=function(cond)
     {
@@ -476,7 +462,7 @@ manifold_learning <- function(X, cond_in_compare){
 
   # Visualization in 2D-space
   p1 <- netVisual_embeddingPairwise(X, type = "functional", label.size = 3.5)
-  ggsave(file=paste0("images/cellchat/comparison/manifold/",cond_in_compare[1],"_",cond_in_compare[2],"_functional_similarity", ".png", sep=""), plot=p1,height = 6, width = 8)
+  ggsave(file=paste0(dir_cellchat, "/cellchat/images/comparison/manifold/",cond_in_compare[1],"_",cond_in_compare[2],"_functional_similarity", ".png", sep=""), plot=p1,height = 6, width = 8)
   
   # Manifold learning: structural
   X <- computeNetSimilarityPairwise(X, type = "structural")
@@ -485,13 +471,13 @@ manifold_learning <- function(X, cond_in_compare){
 
   # Visualization in 2D-space
   p2 <- netVisual_embeddingPairwise(X, type = "structural", label.size = 3.5)
-  ggsave(file=paste0("images/cellchat/comparison/manifold/",cond_in_compare[1],"_",cond_in_compare[2],"_structural_similarity", ".png", sep=""), plot=p2,height = 6, width = 8)
+  ggsave(file=paste0(dir_cellchat, "/cellchat/images/comparison/manifold/",cond_in_compare[1],"_",cond_in_compare[2],"_structural_similarity", ".png", sep=""), plot=p2,height = 6, width = 8)
 
   # identify signaling networks with larger/less difference based on Euclidean distance
   p3 <- rankSimilarity(X, type = "functional")
-  ggsave(file=paste0("images/cellchat/comparison/manifold/",cond_in_compare[1],"_",cond_in_compare[2],"_functional_rank", ".png", sep=""), plot=p3,height = 6, width = 6)
+  ggsave(file=paste0(dir_cellchat, "/cellchat/images/comparison/manifold/",cond_in_compare[1],"_",cond_in_compare[2],"_functional_rank", ".png", sep=""), plot=p3,height = 6, width = 6)
   p4 <- rankSimilarity(X, type = "structural")
-  ggsave(file=paste0("images/cellchat/comparison/manifold/",cond_in_compare[1],"_",cond_in_compare[2],"_structural_rank", ".png", sep=""), plot=p4,height = 6, width = 6)
+  ggsave(file=paste0(dir_cellchat, "/cellchat/images/comparison/manifold/",cond_in_compare[1],"_",cond_in_compare[2],"_structural_rank", ".png", sep=""), plot=p4,height = 6, width = 6)
 
   return(X)
 }
@@ -512,7 +498,7 @@ information_flow <- function(X, object_list,cond_in_compare){
   p1 <- gg1 + gg2
   # use the number of pathways showing in plot to tune height
   pathway_in_plot <- length(levels(gg1$data$name))
-  ggsave(file=paste0("images/cellchat/comparison/infoFlow/",cond_in_compare[1],"_",cond_in_compare[2],"_significant_pathway_rank", ".png", sep=""), plot=p1, height = 0.1*pathway_in_plot, width = 8)
+  ggsave(file=paste0(dir_cellchat, "/cellchat/images/comparison/infoFlow/",cond_in_compare[1],"_",cond_in_compare[2],"_significant_pathway_rank", ".png", sep=""), plot=p1, height = 0.1*pathway_in_plot, width = 8)
 
   # compare outgoing signaling associated with each cell population 
   i = 1
@@ -523,14 +509,14 @@ information_flow <- function(X, object_list,cond_in_compare){
 
   ht1 = netAnalysis_signalingRole_heatmap(object_list[[i]], pattern = "outgoing", signaling = pathway_union, title = names(object_list)[i], height=10*ceiling(pathway_union_length/50), width = 10*ceiling(joint_cell_type/30), font.size=6)
   ht2 = netAnalysis_signalingRole_heatmap(object_list[[i+1]], pattern = "outgoing", signaling = pathway_union, title = names(object_list)[i+1], height=10*ceiling(pathway_union_length/50), width = 10*ceiling(joint_cell_type/30), font.size=6)
-  png(paste0("images/cellchat/comparison/infoFlow/",cond_in_compare[1],"_",cond_in_compare[2],"_diff_outgoing_interaction", ".png", sep=""),height = 600*1.8*(ceiling(pathway_union_length/50)), width = 800*2.7*ceiling(joint_cell_type/30), res=200)
+  png(paste0(dir_cellchat, "/cellchat/images/comparison/infoFlow/",cond_in_compare[1],"_",cond_in_compare[2],"_diff_outgoing_interaction", ".png", sep=""),height = 600*1.8*(ceiling(pathway_union_length/50)), width = 800*2.7*ceiling(joint_cell_type/30), res=200)
   draw(ht1 + ht2, ht_gap = unit(0.5, "cm"))
   dev.off()
 
   # compare incoming signaling associated with each cell population 
   ht1 = netAnalysis_signalingRole_heatmap(object_list[[i]], pattern = "incoming", signaling = pathway_union, title = names(object_list)[i], height=10*ceiling(pathway_union_length/50), width = 10*ceiling(joint_cell_type/30), font.size=6, color.heatmap = "GnBu")
   ht2 = netAnalysis_signalingRole_heatmap(object_list[[i+1]], pattern = "incoming", signaling = pathway_union, title = names(object_list)[i+1], height=10*ceiling(pathway_union_length/50), width = 10*ceiling(joint_cell_type/30), font.size=6, color.heatmap = "GnBu")
-  png(paste0("images/cellchat/comparison/infoFlow/",cond_in_compare[1],"_",cond_in_compare[2],"_diff_incoming_interaction", ".png", sep=""),height = 600*1.8*(ceiling(pathway_union_length/50)), width = 800*2.7*ceiling(joint_cell_type/30), res=200)
+  png(paste0(dir_cellchat, "/cellchat/images/comparison/infoFlow/",cond_in_compare[1],"_",cond_in_compare[2],"_diff_incoming_interaction", ".png", sep=""),height = 600*1.8*(ceiling(pathway_union_length/50)), width = 800*2.7*ceiling(joint_cell_type/30), res=200)
   draw(ht1 + ht2, ht_gap = unit(0.5, "cm"))
   dev.off()
 
@@ -549,8 +535,8 @@ differential_ligand_receptor <- function(X, cond_in_compare){
   # DEG by communication probability: max.dataset = keep the communications with highest probability in max.dataset
   gg1 <- netVisual_bubble(X, comparison = c(1, 2), max.dataset = 2, title.name = paste0("Increased signaling in", cond_in_compare[2]), angle.x = 45, remove.isolate = T)
   gg2 <- netVisual_bubble(X, comparison = c(1, 2), max.dataset = 1, title.name = paste0("Decreased signaling in", cond_in_compare[2]), angle.x = 45, remove.isolate = T)
-  write.csv(gg1$data, file=paste0("csv/cellchat/",cond_in_compare[2],"_increased_signalingLR_commProb.csv", sep=""))
-  write.csv(gg2$data, file=paste0("csv/cellchat/",cond_in_compare[2],"_decreased_signalingLR_commProb.csv", sep=""))
+  write.csv(gg1$data, file=paste0(dir_cellchat, "/cellchat/csv/",cond_in_compare[2],"_increased_signalingLR_commProb.csv", sep=""))
+  write.csv(gg2$data, file=paste0(dir_cellchat, "/cellchat/csv/",cond_in_compare[2],"_decreased_signalingLR_commProb.csv", sep=""))
 
   # DEG by differential gene expression
   # define a positive dataset, i.e., the dataset with positive fold change against the other dataset
@@ -564,8 +550,8 @@ differential_ligand_receptor <- function(X, cond_in_compare){
   net.up <- subsetCommunication(X, net = net, datasets = cond_in_compare[2], ligand.logFC = 0.2, receptor.logFC = NULL)
   # extract the ligand-receptor pairs with upregulated ligands in the other dataset, i.e.,downregulated in pos.dataset
   net.down <- subsetCommunication(cellchat, net = net, datasets = cond_in_compare[1], ligand.logFC = -0.1, receptor.logFC = -0.1)
-  write.csv(net.up, file=paste0("csv/cellchat/",cond_in_compare[2],"_increased_signalingLR_diffExpession.csv", sep=""))
-  write.csv(net.down, file=paste0("csv/cellchat/",cond_in_compare[2],"_decreased_signalingLR_diffExpession.csv", sep=""))
+  write.csv(net.up, file=paste0(dir_cellchat, "/cellchat/csv/",cond_in_compare[2],"_increased_signalingLR_diffExpession.csv", sep=""))
+  write.csv(net.down, file=paste0(dir_cellchat, "/cellchat/csv/",cond_in_compare[2],"_decreased_signalingLR_diffExpession.csv", sep=""))
 
   return(X)
 
@@ -582,7 +568,7 @@ differential_ligand_receptor <- function(X, cond_in_compare){
 
 side_by_side_path_compr <- function(X, object_list, cond_in_compare, pathway){
   
-  png(paste0("images/cellchat/comparison/sidebyside/",cond_in_compare[1],"_",cond_in_compare[2],"_",pathway,"_sidebyside_strength", ".png", sep=""),height = 600*2,width = 800*3, res=200, pointsize = 10)
+  png(paste0(dir_cellchat, "/cellchat/images/comparison/sidebyside/",cond_in_compare[1],"_",cond_in_compare[2],"_",pathway,"_sidebyside_strength", ".png", sep=""),height = 600*2,width = 800*3, res=200, pointsize = 10)
   par(mfrow = c(1,2), xpd=TRUE)
   par(mar = c(0.1, 1, 1, 1))
   for (i in 1:length(object_list)) {
