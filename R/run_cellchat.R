@@ -143,11 +143,11 @@ run_cellchatV2 <- function(output_dir, seurat_obj, sample_column = NULL, annotat
       
       # Load the seurat objects and cellchat objects
       # Condition 1
-      seurat_obj_cond1 <- readRDS(paste0(output_dir, "cellchat/rds/cellchat_obj_", cond_1, ".rds"))
-      cellchat_obj_cond1 <- readRDS(paste0(output_dir, "cellchat/rds/cellchat_obj_", cond_1, ".rds"))
+      seurat_obj_cond1 <- readRDS(paste0(output_dir, "/cellchat/rds/cellchat_obj_", cond_1, ".rds"))
+      cellchat_obj_cond1 <- readRDS(paste0(output_dir, "/cellchat/rds/cellchat_obj_", cond_1, ".rds"))
       # Condition 2
-      seurat_obj_cond2 <- readRDS(paste0(output_dir, "cellchat/rds/cellchat_obj_", cond_2, ".rds"))
-      cellchat_obj_cond2 <- readRDS(paste0(output_dir, "cellchat/rds/cellchat_obj_", cond_2, ".rds"))
+      seurat_obj_cond2 <- readRDS(paste0(output_dir, "/cellchat/rds/cellchat_obj_", cond_2, ".rds"))
+      cellchat_obj_cond2 <- readRDS(paste0(output_dir, "/cellchat/rds/cellchat_obj_", cond_2, ".rds"))
       
       run_cellchatV2_cmp(output_dir, seurat_obj_cond1, cellchat_obj_cond1, seurat_obj_cond2, cellchat_obj_cond2, group_column, condition_1 = cond_1, condition_2 = cond_2, top_n)
       
