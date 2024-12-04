@@ -5,14 +5,15 @@
 \title{Function to run the monocle3 pipeline}
 \usage{
 run_monocle3(
-  seurat,
+  seurat_obj,
   species,
   nDim = 30,
   conditions = NULL,
-  condition_metadata = NULL,
+  annotation_column = NULL,
+  group_column = NULL,
   transferUMAP = TRUE,
   rootNode_method = "potency",
-  rootNodes = NULL,
+  rootNode = NULL,
   timepoint = NULL,
   timePoint_metadata = NULL,
   batch_metadata = NULL,
@@ -22,31 +23,33 @@ run_monocle3(
   metadata_deg_model = NULL,
   graph_test = FALSE,
   cores = 1,
-  outputDir = "."
+  output_dir = "."
 )
 }
 \arguments{
-\item{seurat}{Seurat object containing the scRNASeq data (Required)}
+\item{seurat_obj}{Seurat object containing the scRNASeq data (Required)}
 
 \item{species}{A character variable specifying the species (Required, either human or mouse)}
 
-\item{nDim}{A numeric variable specifiying the PCA dimensions to be used for processing}
+\item{nDim}{A numeric variable specifying the PCA dimensions to be used for processing}
 
 \item{conditions}{A character vector specifying the different conditions}
 
-\item{condition_metadata}{A character variable specifying the metdata name contating conditions in the seurat object}
+\item{annotation_column}{A character variable specifying the metdata column name of annotations. (Default: uses Idents)}
+
+\item{group_column}{A character variable specifying the metdata column name containing conditions in the seurat object}
 
 \item{transferUMAP}{A boolean variable specifying whether to transfer UMAP coordinates or not from Seurat object}
 
 \item{rootNode_method}{A character variable specifying the method to identify root node (Either potency or rootNodes)}
 
-\item{rootNodes}{A character vector specifying the principal point on the trajectory, in the format of "Y_<node number>".}
+\item{rootNode}{A character variable specifying the principal point on the trajectory, in the format of "Y_<node number>".}
 
-\item{timepoint}{A character vector specifying the category inside a metadata to be used to automcatically decide the root node.}
+\item{timepoint}{A character variable specifying the category inside a metadata to be used to automatically decide the root node.}
 
-\item{timePoint_metadata}{A character vector specifying the metadata to be used to automcatically decide the root node.}
+\item{timePoint_metadata}{A character variable specifying the metadata to be used to automatically decide the root node.}
 
-\item{batch_metadata}{A character vector specifying the name of metadata column with batch information to perform batch correction}
+\item{batch_metadata}{A character vector specifying the name of metadata column name with batch information to perform batch correction}
 
 \item{celltype_groups}{A list of character vectors that represents a group of cell types to be subsetted and constructed trajectory by monocle}
 
@@ -60,7 +63,7 @@ run_monocle3(
 
 \item{cores}{A numeric variable to set the number of cores to be used}
 
-\item{outputDir}{A character vector specifying the output directory}
+\item{output_dir}{A character vector specifying the output directory}
 }
 \value{
 A list of monocle cell dataset objects

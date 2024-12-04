@@ -1,14 +1,14 @@
 # load libraries that are installed in the docker container
-library(Seurat)
-library(monocle3)
-library(ggplot2)
-library(igraph)
-library(dplyr)
-library(stringr)
-library(tibble)
-library(pheatmap)
-library(SCENT)
-library(patchwork)
+# library(Seurat)
+# library(monocle3)
+# library(ggplot2)
+# library(igraph)
+# library(dplyr)
+# library(stringr)
+# library(tibble)
+# library(pheatmap)
+# library(SCENT)
+# library(patchwork)
 
 #' Learn trajectory graph for the inputted Seurat object.
 #'
@@ -20,36 +20,43 @@ library(patchwork)
 #' @param cond a character string specifying a condition, for output naming purpose
 #' @return cds, a cell_data_set object with trajectory
 #'
+#' @importFrom grDevices dev.off jpeg pdf png
+#' @importFrom graphics par
+#' @importFrom checkmate expect_choice
+#' @importFrom stats na.omit
+#' @importFrom utils read.csv read.table write.csv
+#'
+#'
 #' @noRd
 
 getTrajectory <- function(X, nDim=30, batch=NULL, transferUMAP=TRUE, subset=NULL, cond=NULL,outputDir="."){
 
   # when idents = NULL, WhichCells() will simply return all cells, thus no subsetting
-  selected_cells <- WhichCells(X, idents = subset)
+  selected_cells <- Seurat::WhichCells(X, idents = subset)
   geneInfo <- data.frame(gene_short_name = rownames(X[,selected_cells]@assays$RNA))
   rownames(geneInfo) <- rownames(X[,selected_cells]@assays$RNA)
   cellInfo <- X[,selected_cells]@meta.data
-  cds <- new_cell_data_set(X[,selected_cells]@assays$RNA@counts,
+  cds <- monocle3::new_cell_data_set(X[,selected_cells]@assays$RNA@counts,
                            cell_metadata = cellInfo,
                            gene_metadata = geneInfo)
-  cds <- preprocess_cds(cds, num_dim = nDim)
-  cds <- reduce_dimension(cds)
+  cds <- monocle3::preprocess_cds(cds, num_dim = nDim,method = "PCA")
+  cds <- monocle3::reduce_dimension(cds)
 
   if(!is.null(batch)){ # correct batch effect, if any
-    p1 <- plot_cells(cds, color_cells_by=batch, label_cell_groups=FALSE) +
-      ggtitle(paste0("UMAP before batch correction", "\n","~",batch,sep=""))
-    cds <- align_cds(cds, alignment_group = batch)
-    cds <- reduce_dimension(cds)
-    p2 <- plot_cells(cds, color_cells_by=batch, label_cell_groups=FALSE) +
-      ggtitle(paste0("UMAP after batch correction", "\n","~",batch,sep="")) +
-      theme(plot.title = element_text(hjust = 0.5))
-    combined_plot <- plot_grid(p1, p2, ncol = 2)
-    ggsave(file=paste0(outputDir,'/images/monocle/pseudotime/batchEffectCompare',ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond),"",paste0("_",cond)),'.png',sep=""), plot = combined_plot, width = 10, height = 5)
+    p1 <- monocle3::plot_cells(cds, color_cells_by=batch, label_cell_groups=FALSE) +
+      ggplot2::ggtitle(paste0("UMAP before batch correction", "\n","~",batch,sep=""))
+    cds <- monocle3::align_cds(cds, alignment_group = batch)
+    cds <- monocle3::reduce_dimension(cds)
+    p2 <- monocle3::plot_cells(cds, color_cells_by=batch, label_cell_groups=FALSE) +
+      ggplot2::ggtitle(paste0("UMAP after batch correction", "\n","~",batch,sep="")) +
+      ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
+    combined_plot <- patchwork::wrap_plots(list(p1, p2), ncol = 2)
+    ggplot2::ggsave(file=file.path(outputDir,"images","pseudotime",paste0('batchEffectCompare',ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond),"",paste0("_",cond)),'.png',sep="")), plot = combined_plot, width = 10, height = 5)
   }
 
   if(transferUMAP){     # transfer original Seurat umap coordinates
     if ("umap" %in% names(X@reductions)){
-      reducedDims(cds)[['UMAP']] <- X[,selected_cells]@reductions$umap@cell.embeddings
+      SingleCellExperiment::reducedDims(cds)[['UMAP']] <- X[,selected_cells]@reductions$umap@cell.embeddings
     } else {
       stop("There is no UMAP coordinates to transfer! Check Seurat object for umap embedding.")
     }
@@ -59,38 +66,37 @@ getTrajectory <- function(X, nDim=30, batch=NULL, transferUMAP=TRUE, subset=NULL
   #https://github.com/cole-trapnell-lab/monocle3/issues/664
   ##Error in leidenbase::leiden_find_partition(graph_result[["g"]], partition_type = partition_type,  :
   ##REAL() can only be applied to a 'numeric', not a 'NULL'
-  cds <- cluster_cells(cds,cluster_method = "louvain")
-  cds <- learn_graph(cds, use_partition = FALSE) # learn a single graph for all partitions
+  cds <- monocle3::cluster_cells(cds,cluster_method = "louvain")
+  cds <- monocle3::learn_graph(cds, use_partition = FALSE) # learn a single graph for all partitions
 
   # plot umap by partitions
-  png(paste0(outputDir,"/images/monocle/pseudotime/umap_partitions_","transferUMAP_",transferUMAP,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond),"",paste0("_",cond)),".png",sep=""), width = 2000*1.4, height = 1500*1.5, res = 400)
-  p3 <- plot_cells(cds, color_cells_by="partition", group_cells_by="partition", show_trajectory_graph=FALSE) +
-    theme_void() +
-    ggtitle(paste0("UMAP by partitions", "\n", "transferUMAP=",transferUMAP, sep="")) +
-    theme(plot.title = element_text(hjust = 0.5))
+  png(filename = file.path(outputDir,"images","pseudotime",paste0("umap_partitions_","transferUMAP_",transferUMAP,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond),"",paste0("_",cond)),".png",sep="")), width = 2000*1.4, height = 1500*1.5, res = 400)
+  p3 <- monocle3::plot_cells(cds, color_cells_by="partition", group_cells_by="partition", show_trajectory_graph=FALSE) +
+    ggplot2::theme_void() +
+    ggplot2::ggtitle(paste0("UMAP by partitions", "\n", "transferUMAP=",transferUMAP, sep="")) +
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
   print(p3)
   dev.off()
 
   # plot umap by cell types
-  cds[["cell.type"]] <- unname(Idents(X)) # transfer labels
-  png(paste0(outputDir,"/images/monocle/pseudotime/umap_celltypes_","transferUMAP_",transferUMAP,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond),"",paste0("_",cond)),".png",sep=""), width = 2000*1.4, height = 1500*1.5, res = 400)
-  p4 <- plot_cells(cds, color_cells_by="cell.type", show_trajectory_graph=FALSE) +
-    theme_void() +
-    ggtitle(paste0("UMAP by cell types","\n", "transferUMAP=",transferUMAP, sep=""))+
-    theme(plot.title = element_text(hjust = 0.5))
+  cds[["cell.type"]] <- unname(Seurat::Idents(X)) # transfer labels
+  png(filename = file.path(outputDir,"images","pseudotime",paste0("umap_celltypes_","transferUMAP_",transferUMAP,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond),"",paste0("_",cond)),".png",sep="")), width = 2000*1.4, height = 1500*1.5, res = 400)
+  p4 <- monocle3::plot_cells(cds, color_cells_by="cell.type", show_trajectory_graph=FALSE) +
+    ggplot2::theme_void() +
+    ggplot2::ggtitle(paste0("UMAP by cell types","\n", "transferUMAP=",transferUMAP, sep=""))+
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
   print(p4)
   dev.off()
 
   # plot umap by trajectory
-  png(paste0(outputDir,"/images/monocle/pseudotime/umap_trajectory_","transferUMAP_",transferUMAP,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond),"",paste0("_",cond)),".png",sep=""), width = 2000*1.4, height = 1500*1.5, res = 400)
-  p5 <- plot_cells(cds, label_principal_points = TRUE,  color_cells_by = "cell.type", label_cell_groups=FALSE) +
-    theme_void() +
-    guides(color= guide_legend("Cell Type", override.aes = list(size=5))) +
-    ggtitle(paste0("UMAP by trajectory","\n", "transferUMAP=",transferUMAP,sep=""))+
-    theme(plot.title = element_text(hjust = 0.5))
+  png(filename = file.path(outputDir,"images","pseudotime",paste0("umap_trajectory_","transferUMAP_",transferUMAP,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond),"",paste0("_",cond)),".png",sep="")), width = 2000*1.4, height = 1500*1.5, res = 400)
+  p5 <- monocle3::plot_cells(cds, label_principal_points = TRUE,  color_cells_by = "cell.type", label_cell_groups=FALSE) +
+    ggplot2::theme_void() +
+    ggplot2::guides(color = ggplot2::guide_legend("Cell Type", override.aes = list(size=5))) +
+    ggplot2::ggtitle(paste0("UMAP by trajectory","\n", "transferUMAP=",transferUMAP,sep=""))+
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
   print(p5)
   dev.off()
-
   return(cds)
 }
 
@@ -106,6 +112,7 @@ getTrajectory <- function(X, nDim=30, batch=NULL, transferUMAP=TRUE, subset=NULL
 #' @param subset a character vector of cell types to subset for, purely for output naming purpose
 #' @param cond a character string specifying a condition, purely for output naming purpose
 #' @return cds, a cell_data_set object with pseudotime values
+#'
 #' @noRd
 
 orderCells <- function(cds, method, rootNodes=NULL, timePoint=NULL, timePointCol=NULL, species="mouse", subset=NULL, cond=NULL,outputDir="."){
@@ -114,7 +121,7 @@ orderCells <- function(cds, method, rootNodes=NULL, timePoint=NULL, timePointCol
 
   if (method=="interactive"){
 
-    cds <- order_cells(cds)
+    cds <- monocle3::order_cells(cds)
 
   } else if (method == "rootNodes"){
 
@@ -122,10 +129,10 @@ orderCells <- function(cds, method, rootNodes=NULL, timePoint=NULL, timePointCol
     try(if((!is.null(timePoint) & is.null(timePointCol)) | (is.null(timePoint) & !is.null(timePointCol))) stop("Time point and time point column must be both specified."))
 
     if (is.null(rootNodes)){                    # based on time point information
-      cds <- order_cells(cds, root_pr_nodes=getRootPrincipalNodes(cds, timePoint, timePointCol))
+      cds <- monocle3::order_cells(cds, root_pr_nodes=getRootPrincipalNodes(cds, timePoint, timePointCol))
       figure_title <- paste0(figure_title,"_",timePoint,sep="")
     } else {                                    # manual pick principal nodes
-      cds <- order_cells(cds, root_pr_nodes=rootNodes)
+      cds <- monocle3::order_cells(cds, root_pr_nodes=rootNodes)
       figure_title <- paste0(figure_title,"_",rootNodes,sep="")
     }
 
@@ -141,25 +148,25 @@ orderCells <- function(cds, method, rootNodes=NULL, timePoint=NULL, timePointCol
     root_cell <- rownames(potency_df)[max_potency]
 
     # define that cell as the root cell
-    cds <- order_cells(cds, root_cells = root_cell)
+    cds <- monocle3::order_cells(cds, root_cells = root_cell)
 
     # overlay potency scores
-    png(paste0(outputDir,'/images/monocle/pseudotime/umap_potency_',figure_title,ifelse(!is.null(subset) ,paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond),"",paste0("_",cond)),'.png',sep=""), width = 2000*1.4, height = 1500*1.5, res = 400)
-    P1 <- plot_cells(cds, label_principal_points = TRUE, color_cells_by = "potency") +
-      theme_void() +
-      guides(colour = guide_colorbar("Potency"))
+    png(filename = file.path(outputDir,"images","pseudotime",paste0('umap_potency_',figure_title,ifelse(!is.null(subset) ,paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond),"",paste0("_",cond)),'.png',sep="")), width = 2000*1.4, height = 1500*1.5, res = 400)
+    P1 <- monocle3::plot_cells(cds, label_principal_points = TRUE, color_cells_by = "potency") +
+      ggplot2::theme_void() +
+      ggplot2::guides(colour = ggplot2::guide_colorbar("Potency"))
     print(P1)
     dev.off()
 
   }
 
-  saveRDS(cds, file=paste0(outputDir,"/rds/monocle/","cds", ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond),"",paste0("_",cond)), ".rds",sep=""))
+  saveRDS(cds, file=file.path(outputDir,"rds",paste0("cds", ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond),"",paste0("_",cond)), ".rds",sep="")))
 
-  png(paste0(outputDir,"/images/monocle/pseudotime/umap_pseudotime_",figure_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond),"",paste0("_",cond)),".png",sep=""), width = 2000*1.4, height = 1500*1.5, res = 400)
-  p1 <- plot_cells(cds, color_cells_by = "pseudotime", label_cell_groups=FALSE, label_leaves=FALSE, label_branch_points=FALSE) +
-    theme_void() +
-    ggtitle(paste0("UMAP by pseudotime","\n", "method=",method,sep=""))+
-    theme(plot.title = element_text(hjust = 0.5))
+  png(filename = file.path(outputDir,"images","pseudotime",paste0("umap_pseudotime_",figure_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond),"",paste0("_",cond)),".png",sep="")), width = 2000*1.4, height = 1500*1.5, res = 400)
+  p1 <- monocle3::plot_cells(cds, color_cells_by = "pseudotime", label_cell_groups=FALSE, label_leaves=FALSE, label_branch_points=FALSE) +
+    ggplot2::theme_void() +
+    ggplot2::ggtitle(paste0("UMAP by pseudotime","\n", "method=",method,sep=""))+
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
   print(p1)
   dev.off()
 
@@ -185,10 +192,10 @@ getPotency <- function(cds, specie = 'mouse', ppiThreshold = 600){
 
   # Downloading files
   if(!file.exists(paste0(specie,'PPI.txt.gz'))){
-    download.file(paste0('https://stringdb-static.org/download/protein.links.v11.5/',specie,'.protein.links.v11.5.txt.gz'), paste0(specie,'PPI.txt.gz'), method = 'wget')
+    utils::download.file(paste0('https://stringdb-static.org/download/protein.links.v11.5/',specie,'.protein.links.v11.5.txt.gz'), paste0(specie,'PPI.txt.gz'), method = 'wget',quiet = TRUE)
   }
   if(!file.exists(paste0(specie,'P2G.txt.gz'))){
-    download.file(paste0('https://stringdb-static.org/download/protein.info.v11.5/',specie,'.protein.info.v11.5.txt.gz'), paste0(specie,'P2G.txt.gz'), method = 'wget')
+    utils::download.file(paste0('https://stringdb-static.org/download/protein.info.v11.5/',specie,'.protein.info.v11.5.txt.gz'), paste0(specie,'P2G.txt.gz'), method = 'wget',quiet = TRUE)
   }
 
   # Reading files
@@ -252,51 +259,51 @@ regressionAnalysis <- function(cds, model, batch, distribution, top_gene, subset
     add_title <- "+trajectory"
   }
 
-  reduced_model <- fit_models(cds, model_formula_str = paste0("~",model,sep=""), expression_family=distribution)
-  fit_coefs <- coefficient_table(reduced_model)
+  reduced_model <- monocle3::fit_models(cds, model_formula_str = paste0("~",model,sep=""), expression_family=distribution)
+  fit_coefs <- monocle3::coefficient_table(reduced_model)
 
   fit_coefs <- fit_coefs[,!names(fit_coefs) %in% c("model", "model_summary")]
-  deg_file_name <- paste0(outputDir,"/csv/monocle/monocleDEG_by_",model,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),".csv")
+  deg_file_name <- file.path(outputDir,"csv",paste0("monocleDEG_by_",model,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),".csv"))
   write.csv(fit_coefs, file=deg_file_name)
-  fit_coefs_sig <- fit_coefs %>% filter(term != "(Intercept)") %>% filter (q_value < 0.05) %>% select(gene_short_name, term, q_value, estimate)
-  deg_sigfile_name <- paste0(outputDir,"/csv/monocle/monocleDEG_significant_by_",model,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),".csv")
+  fit_coefs_sig <- fit_coefs %>% dplyr::filter(term != "(Intercept)") %>% dplyr::filter (q_value < 0.05) %>% dplyr::select(gene_short_name, term, q_value, estimate)
+  deg_sigfile_name <- file.path(outputDir,"csv",paste0("monocleDEG_significant_by_",model,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),".csv"))
   write.csv(fit_coefs_sig, file=deg_sigfile_name)
 
   if (!is.null(batch)){
-    full_model <- fit_models(cds, model_formula_str = paste0("~",model,"+",batch, sep=""), expression_family=distribution)
-    fit_coefs_full <- coefficient_table(full_model)
+    full_model <- monocle3::fit_models(cds, model_formula_str = paste0("~",model,"+",batch, sep=""), expression_family=distribution)
+    fit_coefs_full <- monocle3::coefficient_table(full_model)
     fit_coefs_full <- fit_coefs_full[,!names(fit_coefs_full) %in% c("model", "model_summary")]
 
-    deg_file_name <- paste0(outputDir,"/csv/monocle/monocleDEG_by_",model,"+",batch,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),".csv")
+    deg_file_name <- file.path(outputDir,"csv",paste0("monocleDEG_by_",model,"+",batch,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),".csv"))
     write.csv(fit_coefs_full, file=deg_file_name)
-    fit_coefs_sig_full <- fit_coefs_full %>% filter(term != "(Intercept)") %>% filter (q_value < 0.05) %>% select(gene_short_name, term, q_value, estimate)
-    deg_sigfile_name <- paste0(outputDir,"/csv/monocle/monocleDEG_significant_by_",model,"+",batch,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),".csv")
+    fit_coefs_sig_full <- fit_coefs_full %>% dplyr::filter(term != "(Intercept)") %>% dplyr::filter (q_value < 0.05) %>% dplyr::select(gene_short_name, term, q_value, estimate)
+    deg_sigfile_name <- file.path(outputDir,"csv",paste0("monocleDEG_significant_by_",model,"+",batch,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),".csv"))
     write.csv(fit_coefs_sig_full, file=deg_sigfile_name)
 
-    model_compare <- compare_models(full_model, reduced_model) %>% select(gene_short_name, q_value)
-    deg_modelfile_name <- paste0(outputDir,"/csv/monocle/monocleDEG_modelCompare_",model,"_VS_",model,"+",batch,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),".csv")
+    model_compare <- monocle3::compare_models(full_model, reduced_model) %>% dplyr::select(gene_short_name, q_value)
+    deg_modelfile_name <- file.path(outputDir,"csv",paste0("monocleDEG_modelCompare_",model,"_VS_",model,"+",batch,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),".csv"))
     write.csv(model_compare, file=deg_modelfile_name)
 
-    if (nrow(filter(model_compare, q_value < 0.05)) >= (nrow(model_compare)/2)){
+    if (nrow(dplyr::filter(model_compare, q_value < 0.05)) >= (nrow(model_compare)/2)){
       warning("More than half of the genes' likelihood ratio tests are significant, indicating that there are substantial batch effects in the data. Consider using DEGs found by incorporating batch term!")
     }
 
-    top_diff_genes <- slice_min(fit_coefs_sig_full, q_value, n=top_gene)
+    top_diff_genes <- dplyr::slice_min(fit_coefs_sig_full, q_value, n=top_gene)
 
-    violinplot_filename<-paste0(outputDir,"/images/monocle/DEG/","significant_by_",model,"+",batch,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),"_violinPlot",".png",sep="")
+    violinplot_filename<-file.path(outputDir,"images","DEG",paste0("significant_by_",model,"+",batch,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),"_violinPlot",".png",sep=""))
     #png(violinplot_filename, width = 2000*5, height = 1500*7, res = 400)
     png(violinplot_filename, width = 1000*sqrt(top_gene)*2, height = 875*sqrt(top_gene), res = 300)
-    p1 <- plot_genes_violin(cds[rowData(cds)$gene_short_name %in% (top_diff_genes$gene_short_name), ], group_cells_by=model, ncol=ceiling(sqrt(top_gene))) +
-      theme(axis.text.x=element_text(angle=45, hjust=1))
-    p2 <- plot_genes_violin(cds[rowData(cds)$gene_short_name %in% (top_diff_genes$gene_short_name), ], group_cells_by=batch, ncol=ceiling(sqrt(top_gene))) +
-      theme(axis.text.x=element_text(angle=45, hjust=1))
+    p1 <- monocle3::plot_genes_violin(cds[rowData(cds)$gene_short_name %in% (top_diff_genes$gene_short_name), ], group_cells_by=model, ncol=ceiling(sqrt(top_gene))) +
+      ggplot2::theme(axis.text.x=ggplot2::element_text(angle=45, hjust=1))
+    p2 <- monocle3::plot_genes_violin(cds[rowData(cds)$gene_short_name %in% (top_diff_genes$gene_short_name), ], group_cells_by=batch, ncol=ceiling(sqrt(top_gene))) +
+      ggplot2::theme(axis.text.x=ggplot2::element_text(angle=45, hjust=1))
     pfinal<-p1+p2
     print(pfinal)
     dev.off()
 
-    featureplot_filename<-paste0(outputDir,"/images/monocle/DEG/","significant_by_",model,"+",batch,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),"_featurePlot",".png",sep="")
+    featureplot_filename<-file.path(outputDir,"images","DEG",paste0("significant_by_",model,"+",batch,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),"_featurePlot",".png",sep=""))
     png(featureplot_filename, width = 2000*1.4, height = 1500*1.5, res = 400)
-    p2 <- plot_cells(cds, genes=unique(top_diff_genes$gene_short_name),
+    p2 <- monocle3::plot_cells(cds, genes=unique(top_diff_genes$gene_short_name),
                      show_trajectory_graph=FALSE,
                      label_cell_groups=FALSE,
                      label_leaves=FALSE)
@@ -304,9 +311,9 @@ regressionAnalysis <- function(cds, model, batch, distribution, top_gene, subset
     dev.off()
   }
 
-  top_diff_genes <- slice_min(fit_coefs_sig, q_value, n=top_gene)
+  top_diff_genes <- dplyr::slice_min(fit_coefs_sig, q_value, n=top_gene)
 
-  violinplot_filename<-paste0(outputDir,"/images/monocle/DEG/","significant_by_",model,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),"_violinPlot",".png",sep="")
+  violinplot_filename<-file.path(outputDir,"images","DEG",paste0("significant_by_",model,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),"_violinPlot",".png",sep=""))
   #png(violinplot_filename, width = 2000*1.5, height = 1500*3, res = 300)
 
   # png(violinplot_filename, width = 900*sqrt(top_gene), height = 875*sqrt(top_gene), res = 300)
@@ -316,19 +323,19 @@ regressionAnalysis <- function(cds, model, batch, distribution, top_gene, subset
   # print(p4)
   # dev.off()
 
-  featureplot_filename<-paste0(outputDir,"/images/monocle/DEG/","significant_by_",model,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),"_featurePlot",".png",sep="")
+  featureplot_filename<-file.path(outputDir,"images","DEG",paste0("significant_by_",model,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),"_featurePlot",".png",sep=""))
   #png(featureplot_filename, width = 2000*1.4, height = 1500*1.5, res = 400)
-  p5 <- plot_cells(cds, genes=unique(top_diff_genes$gene_short_name),
+  p5 <- monocle3::plot_cells(cds, genes=unique(top_diff_genes$gene_short_name),
                    show_trajectory_graph=FALSE,
                    label_cell_groups=FALSE,
                    label_leaves=FALSE)
-  ggsave(file=featureplot_filename, plot = p5, width = 10, height = 8)
+  ggplot2::ggsave(file=featureplot_filename, plot = p5, width = 10, height = 8)
   #print(p5)
   #dev.off()
 
   O <- lapply(top_diff_genes$gene_short_name, function(gene){
     p4 <- monocle3::plot_genes_violin(cds[rowData(cds)$gene_short_name %in% (gene), ], group_cells_by=model, ncol=1) +
-      theme(axis.text.x=element_text(angle=45, hjust=1)) + labs(x="")
+      ggplot2::theme(axis.text.x=ggplot2::element_text(angle=45, hjust=1)) + ggplot2::labs(x="")
   })
   print_violinPlot(O,violinplot_filename,top_gene)
 }
@@ -344,31 +351,37 @@ print_violinPlot<-function(O,filename,top_gene)
 #' Finding genes that change as a function of pseudotime using graph auto-correlation method.
 #'
 #' @param cds a cell_data_set object with learned trajectory.
+#' @param conditions_all conditions_all
 #' @param colData_name a character string of the name of metadata that has the conditions.
 #' @param top_gene an integer number of top differentially expressed genes to plot.
 #' @param subset a character vector of cell types to subset for, for result naming purpose.
+#' @param deg_method deg_method
+#' @param batch batch
+#' @param outputDir outputDir
+#' @param cores cores
+#'
 #' @noRd
 
-graphAutoCorrelation <- function(cds, colData_name, top_gene, subset=NULL,outputDir="."){
+graphAutoCorrelation <- function(cds,conditions_all,colData_name, top_gene, subset=NULL,deg_method="quasipoisson",batch=NULL,outputDir=".",cores=6){
 
   # test whether cells at similar positions on the trajectory have correlated expression
-  pr_graph_test_res <- graph_test(cds, neighbor_graph = "principal_graph", cores = 6)
+  pr_graph_test_res <- monocle3::graph_test(cds, neighbor_graph = "principal_graph", cores = cores)
 
   print("Graph_test function finished successfully. Continue to csv saving...")
   #ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),"")
-  write.csv(pr_graph_test_res, file=paste0(outputDir,"/csv/monocle/","monocleDEG_by_","trajectory",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),".csv", sep=""))
+  write.csv(pr_graph_test_res, file=file.path(outputDir,"csv",paste0("monocleDEG_by_","trajectory",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),".csv", sep="")))
 
   # significant DEGs
   pr_graph_test_sig <- subset(pr_graph_test_res, q_value < 0.05 & morans_I > 0.1 & status == 'OK')
-  write.csv(pr_graph_test_sig, file=paste0(outputDir,"/csv/monocle/","monocleDEG_significant_by_","trajectory",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),".csv", sep=""))
+  write.csv(pr_graph_test_sig, file=file.path(outputDir,"csv",paste0("monocleDEG_significant_by_","trajectory",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),".csv", sep="")))
 
   # morans_I statistic: 0 indicates no effect, +1 indicates positive autocorrelation and nearby cells have similar values of a gene's expression
   pr_graph_test_sig_top <- pr_graph_test_sig[order(pr_graph_test_sig$morans_I,decreasing=TRUE),]
   DEG_ids <- row.names(pr_graph_test_sig_top[1:top_gene, ])
 
   # feature plot for top DEGs by trajectory
-  png(paste0(outputDir,"/images/monocle/DEG/","significant_by","_trajectory_","gene_featurePlot",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),".png",sep=""), width = 2000*1.4, height = 1500*1.5, res = 300)
-  p1 <- plot_cells(cds, genes=DEG_ids,
+  png(filename = file.path(outputDir,"images","DEG",paste0("significant_by","_trajectory_","gene_featurePlot",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),".png",sep="")), width = 2000*1.4, height = 1500*1.5, res = 300)
+  p1 <- monocle3::plot_cells(cds, genes=DEG_ids,
                    show_trajectory_graph=FALSE,
                    label_cell_groups=FALSE,
                    label_leaves=FALSE)
@@ -380,7 +393,7 @@ graphAutoCorrelation <- function(cds, colData_name, top_gene, subset=NULL,output
   # below few lines are repetitive and are just here to get around a bug caused by file too large (ex. object the size of p147)
   rm(pr_graph_test_sig)
   rm(pr_graph_test_sig_top)
-  pr_graph_test_sig <- read.csv(file=paste0(outputDir,"/csv/monocle/","monocleDEG_significant_by_","trajectory",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),".csv", sep=""))
+  pr_graph_test_sig <- read.csv(file=file.path(outputDir,"csv",paste0("monocleDEG_significant_by_","trajectory",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),".csv", sep="")))
   rownames(pr_graph_test_sig) <- pr_graph_test_sig$X
   pr_graph_test_sig <- pr_graph_test_sig[,-1]
 
@@ -389,23 +402,23 @@ graphAutoCorrelation <- function(cds, colData_name, top_gene, subset=NULL,output
   # organize significant trajectory-variable genes into modules
   # this function will give different results with every run if seed not set, see https://github.com/cole-trapnell-lab/monocle3/issues/494
 
-  gene_module_df <- find_gene_modules(cds[pr_graph_test_sig$gene_short_name, ], resolution=c(10^seq(-6,-1)), random_seed=1, cores=1)
-  #gene_module_df <- find_gene_modules_leiden(cds[pr_graph_test_sig$gene_short_name, ], resolution=c(10^seq(-6,-1)), random_seed=1, cores=1)
+  gene_module_df <- monocle3::find_gene_modules(cds[pr_graph_test_sig$gene_short_name, ], resolution=c(10^seq(-6,-1)), random_seed=1, cores=cores)
+  #gene_module_df <- find_gene_modules_leiden(cds[pr_graph_test_sig$gene_short_name, ], resolution=c(10^seq(-6,-1)), random_seed=1, cores=cores)
   print("Module found successfully.")
-  write.csv(gene_module_df, file=paste0(outputDir,"/csv/monocle/","monocleDEG_by_trajectory","_moduleInformation",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),".csv", sep=""))
+  write.csv(gene_module_df, file=file.path(outputDir,"csv",paste0("monocleDEG_by_trajectory","_moduleInformation",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),".csv", sep="")))
 
   print("Module information saved to csv successfully.")
 
   cell_group_df <- tibble::tibble(cell=row.names(colData(cds)), cell_group=colData(cds)$cell.type)
-  agg_mat <- aggregate_gene_expression(cds, gene_module_df, cell_group_df)
+  agg_mat <- monocle3::aggregate_gene_expression(cds, gene_module_df, cell_group_df)
   row.names(agg_mat) <- stringr::str_c("Module ", row.names(agg_mat))
 
-  png(paste0(outputDir,"/images/monocle/DEG/","significant_by_trajectory","_moduleHeatmap",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),".png",sep=""), width = 2000*1.4, height = 1500*1.5, res = 400)
+  png(filename = file.path(outputDir,"images","DEG",paste0("significant_by_trajectory","_moduleHeatmap",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),".png",sep="")), width = 2000*1.4, height = 1500*1.5, res = 400)
   pheatmap::pheatmap(agg_mat, scale="column", clustering_method="ward.D2")
   dev.off()
 
-  png(paste0(outputDir,"/images/monocle/DEG/","significant_by_trajectory","_moduleFeaturePlot",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),".png",sep=""), width = 2000*1.4, height = 1500*1.5, res = 400)
-  p2 <- plot_cells(cds,
+  png(filename = file.path(outputDir,"images","DEG",paste0("significant_by_trajectory","_moduleFeaturePlot",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),".png",sep="")), width = 2000*1.4, height = 1500*1.5, res = 400)
+  p2 <- monocle3::plot_cells(cds,
                    genes=gene_module_df,
                    label_cell_groups=FALSE,
                    show_trajectory_graph=FALSE)
@@ -413,9 +426,9 @@ graphAutoCorrelation <- function(cds, colData_name, top_gene, subset=NULL,output
   dev.off()
 
   # plot top genes' dynamics as a function of pseudotime
-  png(paste0(outputDir,"/images/monocle/DEG/","significant_by_trajectory_genesInPseudotime",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),".png",sep=""), width = 1000*sqrt(top_gene), height = 875*sqrt(top_gene), res = 300)
+  png(filename = file.path(outputDir,"images","DEG",paste0("significant_by_trajectory_genesInPseudotime",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),".png",sep="")), width = 1000*sqrt(top_gene), height = 875*sqrt(top_gene), res = 300)
   #p3 <- plot_genes_in_pseudotime(cds[rowData(cds)$gene_short_name %in% DEG_ids , ], nrow = ceiling(top_gene/4), ncol = 4,color_cells_by="cell.type", min_expr=0.5)
-  p3 <- plot_genes_in_pseudotime(cds[rowData(cds)$gene_short_name %in% DEG_ids , ], ncol = ceiling(sqrt(top_gene)),color_cells_by="cell.type", min_expr=0.5)
+  p3 <- monocle3::plot_genes_in_pseudotime(cds[rowData(cds)$gene_short_name %in% DEG_ids , ], ncol = ceiling(sqrt(top_gene)),color_cells_by="cell.type", min_expr=0.5)
   print(p3)
   dev.off()
 
@@ -428,15 +441,15 @@ graphAutoCorrelation <- function(cds, colData_name, top_gene, subset=NULL,output
         cds_for_compare <- cds[pr_graph_test_sig$gene_short_name, cds[[colData_name]] == c(conditions_all[i], conditions_all[j])]
 
         # run regression analysis
-        regressionAnalysis(cds_for_compare , colData_name, batch, DEG_distribution, top_gene, subset, conditions_all[i], conditions_all[j])
-
+        #regressionAnalysis(cds_for_compare , colData_name, batch, deg_method, top_gene, subset, conditions_all[i], conditions_all[j])
+        regressionAnalysis(cds=cds_for_compare , model=colData_name, batch=batch, distribution=deg_method, top_gene=top_gene, subset=subset, cond1=conditions_all[i], cond2=conditions_all[j],outputDir=outputDir)
         # read in csv of significant differential gene along the trajectory AND between two conditions
-        gene_csv <- read.csv(file=paste0(outputDir,"/csv/monocle/monocleDEG_significant_by_",colData_name,"+trajectory",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""), "_",conditions_all[i],"_",conditions_all[j],".csv", sep=""))
-        top_diff_genes <- slice_min(gene_csv, q_value, n=top_gene)
+        gene_csv <- read.csv(file=file.path(outputDir,"csv",paste0("monocleDEG_significant_by_",colData_name,ifelse(is.null(batch),"",paste0("+",batch)),"+trajectory",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""), "_",conditions_all[i],"_",conditions_all[j],".csv", sep="")))
+        top_diff_genes <- dplyr::slice_min(gene_csv, q_value, n=top_gene)
         # plot expression dynamics as a function of pseudotime for top differential gene along the trajectory AND between two conditions
-        png(paste0(outputDir,"/images/monocle/DEG/","significant_by_",colData_name,"+trajectory",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""), "_",conditions_all[i],"_",conditions_all[j],"_genesInPseudotime",".png",sep=""), width = 1000*sqrt(top_gene), height = 875*sqrt(top_gene), res = 300)
+        png(filename = file.path(outputDir,"images","DEG",paste0("significant_by_",colData_name,ifelse(is.null(batch),"",paste0("+",batch)),"+trajectory",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""), "_",conditions_all[i],"_",conditions_all[j],"_genesInPseudotime",".png",sep="")), width = 1000*sqrt(top_gene), height = 875*sqrt(top_gene), res = 300)
         #p4 <- plot_genes_in_pseudotime(cds_for_compare[rowData(cds_for_compare)$gene_short_name %in% (top_diff_genes$gene_short_name) , ], nrow = ceiling(top_gene/4), ncol = 4,color_cells_by=colData_name, min_expr=0.5)
-        p4 <- plot_genes_in_pseudotime(cds_for_compare[rowData(cds_for_compare)$gene_short_name %in% (top_diff_genes$gene_short_name) , ], ncol = ceiling(sqrt(top_gene)),color_cells_by=colData_name, min_expr=0.5)
+        p4 <-monocle3::plot_genes_in_pseudotime(cds_for_compare[rowData(cds_for_compare)$gene_short_name %in% (top_diff_genes$gene_short_name) , ], ncol = ceiling(sqrt(top_gene)),color_cells_by=colData_name, min_expr=0.5)
         print(p4)
         dev.off()
       }
@@ -466,12 +479,12 @@ cellTypeDistribution <- function(cds, colData_name, subset=NULL, cond=NULL,outpu
     pseud_cells$Condition = "ALL"
   }
 
-  png(paste0(outputDir,"/images/monocle/cellDistribution/","cell_distribution_density",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(!is.null(cond),paste0("_",cond),""),".png",sep=""), width = 2000*1.4, height = 1500*1.5, res = 400)
-  p1 <- ggplot(pseud_cells, aes(x = pseudotime, color = Condition, fill = Condition)) +
-    geom_density(alpha = .2) +
-    facet_wrap(~Condition, ncol = 1) +
-    theme_minimal() +
-    labs(x = "Pseudotime", y = "Density", title = "Distribution density of cells along the trajectory")
+  png(filename = file.path(outputDir,"images","cellDistribution",paste0("cell_distribution_density",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(!is.null(cond),paste0("_",cond),""),".png",sep="")), width = 2000*1.4, height = 1500*1.5, res = 400)
+  p1 <- ggplot2::ggplot(pseud_cells, ggplot2::aes(x = pseudotime, color = Condition, fill = Condition)) +
+    ggplot2::geom_density(alpha = .2) +
+    ggplot2::facet_wrap(~Condition, ncol = 1) +
+    ggplot2::theme_minimal() +
+    ggplot2::labs(x = "Pseudotime", y = "Density", title = "Distribution density of cells along the trajectory")
   print(p1)
   dev.off()
 
@@ -479,24 +492,24 @@ cellTypeDistribution <- function(cds, colData_name, subset=NULL, cond=NULL,outpu
   # "/20" is used here as an approximate for tuning figure widths, there is more flexibility in width since the column number is set to 2.
   # "/12" is used here as an approximate for tuning figure heights, this parameter might need to be adjusted with more tests.
   celltype_count <- length(unique(cds$cell.type))
-  png(paste0(outputDir,"/images/monocle/cellDistribution/","celltype_distribution_density",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(!is.null(cond),paste0("_",cond),""),".png",sep=""), width = 2000*1.4*ceiling(celltype_count/20), height = 1500*1.6*ceiling(celltype_count/12), res = 400)
-  p2 <- ggplot(pseud_cells, aes(x = pseudotime, color = Condition, fill = Condition)) +
-    geom_density(alpha = .2) +
-    facet_wrap(~cell_type, ncol = 2) +
-    theme_minimal() +
-    labs(x = "Pseudotime", y = "Density", title = "Distribution density of cell types along the trajectory")
+  png(filename = file.path(outputDir,"images","cellDistribution",paste0("celltype_distribution_density",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(!is.null(cond),paste0("_",cond),""),".png",sep="")), width = 2000*1.4*ceiling(celltype_count/20), height = 1500*1.6*ceiling(celltype_count/12), res = 400)
+  p2 <- ggplot2::ggplot(pseud_cells, ggplot2::aes(x = pseudotime, color = Condition, fill = Condition)) +
+    ggplot2::geom_density(alpha = .2) +
+    ggplot2::facet_wrap(~cell_type, ncol = 2) +
+    ggplot2::theme_minimal() +
+    ggplot2::labs(x = "Pseudotime", y = "Density", title = "Distribution density of cell types along the trajectory")
   print(p2)
   dev.off()
 
-  png(paste0(outputDir,"/images/monocle/cellDistribution/","celltype_distribution_histogram",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(!is.null(cond),paste0("_",cond),""),".png",sep=""), width = 2000*1.4*ceiling(celltype_count/20), height = 1500*1.6*ceiling(celltype_count/12), res = 400)
-  p3 <- ggplot(pseud_cells, aes(x = pseudotime, color = Condition, fill = Condition)) +
+  png(filename = file.path(outputDir,"images","cellDistribution",paste0("celltype_distribution_histogram",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(!is.null(cond),paste0("_",cond),""),".png",sep="")), width = 2000*1.4*ceiling(celltype_count/20), height = 1500*1.6*ceiling(celltype_count/12), res = 400)
+  p3 <- ggplot2::ggplot(pseud_cells, ggplot2::aes(x = pseudotime, color = Condition, fill = Condition)) +
     geom_histogram(
       alpha = 0.2,
       position = "identity", bins = 50
     ) +
-    facet_wrap(~cell_type, ncol = 2) +
-    theme_minimal() +
-    labs(x = "Pseudotime", y = "Count", title = "Distribution of cell types along the trajectory")
+    ggplot2::facet_wrap(~cell_type, ncol = 2) +
+    ggplot2::theme_minimal() +
+    ggplot2::labs(x = "Pseudotime", y = "Count", title = "Distribution of cell types along the trajectory")
   print(p3)
   dev.off()
 

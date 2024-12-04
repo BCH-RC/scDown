@@ -1,3 +1,73 @@
+#' Read in a h5ad file and convert to a Seurat object.
+#'
+#' @description This function uses the library(zellkonverter) to convert the normalized counts, metadata,
+#' lower dimensional embeddings (pca and umap), and spliced and unspliced counts if available from a h5ad 
+#' file to a Seurat object.
+#'
+#' @param h5ad_file character string of full path to the h5ad file.
+#' @param annotation_column character variable specifying the metdata column name of cell type annotations. 
+#' @return a Seurat object.
+#'
+#' @export
+#'
+h5adToSeurat <- function(h5ad_file, annotation_column=NULL){
+  # Check if python is available
+  if (!reticulate::py_available(initialize = FALSE)) {
+    reticulate::install_miniconda()
+  }
+
+  # Convert .h5ad to Seurat object
+  library(zellkonverter)
+  # Read the .h5ad file
+  ad <- readH5AD(h5ad_file)
+  ad
+  file_sub <- sub("\\.h5ad$", "", h5ad_file)
+
+  # Convert the main count matrix X to a Seurat object
+  X <- as.Seurat(ad, counts = "X", data = NULL)
+  X@assays[["RNA"]]<-X@assays[["originalexp"]]
+  X@assays[["RNA"]]@key<-"rna_"
+  DefaultAssay(X) <- "RNA"
+
+  # Convert lower dimensional embeddings (pca and umap)
+  if ('X_pca' %in% names(X@reductions)){
+    X@reductions[["pca"]]<-X@reductions[["X_pca"]]
+    colnames(X@reductions[["pca"]]@cell.embeddings)<-gsub("Xpca","PCA",colnames(X@reductions[["pca"]]@cell.embeddings))
+    X@reductions[["pca"]]@key<-"PCA_"
+  }
+
+  if ('X_umap' %in% names(X@reductions)){
+    X@reductions[["umap"]]<-X@reductions[["X_umap"]]
+    colnames(X@reductions[["umap"]]@cell.embeddings)<-gsub("Xumap","UMAP",colnames(X@reductions[["umap"]]@cell.embeddings))
+    X@reductions[["umap"]]@key<-"UMAP_"
+  }
+
+  # Convert spliced and unspliced layers if available to Seurat objects
+  if("spliced" %in% names(ad@assays)){
+    s <- as.Seurat(ad, counts = "spliced", data = NULL)
+    X@assays[["spliced"]]<-s@assays[["originalexp"]]
+    X@assays[["spliced"]]@key<-"spliced_"
+    file_sub<-paste0(file_sub,"_spliced")
+  }
+  if("unspliced" %in% names(ad@assays)){
+    un <- as.Seurat(ad, counts = "unspliced", data = NULL)
+    X@assays[["unspliced"]]<-un@assays[["originalexp"]]
+    X@assays[["unspliced"]]@key<-"unspliced_"
+    file_sub<-paste0(file_sub,"_unspliced")
+  }
+
+  # use cell type annotation column as identity
+  if (!is.null(annotation_column) && (annotation_column %in% colnames(X@meta.data))) {
+    Idents(X)<-X[[annotation_column]]
+  } 
+
+  # save converted Seurat object
+  saveRDS(X, file=paste0(file_sub,".rds"))
+
+  return(X)
+}
+
+
 #' Read in a h5ad file and transfer the AnnData object into a Seurat object.
 #'
 #' @description This function uses the library(anndata) to transfer the normalized counts, metadata,
@@ -40,3 +110,29 @@ h5adToSeurat <- function(h5ad_file, annotation_column){
 
   return(data)
 }
+
+
+#' Check the required input objects for all the functions.
+#'
+#' @description This function checks the required input objects and variables for all the functions
+#' in the scDown package using checkmate package
+#'
+#'
+#' @param seurat_obj character string of full path to the h5ad file.
+#' @param species species
+#' @param output_dir output_dir
+#' @param annotation_column annotation_column
+#' @param group_column group_column
+#'
+#' @noRd
+
+check_required_variables<-function(seurat_obj,species=NULL,output_dir,annotation_column,group_column)
+{
+  checkmate::expect_class(seurat_obj,"Seurat",label="seurat_obj")
+  checkmate::expect_choice(species,c("human","mouse"),label = "species",null.ok = TRUE)
+  checkmate::expect_choice(group_column, colnames(seurat_obj@meta.data),label="group_column",null.ok = TRUE)
+  ###Be default we use seurat Idents
+  checkmate::expect_choice(annotation_column, colnames(seurat_obj@meta.data),label="annotation_column",null.ok = TRUE)
+  checkmate::expect_directory(output_dir,access="rw",label = "output_dir")
+}
+

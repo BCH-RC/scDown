@@ -1,0 +1,12 @@
+/* styles.css */
+#TOC {
+  font-size: 20px; /* Change to your desired font size */
+}
+
+#TOC li {
+  font-size: 20px; /* Font size for the items in the TOC */
+}
+
+#TOC a {
+  font-size: 20px; /* Font size for the links in the TOC */
+}
