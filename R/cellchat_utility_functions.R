@@ -363,7 +363,7 @@ align_cell_labels <- function(X1, X2){
 #' 
 #' @noRd
 
-run_cellchatV2_cmp <- function(dir_cellchat, seurat_obj_cond1, cellchat_obj_cond1, seurat_obj_cond2, cellchat_obj_cond2, celltype_col, condition_col, condition_1, condition_2, top_n) {
+run_cellchatV2_cmp <- function(dir_cellchat, seurat_obj_cond1, cellchat_obj_cond1, seurat_obj_cond2, cellchat_obj_cond2, condition_col, condition_1, condition_2, top_n) {
   
   # if they do not have the same cell type labels
   if (!(identical(levels(cellchat_obj_cond1@idents), levels(cellchat_obj_cond2@idents)))){
@@ -381,11 +381,9 @@ run_cellchatV2_cmp <- function(dir_cellchat, seurat_obj_cond1, cellchat_obj_cond
   
   # record conditions and pathways in comparison
   cond_in_compare <- levels(cellchat@meta$datasets)
-  if (length(pathways_to_compare) == 0) {
-    pathways_to_compare <- top_pathways(X1=cellchat_cond_one, X2=cellchat_cond_two, top_n=top_n)
-    message("Top pathways to compare ", condition_1, " and ", condition_2,  " are calculated.")
-    cat(pathways_to_compare, sep = ";\n")
-  }
+  pathways_to_compare <- top_pathways(X1 = cellchat_obj_cond1, X2 = cellchat_obj_cond2, top_n = top_n)
+  message("Top pathways to compare ", condition_1, " and ", condition_2,  " are calculated.")
+  cat(pathways_to_compare, sep = ";\n")
   
   # Workflow and visualization for comparisons across conditions
   cellchat <- compareCellComVisu(cellchat, object_list, cond_in_compare, pathways_to_compare)
@@ -397,7 +395,6 @@ run_cellchatV2_cmp <- function(dir_cellchat, seurat_obj_cond1, cellchat_obj_cond
 }
 
 ####### Functions below this line need to be organized
-
 
 #' Take as input a merged CellChat object and a list of CellChat object
 #' prior to the merge, and output the general comparison results such as

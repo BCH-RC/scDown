@@ -95,7 +95,7 @@ run_cellchatV2 <- function(output_dir, seurat_obj, sample_column = NULL, annotat
   }
   
   # CellChat visualization at signaling pathway level
-  if (is.null(group_cmp)) {
+  if (is.null(group_column)) {
     condition <- "ALL"
     # Get the top n pathways
     cellchat_object <- readRDS(paste0(output_dir, "/cellchat/rds/cellchat_obj_", condition, ".rds"))
@@ -149,7 +149,7 @@ run_cellchatV2 <- function(output_dir, seurat_obj, sample_column = NULL, annotat
       seurat_obj_cond2 <- readRDS(paste0(output_dir, "/cellchat/rds/cellchat_obj_", cond_2, ".rds"))
       cellchat_obj_cond2 <- readRDS(paste0(output_dir, "/cellchat/rds/cellchat_obj_", cond_2, ".rds"))
       
-      run_cellchatV2_cmp(output_dir, seurat_obj_cond1, cellchat_obj_cond1, seurat_obj_cond2, cellchat_obj_cond2, group_column, condition_1 = cond_1, condition_2 = cond_2, top_n)
+      run_cellchatV2_cmp(dir_cellchat = output_dir, seurat_obj_cond1 = seurat_obj_cond1, cellchat_obj_cond1 = cellchat_obj_cond1, seurat_obj_cond2 = seurat_obj_cond2, cellchat_obj_cond2 = cellchat_obj_cond2, condition_col = group_column, condition_1 = cond_1, condition_2 = cond_2, top_n = top_n)
       
     }
   }
