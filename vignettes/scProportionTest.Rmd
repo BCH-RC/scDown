@@ -52,12 +52,6 @@ group_column <- "age.days."
 # Run scProportionTest
 Run the test for all the pairwise comparison in group column for all the cell types in annotation column. The figures and statistical results with be saved in the ${output_dir} 
 ```{r,include=FALSE,message=F}
-source("~/Desktop/scDown-main/scDown/R/utility_functions.R")
-source("~/Desktop/scDown-main/scDown/R/run_scProportionTest.R")
-source("~/Desktop/scDown-main/scDown/R/scProportionTest_utility_functions.R")
-```
-
-```{r,include=FALSE,message=F}
 start_time <- Sys.time()
 ```
 
