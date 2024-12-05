@@ -15,12 +15,15 @@ def velocity_calculation(adata, group_by, mode='stochastic'):
     :param mode: can be 'stochastic (default)', 'deterministic', or 'dynamical (slowest)'
     :return: an AnnData object with RNA velocity calculated
     """
+    # Ensure raw is initialized
+    if adata.raw is None:
+        adata.raw = adata
     # set parameters for plotting
     kwargs = dict(color=group_by, figsize=(10, 10), dpi=500, show=False)
     # change the 'group_by' column of metadata from dtype: object into dtype: category to comply with proportion plotting
     adata.obs[group_by] = adata.obs[group_by].astype('category')
     # observe proportions of spliced/unspliced counts
-    scv.pl.proportions(adata, groupby=group_by, fontsize=8, figsize=(10, 10), dpi=500, show=False, save=f'scvelo/images/scvelo_proportions')
+    scv.pl.proportions(adata, groupby=group_by, fontsize=8, figsize=(14, 10), dpi=500, show=False, save=f'scvelo/images/scvelo_proportions')
     # velocity calculation workflow
     scv.pp.filter_and_normalize(adata, min_shared_counts=20, n_top_genes=2000)
     scv.pp.moments(adata, n_pcs=30, n_neighbors=30)
@@ -29,7 +32,8 @@ def velocity_calculation(adata, group_by, mode='stochastic'):
     scv.tl.velocity(adata, mode=mode)
     scv.tl.velocity_graph(adata)
     # save adata object after velocity calculation, since these results can take time to re-run.
-    adata.__dict__['_raw'].__dict__['_var'] = adata.__dict__['_raw'].__dict__['_var'].rename(columns={'_index': 'features'}) # for getting around a bug
+    if adata._raw is not None:
+        adata.__dict__['_raw'].__dict__['_var'] = adata.__dict__['_raw'].__dict__['_var'].rename(columns={'_index': 'features'}) # for getting around a bug
     adata.write(f'scvelo/rds/scvelo_withVelocity_{mode}.h5ad', compression='gzip')
     # basic RNA velocity visualizations in various formats
     scv.pl.velocity_embedding_stream(adata, basis='umap', save=f'scvelo/images/scvelo_embedding_stream', **kwargs)
@@ -65,7 +69,7 @@ def differential_velocity_genes(adata, group_by, top_gene=5):
         # convert from pandas series to list
         # Note: need to set colorbar=False below to bypass an error caused by matplotlib, in the generated figures darker colors indicate higher expression/velocity
         genes_to_plot = df[item][:top_gene].tolist()
-        kwargs = dict(color=group_by, figsize=(10, 10), dpi=500, show=False)
+        kwargs = dict(color=group_by, figsize=(6, 6), dpi=500, show=False)
         scv.pl.velocity(adata, genes_to_plot, colorbar=False, ncols=2, save=f'scvelo/images/{item}_genePhaseCompleteInfo', **kwargs)
     return
 

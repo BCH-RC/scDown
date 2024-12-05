@@ -35,7 +35,7 @@ run_scproportion <- function(seurat_obj,annotation_column,group_column,comparisi
     stop("Cluster column does not exits in the seurat object meta data!")
   }
   
-  conditions <- unique(meta[,group_column])
+  conditions <- as.character(unique(meta[,group_column]))
   if (!is.null(comparision1) && !is.null(comparision2)) {
     if (!(comparision1 %in% conditions) || !(comparision2 %in% conditions)) {
       stop("One or both specified comparison conditions do not exist in the meta data!")
