@@ -1,11 +1,12 @@
-#' Create directories for storing CellChat results.
+#' Create Directories for Storing CellChat Results
 #'
 #' This function creates a set of subdirectories under the specified folder path 
-#' to organize CellChat results, including directories for figures, tables, and RDS files.
+#' to organize CellChat results, including directories for RDS files, figures, and tables.
 #'
-#' @param dir_cellchat The folder path where CellChat results will be stored, including subdirectories for RDS files, figures, and tables.
+#' @param dir_cellchat The folder path where CellChat results will be stored, 
+#' including subdirectories for RDS files, figures, and tables.
 #' @return NULL
-#' 
+#'
 #' @noRd
 
 create_dir_cellchat <- function(dir_cellchat) {
@@ -23,84 +24,21 @@ create_dir_cellchat <- function(dir_cellchat) {
                       "/cellchat/images/comparison/sidebyside")
   
   for(dir.i in subdirectories){
-    dir.create(paste0(dir_cellchat, dir.i), showWarnings = F, recursive = T)
+    dir.create(paste0(dir_cellchat, dir.i), showWarnings = FALSE, recursive = TRUE)
   }
 }
 
-#' Check the input data and report error if conditions are not satisfied
+#' Perform Cell-Cell Communication Analysis Using CellChat and Create a CellChat V2 Object
 #'
-#' Take the input for running CellChat analysis, verify if all conditions are met, 
-#' and report any errors. Provide guidance on resolving the error messages if 
-#' any issues are detected.
+#' This function performs cell-cell communication analysis using CellChat and generates a CellChat V2 object.
+#' It takes a Seurat object as input, with cell annotation labels assigned as identities of the cells.
+#' The Seurat object should have cell identities populated in `Idents(X)` and normalized count data in 
+#' `X@assays$RNA@data`.
 #'
-#' @param dir_cellchat Path to the folder for storing CellChat results.
-#' @param seurat_obj Seurat object containing UMI counts and metadata.
-#' @param celltype_col Name of the metadata column used for cell type annotation in the Seurat object.
-#' @param celltypes Cell types of interest for running CellChat analysis.
-#' @param species Species for the data, either 'human' or 'mouse'.
-#' @param condition_col Name of the metadata column for conditions or groups in the Seurat object.
-#' @param conditions_cmp List containing the pairwise condition comparisons for CellChat analysis.
-#' @return NULL
-#' 
-#' @noRd
-
-cellchat_input_check <- function(dir_cellchat, seurat_obj, celltype_col, celltypes = "ALL", species, condition_col = NULL, conditions_cmp = NULL) {
-  
-  # Create cellchat directory
-  create_dir_cellchat(dir_cellchat)
-  
-  # Check the meta data columns
-  meta <- seurat_obj@meta.data
-  if (!celltype_col %in% colnames(meta)) {
-    stop(celltype_col, " cell type column does not exist in the Seurat object metadata. Please specify the correct metadata column name for cell type annotation.")
-  }
-  
-  # Check cell types of interest
-  if (celltypes == "ALL") {
-    # No cell types of interest are specified
-  } else {
-    celltypes <- intersect(celltypes, unique(meta.data[, celltype_col]))
-    celltypes_missing <- setdiff(celltypes, unique(meta.data[, celltype_col]))
-    if (length(celltypes_missing)>0) {
-      warning(celltypes_missing, " provided are not found in the cell types!")
-    }
-    if (length(celltypes)<2) {
-      stop("There are not enough cell types! Need to provide at least two cell types of interest!")
-    }
-  }
-  
-  # Check species
-  if (!species %in% c("human", "mouse")) {
-    stop("Please use 'human' or 'mouse' data!")
-  }
-  
-  # Check condition
-  if (is.null(condition_col)) {
-    # No condition or group information are specified!
-    if (!is.null(conditions_cmp)) {
-      stop("Please specify the condition column in the Seurat object metadata if you are performing condition comparisons for CellChat analysis! Otherwise, set conditions_cmp = NULL if no comparisons between conditions or groups are needed.")
-    }
-  } else {
-    if (!condition_col %in% colnames(meta)) {
-      stop(condition_col, " condition column does not exist in the Seurat object metadata! Please specify the correct metadata column name for condition/group information.")
-    } else {
-      missing_conditions <- setdiff(unique(unlist(conditions_cmp)), unique(meta[, condition_col]))
-      if (length(missing_conditions)>0) {
-        stop(missing_conditions, " do not exist in the Seurat object condition metadata column!")
-      }
-    }
-  }
-}
-
-#' Do cell-cell communication analysis using cellchat and create a cellchat V2 object
-#'
-#' Takes as input a Seurat object with cell-type labels as identity of the cells.
-#' This Seurat object should have identities populated at Idents(X) and counts
-#' normalized in X@assays$RNA@data.
-#'
-#' @param X a Seurat object.
-#' @param species Species for the data, either 'human' or 'mouse'.
-#' @return A CellChat object with cell-cell communication analysis results.
+#' @param X A Seurat object with cell-type identities assigned to `Idents(X)` and normalized counts 
+#'          in `X@assays$RNA@data`.
+#' @param species The species of the data, either 'human' or 'mouse'.
+#' @return ccX, A CellChat object containing the results of the cell-cell communication analysis.
 #' 
 #' @noRd
 
@@ -127,15 +65,15 @@ doCellCom <- function(X, species) {
   return(ccX)
 }
 
-#' Run CellChat visualization at the aggregated level.
+#' Run CellChat Visualization at the Aggregated Level
 #' 
-#' Take as input a CellChat object and graph the aggregated
+#' This function takes as input a CellChat object and generates a visualization of the aggregated 
 #' cell-cell communication network.
 #'
-#' The CellChat object needs to have centrality scores calculated.
 #'
-#' @param X a CellChat object.
-#' @param condition the condition of the object used for naming files.
+#' @param X A CellChat object containing the results of the cell-cell communication analysis.
+#' @param condition A character string representing the condition of the object, which is also used for naming output files.
+#' @return NULL
 #' 
 #' @noRd
 
@@ -191,17 +129,16 @@ aggregate_visu <- function(X, condition, dir_cellchat){
 
 #' Run CellChat Visualization at the Pathway Level
 #' 
-#' Take as input a CellChat object and a pathway in which one
-#' wants to focus on. Graph the communication network for that
-#' specific pathway.
+#' This function takes a CellChat object and a specified pathway to generate a visualization of the 
+#' cell-cell communication network for that particular pathway. 
+#' Additionally, a parameter for selecting figure layouts can be added. 
+#' The CellChat object must have centrality scores calculated prior to running this function.
 #' 
-#' Could add one more parameter to choose specific figure layouts.
-#' The CellChat object needs to have centrality scores calculated.
-#' 
-#' @param X a CellChat object.
-#' @param Y a Seurat object which is corresponding to X.
-#' @param pathway a signaling pathway in interest. 
-#' @param condition the condition of the object used for naming files. 
+#' @param X A CellChat object containing the results of the cell-cell communication analysis.
+#' @param Y A Seurat object corresponding to the CellChat object, providing additional context.
+#' @param pathway A character string specifying the signaling pathway of interest.
+#' @param condition A character string representing the condition of the object, used for naming output files.
+#' @return NULL
 #' 
 #' @noRd
 
@@ -277,14 +214,17 @@ pathway_visu <- function(X, Y, pathway, condition, dir_cellchat, species){
   dev.off()
 }
 
-#' Takes as input a CellChat object with communication analysis results
-#' and a vector of pathway names to show. Call aggregate_visu, pathway_visu,
-#' to graph all visualizations.
+#' Generate Visualizations for Cell-Cell Communication Pathways
+#' 
+#' This function takes a CellChat object containing communication analysis results and a vector of 
+#' pathway names to visualize. It calls `aggregate_visu` and `pathway_visu` to generate and display 
+#' visualizations for each pathway in the provided list.
 #'
-#' @param X a CellChat object.
-#' @param Y a Seurat object which is corresponding to X.
-#' @param pathways_to_show a vector of pathway names.
-#' @param condition the condition of the object.
+#' @param X A CellChat object containing the results of the cell-cell communication analysis.
+#' @param Y A Seurat object corresponding to the CellChat object, providing additional context.
+#' @param pathways_to_show A character vector containing the names of the pathways to visualize.
+#' @param condition A character string representing the condition of the object, used for naming output files.
+#' @return NULL
 #' 
 #' @noRd
 
@@ -300,13 +240,20 @@ doCellComVisu <- function(X, Y, pathways_to_show, condition, dir_cellchat, speci
   
 }
 
-#' Take as input(s) one or two CellChat object(s) and output 
-#' pathways with highest overeall communication probabilities.
+#' Identify Top Pathways with the Highest Overall Communication Probabilities
+#' 
+#' This function takes one or two CellChat objects as input and returns the top pathways with the 
+#' highest overall communication probabilities. The number of top pathways is specified by the 
+#' `top_n` parameter.
 #'
-#' @param top_n the number of pathways.
-#' @param X1 a CellChat object.
-#' @param X2 a CellChat object.
-#' @return the top "top_n" pathways in a vector.
+#' @param top_n An integer specifying the number of top pathways to return.
+#' @param X1 A CellChat object containing the results of the first communication analysis.
+#' @param X2 (Optional) A second CellChat object to compare communication probabilities. 
+#'            If only one object is provided, the function will work with that single object.
+#' @return df.netP, A character vector containing the names of the top "top_n" pathways.
+#' 
+#' @noRd
+
 
 top_pathways <- function(X1, X2=NULL, top_n=10){
   
@@ -320,16 +267,18 @@ top_pathways <- function(X1, X2=NULL, top_n=10){
   
 }
 
-
-#' Take as inputs two CellChat objects with different cell type labels.
-#' Prepare the two objects for merging by aligning cell type labels,
-#' net values, and netP values.
+#' Align Cell Type Labels Across Two CellChat Objects
+#' 
+#' This function takes two CellChat objects with different cell type labels and prepares them 
+#' for merging by aligning their cell type labels, net values, and netP values.
+#' The function ensures that both objects have consistent cell type labels.
 #'
-#' @param X1 a CellChat object.
-#' @param X2 a CellChat object.
-#' @return CellChat objects with aligned labels.
+#' @param X1 A CellChat object with the first set of cell type labels.
+#' @param X2 A CellChat object with the second set of cell type labels.
+#' @return list(X1, X2), A list containing the two CellChat objects with aligned cell type labels.
 #' 
 #' @noRd
+
 
 align_cell_labels <- function(X1, X2){
   
@@ -344,20 +293,21 @@ align_cell_labels <- function(X1, X2){
   
 }
 
-#' Run CellChat visualization
+#' Run CellChat Visualization with Pairwise Condition Comparison
 #'
-#' run CellChat analysis by comparing pair-wise conditions and generate 
-#' figures, tables and rds files.
+#' This function performs CellChat analysis by comparing cell-cell communication between two conditions,
+#' generating figures, tables, and RDS files for differential analysis. The function compares pathways 
+#' between two conditions and visualizes the results.
 #'
-#' @param dir_cellchat Path to the folder for storing CellChat results.
-#' @param seurat_obj_cond1 A seurat object containing UMI counts and metadata for condition 1
-#' @param cellchat_obj_cond1 A CellChat object corresponding to seurat_obj_cond1 for condition 1
-#' @param seurat_obj_cond2 A seurat object containing UMI counts and metadata for condition 2
-#' @param cellchat_obj_cond2 A CellChat object corresponding to seurat_obj_cond2 for condition 2
-#' @param condition_col Name of the metadata column for conditions or groups in the Seurat object.
-#' @param condition_1 Condition or group 1
-#' @param condition_2 Condition or group 2
-#' @param top_n the number of pathways.
+#' @param dir_cellchat Path to the folder where CellChat results (figures, tables, and RDS files) will be stored.
+#' @param seurat_obj_cond1 A Seurat object containing UMI counts and metadata for condition 1.
+#' @param cellchat_obj_cond1 A CellChat object corresponding to `seurat_obj_cond1` for condition 1.
+#' @param seurat_obj_cond2 A Seurat object containing UMI counts and metadata for condition 2.
+#' @param cellchat_obj_cond2 A CellChat object corresponding to `seurat_obj_cond2` for condition 2.
+#' @param condition_col Name of the metadata column used for conditions or groups in the Seurat object.
+#' @param condition_1 The first condition or group for comparison.
+#' @param condition_2 The second condition or group for comparison.
+#' @param top_n The number of top pathways to compare between the two conditions.
 #' 
 #' @return NULL
 #' 
@@ -394,15 +344,19 @@ run_cellchatV2_cmp <- function(dir_cellchat, seurat_obj_cond1, cellchat_obj_cond
   message("CellChat V2 Differential analysis completed.")
 }
 
-####### Functions below this line need to be organized
-
-#' Take as input a merged CellChat object and a list of CellChat object
-#' prior to the merge, and output the general comparison results such as
-#' number of interactions and aggregated interaction strength.
+#' Compare Cell-Cell Communication Networks Between Two Conditions
 #' 
-#' @param X a merged CellChat object with two biological conditions.
-#' @param object_list a list of CellChat objects before the merge.
-#' @param cond_in_compare a vector of condition names in comparison.
+#' This function takes a merged CellChat object and a list of CellChat objects from 
+#' two different biological conditions. It outputs general comparison results, 
+#' such as the number of interactions, aggregated interaction strength, and 
+#' signaling changes for each cell type.
+#' 
+#' @param dir_cellchat Path to the folder where CellChat results (figures, tables, and RDS files) will be stored.
+#' @param X A merged CellChat object containing two biological conditions.
+#' @param object_list A list of CellChat objects from each condition prior to merging.
+#' @param cond_in_compare A vector of condition names being compared.
+#' 
+#' @return NULL
 #' 
 #' @noRd
 
@@ -454,58 +408,20 @@ network_comparison <- function(dir_cellchat, X, object_list, cond_in_compare){
       return(NA)
     })
   }
-
 }
 
-
-#' #' Take as input a CellChat object and quantify the similarity between
-#' #' all significant signaling pathways and then group them based on their
-#' #' cellular communication network similarity.
-#' #' 
-#' #' Need to use conda env to run python "umap-learn" package
-#' #' 
-#' #' @param X a CellChat object. 
-#' #' @param cond_in_compare a vector of condition names in comparison.
-#' #' @return X a CellChat object with manifold learning results. 
-#' #' 
-#' #' @noRd
+#' Compare Information Flow Between Two Conditions in CellChat
 #' 
-#' manifold_learning <- function(X, cond_in_compare){
+#' This function takes a merged CellChat object and a list of individual CellChat objects for each condition.
+#' It outputs the comparison results of the information flow between the two biological conditions, 
+#' including significant pathways and differential outgoing and incoming signaling associated with each cell population.
 #' 
-#'   # Manifold learning: functional
-#'   X <- computeNetSimilarityPairwise(X, type = "functional")
-#'   X <- netEmbedding(X, type = "functional")
-#'   X <- netClustering(X, type = "functional", do.parallel=FALSE)
+#' @param dir_cellchat Path to the folder where CellChat results (figures, tables, and RDS files) will be stored.
+#' @param X A merged CellChat object containing data from two biological conditions.
+#' @param object_list A list of CellChat objects from each condition before merging.
+#' @param cond_in_compare A vector of condition names being compared.
 #' 
-#'   # Visualization in 2D-space
-#'   p1 <- netVisual_embeddingPairwise(X, type = "functional", label.size = 3.5)
-#'   ggsave(file=paste0(dir_cellchat, "/cellchat/images/comparison/manifold/",cond_in_compare[1],"_",cond_in_compare[2],"_functional_similarity", ".png", sep=""), plot=p1,height = 6, width = 8)
-#'   
-#'   # Manifold learning: structural
-#'   X <- computeNetSimilarityPairwise(X, type = "structural")
-#'   X <- netEmbedding(X, type = "structural")
-#'   X <- netClustering(X, type = "structural", do.parallel=FALSE)
-#' 
-#'   # Visualization in 2D-space
-#'   p2 <- netVisual_embeddingPairwise(X, type = "structural", label.size = 3.5)
-#'   ggsave(file=paste0(dir_cellchat, "/cellchat/images/comparison/manifold/",cond_in_compare[1],"_",cond_in_compare[2],"_structural_similarity", ".png", sep=""), plot=p2,height = 6, width = 8)
-#' 
-#'   # identify signaling networks with larger/less difference based on Euclidean distance
-#'   p3 <- rankSimilarity(X, type = "functional")
-#'   ggsave(file=paste0(dir_cellchat, "/cellchat/images/comparison/manifold/",cond_in_compare[1],"_",cond_in_compare[2],"_functional_rank", ".png", sep=""), plot=p3,height = 6, width = 6)
-#'   p4 <- rankSimilarity(X, type = "structural")
-#'   ggsave(file=paste0(dir_cellchat, "/cellchat/images/comparison/manifold/",cond_in_compare[1],"_",cond_in_compare[2],"_structural_rank", ".png", sep=""), plot=p4,height = 6, width = 6)
-#' 
-#'   return(X)
-#' }
-
-
-#' Take as input a CellChat object and output the information
-#' flow comparison results.
-#' 
-#' @param X a merged CellChat object with two biological conditions.
-#' @param object_list a list of CellChat objects before the merge.
-#' @param cond_in_compare a vector of condition names in comparison.
+#' @return NULL
 #' 
 #' @noRd
 
@@ -541,12 +457,18 @@ information_flow <- function(dir_cellchat, X, object_list,cond_in_compare){
 
 }
 
-#' Take as input a CellChat object and output the differential
-#' ligand/receptor pair analysis result.
+#' Perform Differential Ligand-Receptor Pair Analysis
 #' 
-#' @param X a merged CellChat object with two biological conditions.
-#' @param cond_in_compare a vector of condition names in comparison.
-#' @return X a CellChat object with differential LR pair results.
+#' This function performs a differential analysis of ligand-receptor (LR) pairs using a merged 
+#' CellChat object with two biological conditions. It outputs the differential signaling results 
+#' based on communication probabilities and differential gene expression analysis. The function 
+#' generates CSV files containing the increased and decreased signaling LR pairs.
+#' 
+#' @param dir_cellchat Path to the folder where CellChat results (figures, tables, and RDS files) will be stored.
+#' @param X A merged CellChat object containing two biological conditions for comparison.
+#' @param cond_in_compare A vector of condition names being compared.
+#' 
+#' @return A CellChat object with differential ligand-receptor pair analysis results.
 #' 
 #' @noRd
 
@@ -577,13 +499,19 @@ differential_ligand_receptor <- function(dir_cellchat, X, cond_in_compare){
 
 }
 
-#' Take as input a CellChat object and output the side-by-side comparison
-#' of a pathway's signaling strength in chord diagram.
+#' Generate Side-by-Side Comparison of a Pathway's Signaling Strength in a Chord Diagram
 #' 
-#' @param X a merged CellChat object with two biological conditions.
-#' @param object_list a list of CellChat object before the merge.
-#' @param cond_in_compare a vector of condition names in comparison.
-#' @param pathway a pathway of interest.
+#' This function takes a merged CellChat object and a list of individual CellChat objects to generate 
+#' a side-by-side comparison of the signaling strength of a specified pathway. The comparison is visualized 
+#' using chord diagrams for two biological conditions.
+#' 
+#' @param dir_cellchat Path to the folder where CellChat results (figures, tables, and RDS files) will be stored.
+#' @param X A merged CellChat object containing two biological conditions.
+#' @param object_list A list of CellChat objects from each condition before merging.
+#' @param cond_in_compare A vector of condition names being compared.
+#' @param pathway A character string representing the pathway of interest.
+#' 
+#' @return NULL
 #' 
 #' @noRd
 
@@ -607,17 +535,20 @@ side_by_side_path_compr <- function(dir_cellchat, X, object_list, cond_in_compar
     })
   }
   dev.off()
-
 }
 
-#' Do the workflow for cell-cell communication analysis on two
-#' biological conditions and output relevant visualizations.
-#'
-#' @param X a merged CellChat object with two biological conditions.
-#' @param object_list a list of CellChat object before the merge.
-#' @param cond_in_compare a vector of condition names in comparison.
-#' @param pathways_to_compare a vector of pathway names.
-#' @return X a CellChat object after pairwise comparison workflow.
+#' Perform Workflow for Cell-Cell Communication Analysis on Two Biological Conditions
+#' 
+#' This function performs the complete workflow for cell-cell communication analysis by comparing two biological conditions. 
+#' It outputs relevant visualizations, including network comparisons, information flow analysis, differential ligand-receptor 
+#' pair analysis, and side-by-side comparisons of selected pathways.
+#' 
+#' @param X A merged CellChat object containing data from two biological conditions.
+#' @param object_list A list of CellChat objects from each condition prior to merging.
+#' @param cond_in_compare A vector of condition names being compared.
+#' @param pathways_to_compare A vector of pathway names to be compared.
+#' 
+#' @return X, A CellChat object after completing the pairwise comparison workflow, including updated communication results.
 #' 
 #' @noRd
 
@@ -625,8 +556,6 @@ compareCellComVisu <- function(dir_cellchat, X, object_list, cond_in_compare, pa
   
   # general network inference and comparison
   network_comparison(dir_cellchat, X, object_list, cond_in_compare)
-  # functional and structural similarity
-  # X <- manifold_learning(X, cond_in_compare)
   # compare information flow
   information_flow(dir_cellchat, X, object_list,cond_in_compare)
   # find differential ligand-rceptor pairs
@@ -809,45 +738,3 @@ subsetCellChatMod <- function(object, cells.use = NULL, idents.use = NULL, group
     )
     return(object.subset)
 }
-
-
-
-# # ##################### NOT USED FOR NOW ######################
-# #' Reorder the cell identities and net calculation results based on given input levels.
-# #' https://github.com/sqjin/CellChat/issues/149#issuecomment-788102884
-# #'
-# #' @param object a CellChat object
-# #' @param ident.use the name of the variable in object.meta
-# #' @param levels set the levels of factor
-# #' @return a CellChat object with updated cell type and net order.
-# #' 
-# #' @noRd
-
-# reorder_ident <- function(object, ident.use, levels){
-
-#   object@idents <- as.factor(object@meta[[ident.use]])
-  
-#   if (!is.null(levels)) {
-#     object@idents <- factor(object@idents, levels = levels)
-#   }
-  
-#   if (length(object@net) > 0) {
-#     if (all(dimnames(object@net$prob)[[1]] %in% levels(object@idents) )) {
-#       message("Reorder cell groups! ")
-#       idx <- match(dimnames(object@net$prob)[[1]], levels(object@idents))
-#       object@net$prob <- object@net$prob[idx, idx, ]
-#       object@net$pval <- object@net$pval[idx, idx, ]
-#       cat("The cell group order after reordering is ", dimnames(object@net$prob)[[1]],'\n')
-#     } else {
-#       message("Rename cell groups but do not change the order! ")
-#       cat("The cell group order before renaming is ", dimnames(object@net$prob)[[1]],'\n')
-#       dimnames(object@net$prob) <- list(levels(object@idents), levels(object@idents), dimnames(object@net$prob)[[3]])
-#       dimnames(object@net$pval) <- dimnames(object@net$prob)
-#       cat("The cell group order after renaming is ", dimnames(object@net$prob)[[1]],'\n')
-#     }
-#   }
-
-#   return(object)
-
-# }
-
