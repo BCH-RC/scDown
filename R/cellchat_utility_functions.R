@@ -16,8 +16,8 @@ create_dir_cellchat <- function(dir_cellchat) {
                       "/cellchat/images",
                       "/cellchat/images/aggregate",
                       "/cellchat/images/pathway",
-                      "/cellchat/images/comparison",
                       "/cellchat/images/pathway/LR_gene",
+                      "/cellchat/images/comparison",
                       "/cellchat/images/comparison/Net",
                       "/cellchat/images/comparison/infoFlow",
                       "/cellchat/images/comparison/sidebyside")
@@ -386,7 +386,7 @@ run_cellchatV2_cmp <- function(dir_cellchat, seurat_obj_cond1, cellchat_obj_cond
   cat(pathways_to_compare, sep = ";\n")
   
   # Workflow and visualization for comparisons across conditions
-  cellchat <- compareCellComVisu(cellchat, object_list, cond_in_compare, pathways_to_compare)
+  cellchat <- compareCellComVisu(dir_cellchat, cellchat, object_list, cond_in_compare, pathways_to_compare)
   
   # save merged cellchat object
   saveRDS(cellchat, file = paste0(dir_cellchat, "/cellchat/rds/", cond_in_compare[1], "_", cond_in_compare[2], "_CellChat.rds"))
@@ -406,7 +406,7 @@ run_cellchatV2_cmp <- function(dir_cellchat, seurat_obj_cond1, cellchat_obj_cond
 #' 
 #' @noRd
 
-network_comparison <- function(X, object_list, cond_in_compare){
+network_comparison <- function(dir_cellchat, X, object_list, cond_in_compare){
 
   # total number of interactions and strength between conditions
   gg1 <- compareInteractions(X, show.legend = F, group = c(1,2))
@@ -415,8 +415,8 @@ network_comparison <- function(X, object_list, cond_in_compare){
   ggsave(file=paste0(dir_cellchat, "/cellchat/images/comparison/Net/",cond_in_compare[1],"_",cond_in_compare[2],"_interactNum_histo", ".png", sep=""), plot=p1, height = 6, width = 8)
 
   # differential number of interactions and strength for each cell type in heatmap
-  gg1 <- netVisual_heatmap(cellchat)
-  gg2 <- netVisual_heatmap(cellchat, measure = "weight")
+  gg1 <- netVisual_heatmap(X)
+  gg2 <- netVisual_heatmap(X, measure = "weight")
   png(paste0(dir_cellchat, "/cellchat/images/comparison/Net/",cond_in_compare[1],"_",cond_in_compare[2],"_diff_interaction", ".png", sep=""),height = 600*3,width = 800*4, res=300)
   draw(gg1 + gg2)
   dev.off()
@@ -458,46 +458,46 @@ network_comparison <- function(X, object_list, cond_in_compare){
 }
 
 
-#' Take as input a CellChat object and quantify the similarity between
-#' all significant signaling pathways and then group them based on their
-#' cellular communication network similarity.
+#' #' Take as input a CellChat object and quantify the similarity between
+#' #' all significant signaling pathways and then group them based on their
+#' #' cellular communication network similarity.
+#' #' 
+#' #' Need to use conda env to run python "umap-learn" package
+#' #' 
+#' #' @param X a CellChat object. 
+#' #' @param cond_in_compare a vector of condition names in comparison.
+#' #' @return X a CellChat object with manifold learning results. 
+#' #' 
+#' #' @noRd
 #' 
-#' Need to use conda env to run python "umap-learn" package
+#' manifold_learning <- function(X, cond_in_compare){
 #' 
-#' @param X a CellChat object. 
-#' @param cond_in_compare a vector of condition names in comparison.
-#' @return X a CellChat object with manifold learning results. 
+#'   # Manifold learning: functional
+#'   X <- computeNetSimilarityPairwise(X, type = "functional")
+#'   X <- netEmbedding(X, type = "functional")
+#'   X <- netClustering(X, type = "functional", do.parallel=FALSE)
 #' 
-#' @noRd
-
-manifold_learning <- function(X, cond_in_compare){
-
-  # Manifold learning: functional
-  X <- computeNetSimilarityPairwise(X, type = "functional")
-  X <- netEmbedding(X, type = "functional")
-  X <- netClustering(X, type = "functional", do.parallel=FALSE)
-
-  # Visualization in 2D-space
-  p1 <- netVisual_embeddingPairwise(X, type = "functional", label.size = 3.5)
-  ggsave(file=paste0(dir_cellchat, "/cellchat/images/comparison/manifold/",cond_in_compare[1],"_",cond_in_compare[2],"_functional_similarity", ".png", sep=""), plot=p1,height = 6, width = 8)
-  
-  # Manifold learning: structural
-  X <- computeNetSimilarityPairwise(X, type = "structural")
-  X <- netEmbedding(X, type = "structural")
-  X <- netClustering(X, type = "structural", do.parallel=FALSE)
-
-  # Visualization in 2D-space
-  p2 <- netVisual_embeddingPairwise(X, type = "structural", label.size = 3.5)
-  ggsave(file=paste0(dir_cellchat, "/cellchat/images/comparison/manifold/",cond_in_compare[1],"_",cond_in_compare[2],"_structural_similarity", ".png", sep=""), plot=p2,height = 6, width = 8)
-
-  # identify signaling networks with larger/less difference based on Euclidean distance
-  p3 <- rankSimilarity(X, type = "functional")
-  ggsave(file=paste0(dir_cellchat, "/cellchat/images/comparison/manifold/",cond_in_compare[1],"_",cond_in_compare[2],"_functional_rank", ".png", sep=""), plot=p3,height = 6, width = 6)
-  p4 <- rankSimilarity(X, type = "structural")
-  ggsave(file=paste0(dir_cellchat, "/cellchat/images/comparison/manifold/",cond_in_compare[1],"_",cond_in_compare[2],"_structural_rank", ".png", sep=""), plot=p4,height = 6, width = 6)
-
-  return(X)
-}
+#'   # Visualization in 2D-space
+#'   p1 <- netVisual_embeddingPairwise(X, type = "functional", label.size = 3.5)
+#'   ggsave(file=paste0(dir_cellchat, "/cellchat/images/comparison/manifold/",cond_in_compare[1],"_",cond_in_compare[2],"_functional_similarity", ".png", sep=""), plot=p1,height = 6, width = 8)
+#'   
+#'   # Manifold learning: structural
+#'   X <- computeNetSimilarityPairwise(X, type = "structural")
+#'   X <- netEmbedding(X, type = "structural")
+#'   X <- netClustering(X, type = "structural", do.parallel=FALSE)
+#' 
+#'   # Visualization in 2D-space
+#'   p2 <- netVisual_embeddingPairwise(X, type = "structural", label.size = 3.5)
+#'   ggsave(file=paste0(dir_cellchat, "/cellchat/images/comparison/manifold/",cond_in_compare[1],"_",cond_in_compare[2],"_structural_similarity", ".png", sep=""), plot=p2,height = 6, width = 8)
+#' 
+#'   # identify signaling networks with larger/less difference based on Euclidean distance
+#'   p3 <- rankSimilarity(X, type = "functional")
+#'   ggsave(file=paste0(dir_cellchat, "/cellchat/images/comparison/manifold/",cond_in_compare[1],"_",cond_in_compare[2],"_functional_rank", ".png", sep=""), plot=p3,height = 6, width = 6)
+#'   p4 <- rankSimilarity(X, type = "structural")
+#'   ggsave(file=paste0(dir_cellchat, "/cellchat/images/comparison/manifold/",cond_in_compare[1],"_",cond_in_compare[2],"_structural_rank", ".png", sep=""), plot=p4,height = 6, width = 6)
+#' 
+#'   return(X)
+#' }
 
 
 #' Take as input a CellChat object and output the information
@@ -509,7 +509,7 @@ manifold_learning <- function(X, cond_in_compare){
 #' 
 #' @noRd
 
-information_flow <- function(X, object_list,cond_in_compare){
+information_flow <- function(dir_cellchat, X, object_list,cond_in_compare){
  
   # significant signaling pathways based on differences in the overall information flow
   gg1 <- rankNet(X, mode = "comparison", stacked = T, do.stat = TRUE)
@@ -550,7 +550,7 @@ information_flow <- function(X, object_list,cond_in_compare){
 #' 
 #' @noRd
 
-differential_ligand_receptor <- function(X, cond_in_compare){
+differential_ligand_receptor <- function(dir_cellchat, X, cond_in_compare){
 
   # DEG by communication probability: max.dataset = keep the communications with highest probability in max.dataset
   gg1 <- netVisual_bubble(X, comparison = c(1, 2), max.dataset = 2, title.name = paste0("Increased signaling in", cond_in_compare[2]), angle.x = 45, remove.isolate = T)
@@ -569,7 +569,7 @@ differential_ligand_receptor <- function(X, cond_in_compare){
   # extract the ligand-receptor pairs with upregulated ligands in pos.dataset
   net.up <- subsetCommunication(X, net = net, datasets = cond_in_compare[2], ligand.logFC = 0.2, receptor.logFC = NULL)
   # extract the ligand-receptor pairs with upregulated ligands in the other dataset, i.e.,downregulated in pos.dataset
-  net.down <- subsetCommunication(cellchat, net = net, datasets = cond_in_compare[1], ligand.logFC = -0.1, receptor.logFC = -0.1)
+  net.down <- subsetCommunication(X, net = net, datasets = cond_in_compare[1], ligand.logFC = -0.1, receptor.logFC = -0.1)
   write.csv(net.up, file=paste0(dir_cellchat, "/cellchat/csv/",cond_in_compare[2],"_increased_signalingLR_diffExpession.csv", sep=""))
   write.csv(net.down, file=paste0(dir_cellchat, "/cellchat/csv/",cond_in_compare[2],"_decreased_signalingLR_diffExpession.csv", sep=""))
 
@@ -587,7 +587,7 @@ differential_ligand_receptor <- function(X, cond_in_compare){
 #' 
 #' @noRd
 
-side_by_side_path_compr <- function(X, object_list, cond_in_compare, pathway){
+side_by_side_path_compr <- function(dir_cellchat, X, object_list, cond_in_compare, pathway){
   
   png(paste0(dir_cellchat, "/cellchat/images/comparison/sidebyside/",cond_in_compare[1],"_",cond_in_compare[2],"_",pathway,"_sidebyside_strength", ".png", sep=""),height = 600*2,width = 800*3, res=200, pointsize = 10)
   par(mfrow = c(1,2), xpd=TRUE)
@@ -621,19 +621,19 @@ side_by_side_path_compr <- function(X, object_list, cond_in_compare, pathway){
 #' 
 #' @noRd
 
-compareCellComVisu <- function(X, object_list, cond_in_compare, pathways_to_compare){
+compareCellComVisu <- function(dir_cellchat, X, object_list, cond_in_compare, pathways_to_compare){
   
   # general network inference and comparison
-  network_comparison(X, object_list, cond_in_compare)
+  network_comparison(dir_cellchat, X, object_list, cond_in_compare)
   # functional and structural similarity
-  X <- manifold_learning(X, cond_in_compare)
+  # X <- manifold_learning(X, cond_in_compare)
   # compare information flow
-  information_flow(X, object_list,cond_in_compare)
+  information_flow(dir_cellchat, X, object_list,cond_in_compare)
   # find differential ligand-rceptor pairs
-  X <- differential_ligand_receptor(X, cond_in_compare)
+  X <- differential_ligand_receptor(dir_cellchat, X, cond_in_compare)
   # graph specific pathways of interests side by side for visual comparison
   for (pathway in pathways_to_compare) {
-    side_by_side_path_compr(X, object_list, cond_in_compare, pathway)
+    side_by_side_path_compr(dir_cellchat, X, object_list, cond_in_compare, pathway)
   }
 
   return(X)
