@@ -687,11 +687,11 @@ subsetCellChatMod <- function(object, cells.use = NULL, idents.use = NULL, group
     } else {
       data.subset <- matrix(0, nrow = 0, ncol = 0)
     }
-    if (nrow(object@data.project) > 0) {
-      data.project.subset <- object@data.project[, cells.use.index]
-    } else {
-      data.project.subset <- matrix(0, nrow = 0, ncol = 0)
-    }
+    # if (nrow(object@data.project) > 0) {
+    #   data.project.subset <- object@data.project[, cells.use.index]
+    # } else {
+    #   data.project.subset <- matrix(0, nrow = 0, ncol = 0)
+    # }
     data.signaling.subset <- object@data.signaling[, cells.use.index]
     
     meta.subset <- object@meta[cells.use.index, , drop = FALSE]
@@ -796,7 +796,7 @@ subsetCellChatMod <- function(object, cells.use = NULL, idents.use = NULL, group
       Class = "CellChat",
       data = data.subset,
       data.signaling = data.signaling.subset,
-      data.project = data.project.subset,
+      # data.project = data.project.subset,
       images = images.subset,
       net = net.subset,
       netP = netP.subset,
