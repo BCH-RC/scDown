@@ -413,7 +413,7 @@ graphAutoCorrelation <- function(cds,conditions_all,colData_name, top_gene, subs
   agg_mat <- monocle3::aggregate_gene_expression(cds, gene_module_df, cell_group_df)
   row.names(agg_mat) <- stringr::str_c("Module ", row.names(agg_mat))
 
-  png(filename = file.path(outputDir,"images","DEG",paste0("significant_by_trajectory","_moduleHeatmap",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),".png",sep="")), width = 2000*1.4, height = 1500*1.5, res = 400)
+  png(filename = file.path(outputDir,"images","DEG",paste0("significant_by_trajectory","_moduleHeatmap",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),".png",sep="")), width = 2000*1.4, height = 1800*1.5, res = 400)
   pheatmap::pheatmap(agg_mat, scale="column", clustering_method="ward.D2")
   dev.off()
 
