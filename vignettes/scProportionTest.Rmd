@@ -1,0 +1,91 @@
+---
+title: \vspace{3.5in}"A pipeline to carry out the scRNASeq downstream analysis"
+#author: "Maryam Labaf"
+subtitle: "scProportion Test"
+date: "`r format(Sys.Date(), '%m/%d/%Y')`"
+output: 
+  rmarkdown::html_document:
+    highlight: pygments
+    toc: true
+    toc_float: true
+    toc_depth: 3        # Set the depth of the outline (1 for main headers, 2 for subheaders, etc.)
+    number_sections: true  # Automatically number sections
+    css: "scProportion_styles.css"   # Link to an external CSS file
+    #number_sections: true  ## if you want numbered sections at each table header
+    #theme: united  # many options for theme, this one is my favorite.
+    #bibliography: library.bib
+fig_width: 8 
+fig_height: 5 
+vignette: >
+  %\VignetteIndexEntry{TissueEnrich}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  comment = "#>",
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width=8, 
+  fig.height=5
+)
+```
+
+# Set variables
+Set up the environment for running scProportionTest by defining key variabels. Specify the working directory (output_dir) which is optional. 
+```{r, message=FALSE}
+# Set the working directory
+output_dir <- "."
+
+# Seurat object
+seurat_obj <- readRDS("../inst/extdata/DentateGyrus/10X43_1_spliced_unspliced.rds")
+
+# Metadata cell type column
+annotation_column <- "clusters"
+
+# Metadata condition column to perform the comparison
+group_column <- "age.days."
+```
+# Run scProportionTest
+Run the test for all the pairwise comparison in group column for all the cell types in annotation column. The figures and statistical results with be saved in the ${output_dir} 
+```{r,include=FALSE,message=F}
+start_time <- Sys.time()
+```
+
+```{r}
+run_scproportion(seurat_obj = seurat_obj,
+               output_dir = output_dir,
+               annotation_column = annotation_column,
+               group_column = group_column)
+```
+
+```{r,include=FALSE,message=F}
+end_time <- Sys.time()
+duration <- round(end_time - start_time,digits = 1)
+print(duration)
+```
+
+### Test results figures 
+After running the scProportion test, the figures for each comparison will be generated.
+
+
+```{r, echo=FALSE,out.width="50%",out.height="50%",fig.show='hold'}
+knitr::include_graphics(c("/Users/maryam/Desktop/scDown-main/scproportion/images/scProportiontest_12vs35.png","/Users/maryam/Desktop/scDown-main/scproportion/images/scProportiontest_35vs12.png"))
+
+```
+
+scProportion performs a Monte-carlo permutation test to quantify the cell proportion differences between each condition. As shown in the left panel, there is higher cell proportion for samples in 35 days in OL and Cck-Tox cells in compare to samples in age 12 days. On the reverse side, higher cell proportion in age 12 days sample for Neuroblast and Radial Glia-like  cell types in compare to age 35 samples.
+
+To speed up the analysis for large data sets with multiple comparison we apply parallel computation for run_scPropotion() function. The total running time for the sample data is ~ `r duration` seconds. 
+
+
+The analysis was performed on a machine with the following specifications:
+
+- **Operating System**: Darwin
+- **Product Name and Version**: macOS 23H222
+- **Product Version**: 14.7.1
+- **CPU**: Quad-Core Intel Core i7
+- **Memory**: 16 GB

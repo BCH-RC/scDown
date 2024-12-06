@@ -37,10 +37,10 @@ knitr::opts_chunk$set(
 Set up the environment for running CellChat V2 by defining key variables. Specify the working directory (output_dir) which is optional, and load a Seurat object (seurat_obj) containing single-cell RNA sequencing data is loaded. The species is set to either "human" or "mouse," as CellChat V2 supports only these two species. The metadata column (annotation_column) is defined to specify the cell type or other annotation labels, ensuring the analysis runs with the correct input data.
 ```{r, message = FALSE}
 # Set the working directory
-output_dir <- "/Users/chunhui/BCH_projects/scDown_pipeline/scDown/tests"
+output_dir <- "../scDown/tests"
 
 # Seurat object
-seurat_obj <- readRDS("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/inst/extdata/10X43_1_spliced_unspliced.rds")
+seurat_obj <- readRDS("../scDown/inst/extdata/10X43_1_spliced_unspliced.rds")
 
 # Define the species: either "mouse" or "human", since CellChat and PPI database only support these two species for now
 species <- "mouse"
@@ -57,41 +57,15 @@ top_n = 10
 ## Run CellChat with all conditions and all cell types
 We run CellChat using the entire dataset, including all cells and cell types, without specifying any particular conditions or groups. However, it is also possible to run CellChat for specific treatments, or groups by defining 'group_column'. Additionally, pairwise comparisons can be performed to analyze differences between these groups. A demonstration of how to set up and run these comparisons will be provided in a later session.
 ```{r}
-# Pairwise condition comparisons.
-comparison_groups <- list(c("35", "12"))
-
-start_time <- proc.time()
-
 # Run CellChat V2
 run_cellchatV2(seurat_obj = seurat_obj,
                output_dir = output_dir,
                annotation_column = annotation_column,
                species = species)
 
-end_time <- proc.time()
-elapsed_time <- end_time - start_time
-print(elapsed_time)
-
-# System information
-os <- Sys.info()["sysname"]
-os_version <- system("sw_vers", intern = TRUE)
-cat("Operating System:", os, os_version, "\n")
-cpu <- system("sysctl -n machdep.cpu.brand_string", intern = TRUE)
-cat("CPU Info:", cpu, "\n")
-memory <- system("sysctl -n hw.memsize", intern = TRUE)
-memory_gb <- as.numeric(memory) / (1024^3)
-cat("Memory Info:", round(memory_gb, 2), "GB\n")
-
 ```
 
-The analysis was performed on a machine with the following specifications:
-
-- **Operating System**: Darwin
-  - **Product Name**: macOS
-  - **Product Version**: 14.7.1
-- **CPU**: Apple M2 Pro
-- **Memory**: 16 GB
-- **Running Time**: ~2 minutes
+**Running Time**: ~2 minutes
 
 ### Aggregated views
 #### Aggregated circle plot
@@ -165,8 +139,6 @@ In this step, we run CellChat with user-defined groups. The group information is
 # Group information column
 group_column <- "age.days."
 
-start_time <- proc.time()
-
 # Run CellChat V2
 run_cellchatV2(seurat_obj = seurat_obj,
                output_dir = output_dir,
@@ -174,20 +146,9 @@ run_cellchatV2(seurat_obj = seurat_obj,
                species = species,
                group_column = group_column)
 
-end_time <- proc.time()
-elapsed_time <- end_time - start_time
-print(elapsed_time)
-
 ```
 
-The analysis was performed on a machine with the following specifications:
-
-- **Operating System**: Darwin
-  - **Product Name**: macOS
-  - **Product Version**: 14.7.1
-- **CPU**: Apple M2 Pro
-- **Memory**: 16 GB
-- **Running Time**: ~4 minutes
+**Running Time**: ~4 minutes
 
 The plots generated in this analysis represent cell-to-cell interactions for both age groups (35 and 12). For instance, the circle view shows the signaling strength across the two age groups, providing a comparative analysis of how the cell communication network differs between them. 
 
@@ -231,8 +192,6 @@ Our pipeline also allows for a more focused analysis by selecting specific cell 
 # Cell types of interest. (Optional, 'ALL' by default)
 celltypes_of_interest <- c("Granule immature", "Radial Glia-like", "Granule mature", "Neuroblast", "Microglia", "Cajal Retzius", "OPC", "Cck-Tox")
 
-start_time <- proc.time()
-
 # Run CellChat V2
 run_cellchatV2(seurat_obj = seurat_obj,
                output_dir = output_dir,
@@ -241,19 +200,8 @@ run_cellchatV2(seurat_obj = seurat_obj,
                species = species,
                group_column = group_column)
 
-end_time <- proc.time()
-elapsed_time <- end_time - start_time
-print(elapsed_time)
-
 ```
-The analysis was performed on a machine with the following specifications:
-
-- **Operating System**: Darwin
-  - **Product Name**: macOS
-  - **Product Version**: 14.7.1
-- **CPU**: Apple M2 Pro
-- **Memory**: 16 GB
-- **Running Time**: ~3 minutes
+**Running Time**: ~3 minutes
 
 
 ## Run CellChat with user-defined groups and perform pairwise comparisons between the selected groups.
@@ -263,8 +211,6 @@ Our pipeline also supports pairwise comparisons between different groups using t
 # Pairwise condition comparisons.
 comparison_groups <- list(c("35", "12"))
 
-start_time <- proc.time()
-
 # Run CellChat V2
 run_cellchatV2(seurat_obj = seurat_obj,
                output_dir = output_dir,
@@ -273,20 +219,9 @@ run_cellchatV2(seurat_obj = seurat_obj,
                group_column = group_column, 
                group_cmp = comparison_groups)
 
-end_time <- proc.time()
-elapsed_time <- end_time - start_time
-print(elapsed_time)
-
 ```
 
-The analysis was performed on a machine with the following specifications:
-
-- **Operating System**: Darwin
-  - **Product Name**: macOS
-  - **Product Version**: 14.7.1
-- **CPU**: Apple M2 Pro
-- **Memory**: 16 GB
-- **Running Time**: ~4 minutes
+**Running Time**: ~4 minutes
 
 The rankNet plot compares the relative importance of different signaling pathways between groups, such as age group 35 vs. 12. When stacked = TRUE (left panel), the x-axis shows "Relative information flow", which represents the proportional contribution of each pathway to the total communication between cell types. This normalization allows for a comparison of how each pathway ranks relative to others within the group. When stacked = FALSE (right panel), the x-axis shows "Information flow", which indicates the absolute communication strength for each pathway without normalization. This provides the raw magnitude of signaling for each pathway. The rankNet plot, therefore, helps to identify which pathways are most influential in mediating communication between the groups, allowing for insights into age-related differences in cell-to-cell signaling.
 
@@ -314,9 +249,16 @@ knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDo
 
 ```
 
-# Sumamry
+# Summary
 
 This document outlines a pipeline for analyzing cell-to-cell communication using CellChat V2. The pipeline begins by defining key variables, such as the working directory, Seurat object, species, and metadata for cell type annotations. It runs CellChat V2 on the entire dataset to explore global interactions across all cells and generates visualizations like aggregated circle plots, scatter plots, heatmaps, and violin plots, which highlight signaling strength, interaction patterns, and ligand-receptor pairs.
 
 Additionally, the pipeline supports focused analysis by selecting specific cell types or comparing user-defined groups (e.g., age groups 35 and 12). Pairwise comparisons are made to examine differences in cell signaling, with rankNet plots and signaling change scatter plots identifying differentially regulated pathways. Side-by-side plots also allow for direct comparison of communication strength across cell types between groups, offering insights into age-related signaling changes. This pipeline provides a comprehensive tool for exploring and comparing cell communication networks.
 
+The analysis was performed on a machine with the following specifications:
+
+- **Operating System**: Darwin
+  - **Product Name**: macOS
+  - **Product Version**: 14.7.1
+- **CPU**: Apple M2 Pro
+- **Memory**: 16 GB
