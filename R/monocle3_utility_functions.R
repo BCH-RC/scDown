@@ -81,7 +81,7 @@ getTrajectory <- function(X, nDim=30, batch=NULL, transferUMAP=TRUE, subset=NULL
   # plot umap by cell types
   cds[["cell.type"]] <- unname(Seurat::Idents(X)) # transfer labels
   png(filename = file.path(outputDir,"images","pseudotime",paste0("umap_celltypes_","transferUMAP_",transferUMAP,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond),"",paste0("_",cond)),".png",sep="")), width = 2000*1.4, height = 1500*1.5, res = 400)
-  p4 <- monocle3::plot_cells(cds, color_cells_by="cell.type", show_trajectory_graph=FALSE) +
+  p4 <- monocle3::plot_cells(cds, color_cells_by="cell.type", show_trajectory_graph=FALSE,label_groups_by_cluster=FALSE) +
     ggplot2::theme_void() +
     ggplot2::ggtitle(paste0("UMAP by cell types","\n", "transferUMAP=",transferUMAP, sep=""))+
     ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
