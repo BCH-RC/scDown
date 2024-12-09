@@ -1,0 +1,244 @@
+---
+title: "scDown: A pipeline to carry out the scRNASeq downstream analysis"
+subtitle: "scVelo Part II: Read .h5ad file and run scVelo using original scVelo"
+date: "`r format(Sys.Date(), '%m/%d/%Y')`"
+output: 
+  rmarkdown::html_document:
+    highlight: pygments
+    toc: true
+    toc_depth: 3        # Set the depth of the outline (1 for main headers, 2 for subheaders, etc.)
+    number_sections: true  # Automatically number sections
+    #theme: united  # many options for theme, this one is my favorite.
+#bibliography: library.bib
+fig_width: 8 
+fig_height: 5 
+vignette: >
+  %\VignetteIndexEntry{scVelo-1-vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  echo = TRUE,
+  eval = FALSE,     # Ensure code is not run by default
+  message = FALSE,
+  warning = FALSE,
+  fig.width=8, 
+  fig.height=5
+)
+```
+
+```{r setup}
+#library(scDown)
+```
+
+# Define Universal Variables for scVelo Part II
+Set up the environment for running scVelo Part II by defining key variables. 
+
+Loading a .h5ad object containing spliced and unspliced RNA data is required. The cell type annotation column (annotation_column) is defined to specify the cell type or other annotation labels, ensuring the analysis runs with the correct group.
+
+The working directory (output_dir) by default is the current directory and can be changed to specific path. 
+
+The mode to conduct scvelo velocity calculation can be either 'stochastic (default)', 'deterministic', or 'dynamical (slowest)'
+
+
+```{r, message = FALSE}
+# Set the working directory
+output_dir="/lab-share/RC-Data-Science-e2/Public/Qianyi/test_pipeline/scdown/scDown/tests"
+
+# input h5ad file path and name
+h5ad_file="inst/extdata/DentateGyrus/10X43_1.h5ad"
+# specify which metadata column of the h5ad object contains cell type annotation 
+annotation_column <- "clusters"
+
+# Mode to conduct scvelo velocity calculation, default 'stochastic'
+mode = 'stochastic'
+
+# The number of top differential velocity genes to plot phase portrait for, default 5
+top_gene = 5
+```
+
+# Run scVelo Part II
+This part performs RNA velocity calculations from .h5ad file using the original scVelo package.
+Workflow of this function: 
+1. calculate RNA velocity using scVelo workflow
+2. cluster-specific differential velocity genes
+3. trajectory inference using PAGA
+
+```{r}
+start_time <- proc.time()
+
+# Run scVelo Part II
+run_scvelo_full(h5ad_file = h5ad_file,
+                output_dir = output_dir,
+                annotation_column = annotation_column)
+
+end_time <- proc.time()
+elapsed_time <- end_time - start_time
+
+# Print the elapsed time
+print(elapsed_time)
+
+```
+```{r}
+# elapsed_time: 2 min
+```
+
+## Calculate RNA Velocity using scVelo 
+This step takes in an AnnData object in .h5ad and performs all basic velocity calculations enabled by scVelo. It also outputs basic figures such as spliced/unspliced count proportion and RNA velocity vectors on umap.
+
+This plot visualizes the % spliced Vs. unspliced RNA for each cell type. 
+```{r, echo = FALSE, eval = TRUE}
+
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/scvelo_proportions.png")
+
+```
+
+This plot visualizes the velocity stream on UMAP embeddings. 
+```{r, echo = FALSE, eval = TRUE}
+
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/scvelo_embedding_stream.png")
+
+```
+
+This plot visualizes the vector grid on UMAP embeddings. 
+```{r, echo = FALSE, eval = TRUE}
+
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/scvelo_embedding_grid.png")
+
+```
+
+This plot visualizes the vector arrow on UMAP embeddings. 
+```{r, echo = FALSE, eval = TRUE}
+
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/scvelo_embedding_arrow.png")
+
+```
+
+## Cluster-specific Differential Velocity Genes
+This step performs a differential velocity t-test to find genes that explain the directionality of calculated velocity vectors. It tests which genes have cell type-specific differential velocity expression, i.e., being siginificantly higher/lower compared to the remaining population, and visualizes the phase portrait (ratio of spliced/unspliced RNA abundance) for highly ranked genes.
+
+This plot visualizes the phase portrait for top 5 highly ranked genes for each cell type. 
+
+```{r}
+# cluster: Astrocytes
+```
+```{r, echo = FALSE, eval = TRUE}
+
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/Astrocytes_genePhase.png")
+
+```
+```{r}
+# cluster: Cajal Retzius
+```
+```{r, echo = FALSE, eval = TRUE}
+
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/Cajal Retzius_genePhase.png")
+
+```
+```{r}
+# cluster: Cck-Tox
+```
+```{r, echo = FALSE, eval = TRUE}
+
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/Cck-Tox_genePhase.png")
+
+```
+
+```{r}
+# cluster: Endothelial
+```
+```{r, echo = FALSE, eval = TRUE}
+
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/Endothelial_genePhase.png")
+
+```
+
+```{r}
+# cluster: GABA
+```
+```{r, echo = FALSE, eval = TRUE}
+
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/GABA_genePhase.png")
+
+```
+```{r}
+# cluster: Granule immature
+```
+```{r, echo = FALSE, eval = TRUE}
+
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/Granule immature_genePhase.png")
+
+```
+```{r}
+# cluster: Granule mature
+```
+```{r, echo = FALSE, eval = TRUE}
+
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/Granule mature_genePhase.png")
+
+```
+```{r}
+# cluster: Microglia
+```
+```{r, echo = FALSE, eval = TRUE}
+
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/Microglia_genePhase.png")
+
+```
+```{r}
+# cluster: Mossy
+```
+```{r, echo = FALSE, eval = TRUE}
+
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/Mossy_genePhase.png")
+
+```
+```{r}
+# cluster: Neuroblast
+```
+```{r, echo = FALSE, eval = TRUE}
+
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/Neuroblast_genePhase.png")
+
+```
+```{r}
+# cluster: nIPC
+```
+```{r, echo = FALSE, eval = TRUE}
+
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/nIPC_genePhase.png")
+
+```
+```{r}
+# cluster: OL
+```
+```{r, echo = FALSE, eval = TRUE}
+
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/OL_genePhase.png")
+
+```
+```{r}
+# cluster: Neuroblast
+```
+```{r, echo = FALSE, eval = TRUE}
+
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/Neuroblast_genePhase.png")
+
+```
+
+
+## Trajectory Inference using PAGA
+This step performs trajectory inference using the [PAGA method](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1663-x). It provides a graph-like map of the data with solid edges corresponding to the transition confidence between two cell type groups (defined in annotation_column). Here, PAGA is extended by velocity-inferred directionality and predicts transitions/lineages between groups.
+
+This plot visualizes the directed graphs of predicted lineages. 
+
+```{r, echo = FALSE, eval = TRUE}
+
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/paga_graph.png")
+
+```
+

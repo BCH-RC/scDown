@@ -1,0 +1,155 @@
+---
+title: "scDown: A pipeline to carry out the scRNASeq downstream analysis"
+subtitle: "scVelo Part I: Read .loom files and run scVelo using the R wrapper velociraptor"
+date: "`r format(Sys.Date(), '%m/%d/%Y')`"
+output: 
+  rmarkdown::html_document:
+    highlight: pygments
+    toc: true
+    toc_depth: 3        # Set the depth of the outline (1 for main headers, 2 for subheaders, etc.)
+    number_sections: true  # Automatically number sections
+    #theme: united  # many options for theme, this one is my favorite.
+#bibliography: library.bib
+fig_width: 8 
+fig_height: 5 
+vignette: >
+  %\VignetteIndexEntry{scVelo-1-vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  echo = TRUE,
+  eval = FALSE,     # Ensure code is not run by default
+  message = FALSE,
+  warning = FALSE,
+  fig.width=8, 
+  fig.height=5
+)
+```
+
+```{r setup}
+#library(scDown)
+```
+
+# Define Universal Variables for scVelo Part I
+Set up the environment for running scVelo Part I by defining key variables. 
+
+Loading a Seurat object (seurat_obj) containing single-cell RNA-seq data is required. The cell type annotation column (annotation_column) is defined to specify the cell type or other annotation labels, ensuring the analysis runs with the correct group.
+
+Spliced and unspliced counts of the scRNA-seq data are required for scVelo. The loom files containing spliced and unspliced counts for the scRNA-seq datasets can be generated via [velocyto](https://velocyto.org/velocyto.py/tutorial/index.html). Users need to specify loom_file_subset_column to indicate which metadata column of the seurat object will match with the file names of input loom files, by default, loom_file_subset_column="orig.ident". The default loom_file_subset_by is left blank, and it will automatically be extracted from file names of input loom_files in the same order as input loom_files. Users may specify a character variable loom_file_subset_by to indicate how the Seurat object should be subsetted in order to match each indivdidual loom file name. Please note that the order of the loom_file_subset_by variable must match the order of loom_files. The mode for scVelo velocity calculation can be one of four options: "steady_state" (original), "deterministic", "stochastic" (fastest: recommended, default), "dynamical". 
+
+The working directory (output_dir) by default is the current directory and can be changed to specific path. 
+
+
+```{r, message = FALSE}
+# Set the working directory
+output_dir="/lab-share/RC-Data-Science-e2/Public/Qianyi/test_pipeline/scdown/scDown/tests"
+
+# Seurat object
+seurat_obj <- readRDS("/lab-share/RC-Data-Science-e2/Public/Qianyi/test_pipeline/scdown/scDown/inst/extdata/DentateGyrus/10X43_1_spliced_unspliced.rds")
+# specify which Metadata column of the Seurat object should be used as cell type annotation
+annotation_column <- "clusters"
+
+# file names for input .loom files containing spliced and unspliced counts of scRNA-seq data (This is required unless the spliced and unspliced data are already supplied in the Seurat object) 
+loom_files=NULL
+# Specify which metadata column of the Seurat object will match with the file names of input loom files, default "orig.ident"
+loom_file_subset_column="orig.ident"
+# The default loom_file_subset_by is left blank, and it will automatically be extracted from file names of input loom_files in the same order as input loom_files
+loom_file_subset_by=c()
+
+# Mode for scVelo velocity calculation, can be one of four options: "steady_state" (original), "deterministic", "stochastic" (fastest: recommended, default), "dynamical"
+mode='stochastic'
+
+# the number of grids along each axis, controlling the number of vectors on umap
+grid_resolutions=c(50)
+# velocity vector size (arrow head size)
+arrow_sizes=c(0.5,1)
+# velocity vector size (vector width)
+vector_widths=c(0.25,0.5)
+
+# colors to be used in plotting
+color_scale=NULL
+# specify which metadata column of the Seurat object is the color scale named by
+name_by=NULL
+
+```
+
+# Run scVelo Part I
+The spliced and unspliced matrices from .loom files are added as new assays to seurat_obj, which is converted to .5had file. The .5had file with spliced and unspliced matrices will be used as input for scVelo Part II run_scvelo_full(). 
+
+## Run scVelo for entire data
+We estimate RNA velocity for entire data using spliced and unspliced counts of scRNA-seq data using scVelo and visualize the vector field. 
+
+```{r}
+start_time <- proc.time()
+
+# Run scVelo Part I
+run_scvelo(seurat_obj = seurat_obj,
+           output_dir = output_dir,
+           annotation_column = annotation_column)
+
+end_time <- proc.time()
+elapsed_time <- end_time - start_time
+
+# Print the elapsed time
+print(elapsed_time)
+
+```
+```{r}
+# elapsed_time: 2 min
+```
+This plot visualizes the vector field on UMAP embeddings using different arrow head sizes and widths. 
+
+```{r, echo = FALSE, eval = TRUE}
+
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/R_wrapper/velocityField__gridRes50_arrowSize0.5_width0.5.png")
+
+```
+
+```{r, echo = FALSE, eval = TRUE}
+
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/R_wrapper/velocityField__gridRes50_arrowSize1_width0.5.png")
+
+```
+
+
+
+## Run scVelo for specific time points
+If specific groups of time points are provided, we subset the Seurat object for each group of time points, and then compute velocity using scVelo and visualize. 
+
+```{r}
+# subset a group of time points used to calculate RNA velocity
+time_point=list(12,35)
+# specify which metadata column of the Seurat object should be used for time_point subset
+time_point_column="age.days."
+
+# Run scVelo Part I
+run_scvelo(seurat_obj = seurat_obj,
+           output_dir = output_dir,
+           annotation_column = annotation_column,
+           time_point=time_point,
+           time_point_column=time_point_column)
+
+```
+
+This plot visualizes the vector field on UMAP embeddings for each time point group. 
+
+```{r}
+# time point: day 12 
+```
+```{r, echo = FALSE, eval = TRUE}
+
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/R_wrapper/velocityField_12_gridRes50_arrowSize0.5_width0.5.png")
+
+```
+```{r}
+# time point: day 35 
+```
+```{r, echo = FALSE, eval = TRUE}
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/R_wrapper/velocityField_35_gridRes50_arrowSize0.5_width0.5.png")
+
+```

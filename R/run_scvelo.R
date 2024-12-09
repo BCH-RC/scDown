@@ -4,31 +4,33 @@
 #' In this function, users can calculate RNA velocity of the whole data as well as a subset of time points.
 #'
 #' @param seurat_obj Seurat object containing the scRNA-seq data (Required)
-#' @param annotation_column A character variable specifying the metdata column name of cell typeannotations. Default: 
-#' NULL, uses Idents(seurat_obj)
-#' @param loom_files Spliced and unspliced counts of the scRNA-seq data (Required if not provided in seurat_obj)
+#' @param annotation_column A string specifying the metdata column name of cell type annotations. Default: 
+#' `annotation_column <- NULL`, and `Idents(seurat_obj)` is used as the cell type annotation
+#' @param loom_files Spliced and unspliced counts of the scRNA-seq data (Required if not provided in `seurat_obj`)
 #' @param output_dir A character vector specifying the output directory
 #' @param loom_file_subset_by A character variable specifying how the Seurat object should be subsetted in order 
-#' to match each indivdidual loom file name - the order of the character variable must match the order of loom_files
-#' for them to be matched. Default loom_file_subset_by <- c(), if left blank, it will automatically be extracted 
-#' from file names of input loom_files in the same order as input loom_files.
-#' If there is only one loom file provided, this variable should be left blank: loom_file_subset_by <- c()
-#' @param loom_file_subset_column A character variable specifying which metadata column of the Seurat object 
-#' should be used for subsetting to match each of the loom files. If there is only one loom file provided, this 
-#' variable should be left blank: loom_file_subset_column <- NULL
+#' to match each indivdidual loom file name. This vector must correspond to a metadata column specified by 
+#' `loom_file_subset_column` in the Seurat object, and the order of `loom_file_subset_by` must match the order of 
+#' loom_files. If `loom_file_subset_by` is not provided (default `loom_file_subset_by <- NULL`), it will be 
+#' automatically extracted from file names in `loom_files` to ensure the correct order. 
+#' If there is only one loom file provided, this variable should be left blank: `loom_file_subset_by <- NULL`
+#' @param loom_file_subset_column A string specifying the name of the metadata column in the Seurat object that
+#' should be used for subsetting to match each of the loom files. This column must exist in the Seurat object 
+#' metadata. If there is only one loom file provided, this #' variable should be left blank: 
+#' `loom_file_subset_column <- NULL`; if there are multiple loom files provided, this variable needs to be provided. 
 #' @param mode Mode for scVelo velocity calculation, default: stochastic; can be one of four options: "steady_state" 
 #' (original), "deterministic", "stochastic" (fastest: recommended, default), "dynamical"
 #' @param grid_resolutions A vector of integers specifying the number of grids along each axis, essentially 
 #' controlling the number of vectors on umap, default 50.
-#' @param arrow_sizes A vector of integer or float controlling velocity vector size (arrow head size), default 0.5
-#' @param vector_widths A vector of integer or float controlling velocity vector size (vector width), default 0.5
+#' @param arrow_sizes A vector of integers or floats controlling velocity vector size (arrow head size), default 0.5
+#' @param vector_widths A vector of integers or floats controlling velocity vector size (vector width), default 0.5
 #' @param time_point A list of character vectors representing a group of time points used to calculate RNA velocity 
 #' together, can be left blank
-#' @param time_point_column A character variable specify which metadata column of the Seurat object should be used 
-#' for subsetting the group of time points
+#' @param time_point_column A string specify the name of the metadata column in the Seurat object that should be 
+#' used for subsetting the group of time points
 #' @param color_scale A character vector of colors to be used in plotting, must match number of unique values in 
 #' the metadata column marked by @name_by
-#' @param name_by A character variable specify which metadata column of the Seurat object should be used for colors
+#' @param name_by A string specify the name of the metadata column in the Seurat object that should be used for colors
 #'
 #' @return A list of scVelo data objects
 #'
@@ -37,7 +39,7 @@
 #' Estimate RNA velocity for spliced and unspliced counts of scRNA-seq data
 
 
-run_scvelo <- function(seurat_obj,loom_files=NULL,output_dir=".",loom_file_subset_by=c(),loom_file_subset_column="orig.ident",
+run_scvelo <- function(seurat_obj,loom_files=NULL,output_dir=".",loom_file_subset_by=NULL,loom_file_subset_column="orig.ident",
                     annotation_column=NULL,mode='stochastic',grid_resolutions=c(50),arrow_sizes=c(0.5,1),vector_widths=c(0.25,0.5),
                     time_point=list(),time_point_column=NULL,color_scale=NULL,name_by=NULL){
 
@@ -53,10 +55,11 @@ for(i in subdirectories){
 }
 
 ### Input
+checkmate::test_class(seurat_obj, "Seurat")
 object_annotated <- seurat_obj
 
 # use cell type annotation column as identity
-  if(checkmate::test_character(annotation_column, min.len = 1, max.len = 1, any.missing = FALSE))
+  if(checkmate::test_string(annotation_column, null.ok=FALSE))
   {
     Seurat::Idents(object_annotated) <- object_annotated[[annotation_column]]
   }
@@ -65,13 +68,18 @@ object_annotated <- seurat_obj
 # check if spliced and unspliced data is already in seurat_obj
 if(!(("spliced" %in% names(object_annotated@assays) & ("unspliced" %in% names(object_annotated@assays))))){
 
+  checkmate::assert_character(loom_files, min.len = 1, null.ok = FALSE, any.missing = FALSE) 
+  checkmate::assert_character(loom_file_subset_by, null.ok = TRUE, any.missing = FALSE)
+  checkmate::assert_string(loom_file_subset_column, null.ok = FALSE)
+  checkmate::expect_choice(loom_file_subset_column, colnames(seurat_obj@meta.data), label = "loom_file_subset_column")
+
   # add cell barcode as metadata
   object_annotated$orig.bc <- colnames(object_annotated)
 
   # add spliced and unspliced matrices as new assays
   if (length(loom_files) > 1){
     
-    if(length(loom_file_subset_by)==0){
+    if(is.null(loom_file_subset_by)){
         loom_file_subset_by=gsub(".loom","",gsub(".*/","",loom_files))
     }
 

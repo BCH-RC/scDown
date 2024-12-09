@@ -11,6 +11,9 @@
 #' @export
 #'
 h5adToSeurat <- function(h5ad_file, annotation_column=NULL){
+
+  reticulate::py_available(initialize = FALSE)
+  miniconda_path <- "~/.local/share/r-miniconda"
   # Check if python is available
   if (!reticulate::py_available(initialize = FALSE)) {
     reticulate::install_miniconda()
