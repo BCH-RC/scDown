@@ -1,38 +1,37 @@
 #' R/zzz.R 
 #' 
 #' install required python dependencies for scvelo_workflow.py
-.onLoad <- function(libname, pkgname) {
+.onLoad <- function(env_path=NULL, packages=c("scvelo", "anndata", "loompy", "matplotlib", "numba", "numpy", "pandas", "scanpy", "scikit-learn", "scipy", "scvi-tools", "umap-learn")) {
   library(reticulate)
 
-  # required Python packages for scVelo
-  packages <- c("scvelo", "anndata", "loompy", "matplotlib", "numba", "numpy", "pandas", "scanpy", "scikit-learn", "scipy", "scvi-tools", "umap-learn")
- 
-  if (reticulate::conda_available()) {
-    # Check if Conda is available
-    message("Conda is available, proceeding with Conda installation.")
-    # Attempt to install necessary dependencies via conda
-    tryCatch({
-      reticulate::conda_install(envname = "scvelo", packages = packages, channel = "conda-forge")
-      message("Required Conda packages installed successfully.")
-    }, error = function(e) {
-      message("Failed to install Conda packages. Please check your Conda setup.")
-      stop("Unable to install Conda packages.")
-    }) 
-  } else if (reticulate::py_available()) {
-    # Check if Python is available (without Conda)
-    message("Python is available, proceeding with Python package installation.")
-    # Attempt to install necessary dependencies via pip
-    tryCatch({
-      reticulate::py_install(packages)
-      message("Required Python packages installed successfully.")
-    }, error = function(e) {
-      message("Failed to install Python packages. Please check your Python setup.")
-      stop("Unable to install Python packages.")
-    })
-  } else {
-    stop("Neither Conda nor Python is installed. Please install either Conda or Python
-     to run run_scvelo_full(). Otherwise, use run_scvelo() that doesn't require Python.")
+  env_name <- "scvelo"
+  env_exists <- reticulate::conda_list()$name %in% env_name
+
+  reticulate::py_available(initialize = FALSE)
+  if (!is.null(env_path) & dir.exists(env_path)) {
+    cat("The specified Conda environment exists. Activating it...\n")
+    # Use the existing Conda environment
+    reticulate::use_condaenv(env_path, required = TRUE)
+  } 
+
+  if (!reticulate::py_available(initialize = FALSE)) {
+    reticulate::install_miniconda()
   }
 
+  if (env_exists)
+    reticulate::use_condaenv(env_name)
+  } else {  
+    reticulate::conda_create(env_name)
+    reticulate::use_condaenv(env_name)
+  }
+
+
+  # Install the required packages 
+  for (pkg in required_packages) {
+    cat("Installing Conda package:", pkg, "\n")
+    reticulate::conda_install(envname = env_name, packages = pkg, channel = "conda-forge")
+  }
+
+    reticulate::use_condaenv(env_name)
 
 }

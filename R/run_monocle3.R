@@ -179,9 +179,10 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
 
         # plot umap by cell types
         png(filename = file.path(output_dir,"images","pseudotime",paste0("umap_celltypes_","transferUMAP_",transferUMAP,transferUMAP,ifelse(!is.null(cell_type_use),paste0("_",paste(cell_type_use,collapse = '_')),""),"_",condition,".png",sep="")), width = 2000*1.4, height = 1500*1.5, res = 400)
-        p4 <- monocle3::plot_cells(cds.condition, color_cells_by="cell.type", show_trajectory_graph=FALSE) +
+        p4 <- monocle3::plot_cells(cds.condition, color_cells_by="cell.type", show_trajectory_graph=FALSE,label_groups_by_cluster=FALSE) +
           ggplot2::theme_void() +
-          ggplot2::ggtitle(paste0("UMAP by cell types","\n", "transferUMAP=",transferUMAP, sep=""))
+          ggplot2::ggtitle(paste0("UMAP by cell types","\n", "transferUMAP=",transferUMAP, sep=""))+
+          ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
         print(p4)
         dev.off()
 
@@ -190,7 +191,8 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
         p5 <- monocle3::plot_cells(cds.condition, label_principal_points = TRUE,  color_cells_by = "cell.type", label_cell_groups=FALSE) +
           ggplot2::theme_void() +
           ggplot2::guides(color= ggplot2::guide_legend("Cell Type", override.aes = list(size=5), ncol = 2)) +
-          ggplot2::ggtitle(paste0("UMAP by trajectory","\n", "transferUMAP=",transferUMAP,sep=""))
+          ggplot2::ggtitle(paste0("UMAP by trajectory","\n", "transferUMAP=",transferUMAP,sep=""))+
+          ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
         print(p5)
         dev.off()
 
