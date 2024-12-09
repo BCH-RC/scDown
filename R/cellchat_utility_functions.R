@@ -153,10 +153,16 @@ pathway_visu <- function(X, Y, pathway, condition, dir_cellchat, species){
   dev.off()
   
   # need to load ComplexHeatmap
-  png(paste0(dir_cellchat, "/cellchat/images/pathway/", pathway, "_", condition,"_signaling_strength_heatmap.png", sep=""),height = 600*3, width = 600*3, res = 300)
-  ht3 <- netVisual_heatmap(X, signaling = pathway, color.heatmap = "Reds")
-  draw(ht3)
-  dev.off()
+  tryCatch({
+    ht3 <- netVisual_heatmap(X, signaling = pathway, color.heatmap = "Reds")
+    png(paste0(dir_cellchat, "/cellchat/images/pathway/", pathway, "_", condition,"_signaling_strength_heatmap.png", sep=""),height = 600*3, width = 600*3, res = 300)
+    draw(ht3)
+    dev.off()
+  }, error = function(e) {
+    # Print the error message (optional) and continue
+    cat("Warning: ", e$message, "\n")
+    cat("Creation of signaling_strength_heatmap.png file failed!\n")
+  })
   
   # contribution of specific ligand/receptor pair to this pathway
   p1 <- netAnalysis_contribution(X, signaling = pathway)

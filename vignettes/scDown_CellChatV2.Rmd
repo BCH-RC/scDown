@@ -6,9 +6,10 @@ output:
   rmarkdown::html_document:
     highlight: pygments
     toc: true
+    toc_float: true
     toc_depth: 3        # Set the depth of the outline (1 for main headers, 2 for subheaders, etc.)
     number_sections: true  # Automatically number sections
-    css: "CellChat_styles.css"   # Link to an external CSS file
+    # css: "CellChat_styles.css"   # Link to an external CSS file
     #number_sections: true  ## if you want numbered sections at each table header
     #theme: united  # many options for theme, this one is my favorite.
 #bibliography: library.bib
@@ -246,6 +247,17 @@ We also provide a side-by-side plot to visualize cell-to-cell communication stre
 ```{r, echo = FALSE, eval = TRUE}
 
 knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/by_age_groups/images/cellchat/comparison/sidebyside/35_12_ApoE_sidebyside_strength.png")
+
+```
+
+We also provide a function that allows you to specify a pathway of interest to plot signaling strength, heatmaps, scatter plots, as well as LR gene expression violin plots and communication probability bubble plots. This is useful if there are a specific set of pathways you're interested in that are not among the top_n most significant pathways already visualized. (Note: You must complete the run_cellchatV2 process before running the cellchatV2_path_visu function.)
+
+```{r}
+# Pathway of interest
+pathway_of_interest <- "GRN"
+
+# Visualize the pathway of interest
+cellchatV2_path_visu(output_dir = "../scDown/tests/", species = species, pathway_to_show = pathway_of_interest)
 
 ```
 

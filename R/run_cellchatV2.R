@@ -155,4 +155,48 @@ run_cellchatV2 <- function(output_dir, seurat_obj, sample_column = NULL, annotat
   }
 }
 
+#' Run CellChatV2 Pathway Visualization
+#'
+#' This function performs pathway visualization for the CellChatV2 analysis. 
+#' It generates various visualizations, including signaling strength plots, heatmaps, scatter plots, 
+#' LR gene expression violin plots, and communication probability bubble plots for specified pathways. 
+#' Users can define the number of top pathways to visualize and specify pathways of interest that may not 
+#' have been included in the top_n most significant pathways already visualized.
+#'
+#' @param output_dir Path to the folder where the visualization results will be saved (figures and tables).
+#' @param species The species of the data, either 'human' or 'mouse'.
+#' @param pathway_to_show A specific pathways to visualize.
+#' 
+#' @return NULL
+
+cellchatV2_path_visu <- function(output_dir, species, pathway_to_show) {
+  # Identify the conditions
+  rds_files <- list.files(paste0(output_dir, "/cellchat/rds/"), pattern = "\\.rds$", full.names = TRUE)
+  
+  # Check if the folder is empty
+  if (length(rds_files) == 0) {
+    stop("Error: The folder is empty. No .rds files found.")
+  }
+  
+  # Get the conditions
+  conditions <- unique(gsub(".*_(\\d+)\\.rds$", "\\1", rds_files))
+  
+  # Load the corresponding cellchat object and perform pathway analysis
+  for (condition in conditions) {
+    seurat_obj <- readRDS(paste0(output_dir, "/cellchat/rds/seurat_obj_", condition, ".rds"))
+    cellchat_object <- readRDS(paste0(output_dir, "/cellchat/rds/cellchat_obj_", condition, ".rds"))
+    
+    cat("Pathway visualization for pathway:", pathway_to_show, "; condition:", condition, "\n")
+    
+    # Significant pathways
+    pathways_sig <- cellchat_object@netP$pathways[!is.na(cellchat_object@netP$pathways)]
+    
+    if (pathway_to_show %in% pathways_sig) {
+      pathway_visu(X = cellchat_object, Y = seurat_obj, pathway_to_show, condition, dir_cellchat = output_dir, species)
+    } else {
+      cat(pathway_to_show, "is not a significant pathway in the current CellChat Analysis for condition:", condition, "\n")
+    }
+  }
+}
+
 
