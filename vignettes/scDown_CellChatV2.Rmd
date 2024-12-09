@@ -39,9 +39,11 @@ Set up the environment for running CellChat V2 by defining key variables. Specif
 ```{r, message = FALSE}
 # Set the working directory
 output_dir <- "../scDown/tests"
+# output_dir <- "/Users/chunhui/BCH_projects/scDown_pipeline/scDown/tests"
 
 # Seurat object
 seurat_obj <- readRDS("../scDown/inst/extdata/10X43_1_spliced_unspliced.rds")
+# seurat_obj <- readRDS("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/inst/extdata/10X43_1_spliced_unspliced.rds")
 
 # Define the species: either "mouse" or "human", since CellChat and PPI database only support these two species for now
 species <- "mouse"

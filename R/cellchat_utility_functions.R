@@ -246,6 +246,42 @@ doCellComVisu <- function(X, Y, pathways_to_show, condition, dir_cellchat, speci
   
 }
 
+
+#' Calculate and Scale Information Flow for All Communication Pathways
+#' 
+#' This function calculates the information flow for communication pathways in a network object, 
+#' scales the contribution of each pathway using a logarithmic transformation, and returns the 
+#' results ordered by contribution.
+#'
+#' @param X A network object containing the communication probabilities, from which the `prob` matrix is extracted.
+#' @param condition A character string representing the condition of the object, used for labeling in the output.
+#' @return df_ordered, A data frame with the following columns:
+#' 
+#' @noRd
+
+calc_infoflow <- function(X, condition) {
+  prob <- methods::slot(X, "netP")$prob
+  if (sum(prob) == 0) {
+    stop("No inferred communications for the input!")
+  }
+  pSum <- apply(prob, 3, sum)
+  pSum.original <- pSum
+  pSum <- -1/log(pSum)
+  pSum[is.na(pSum)] <- 0
+  idx1 <- which(is.infinite(pSum) | pSum < 0)
+  values.assign <- seq(max(pSum) * 1.1, max(pSum) * 1.5, length.out = length(idx1))
+  position <- sort(pSum.original[idx1], index.return = TRUE)$ix
+  pSum[idx1] <- values.assign[match(1:length(idx1), position)]
+  pair.name <- names(pSum)
+  df <- data.frame(name = pair.name, contribution = pSum.original, contribution.scaled = pSum, group = condition)
+  idx <- with(df, order(df$contribution))
+  df <- df[idx, ]
+  df$name <- factor(df$name, levels = as.character(df$name))
+  df_ordered <- df[order(df$contribution, decreasing = TRUE), ]
+  
+  return(df_ordered)
+}
+
 #' Identify Top Pathways with the Highest Overall Communication Probabilities
 #' 
 #' This function takes one or two CellChat objects as input and returns the top pathways with the 
@@ -259,7 +295,6 @@ doCellComVisu <- function(X, Y, pathways_to_show, condition, dir_cellchat, speci
 #' @return df.netP, A character vector containing the names of the top "top_n" pathways.
 #' 
 #' @noRd
-
 
 top_pathways <- function(X1, X2=NULL, top_n=10){
   
@@ -483,8 +518,8 @@ differential_ligand_receptor <- function(dir_cellchat, X, cond_in_compare){
   # DEG by communication probability: max.dataset = keep the communications with highest probability in max.dataset
   gg1 <- netVisual_bubble(X, comparison = c(1, 2), max.dataset = 2, title.name = paste0("Increased signaling in", cond_in_compare[2]), angle.x = 45, remove.isolate = T)
   gg2 <- netVisual_bubble(X, comparison = c(1, 2), max.dataset = 1, title.name = paste0("Decreased signaling in", cond_in_compare[2]), angle.x = 45, remove.isolate = T)
-  write.csv(gg1$data, file=paste0(dir_cellchat, "/cellchat/csv/",cond_in_compare[2],"_increased_signalingLR_commProb.csv", sep=""))
-  write.csv(gg2$data, file=paste0(dir_cellchat, "/cellchat/csv/",cond_in_compare[2],"_decreased_signalingLR_commProb.csv", sep=""))
+  # write.csv(gg1$data, file=paste0(dir_cellchat, "/cellchat/csv/",cond_in_compare[2],"_increased_signalingLR_commProb.csv", sep=""))
+  # write.csv(gg2$data, file=paste0(dir_cellchat, "/cellchat/csv/",cond_in_compare[2],"_decreased_signalingLR_commProb.csv", sep=""))
 
   # DEG by differential gene expression
   # define a positive dataset, i.e., the dataset with positive fold change against the other dataset
@@ -498,8 +533,8 @@ differential_ligand_receptor <- function(dir_cellchat, X, cond_in_compare){
   net.up <- subsetCommunication(X, net = net, datasets = cond_in_compare[2], ligand.logFC = 0.2, receptor.logFC = NULL)
   # extract the ligand-receptor pairs with upregulated ligands in the other dataset, i.e.,downregulated in pos.dataset
   net.down <- subsetCommunication(X, net = net, datasets = cond_in_compare[1], ligand.logFC = -0.1, receptor.logFC = -0.1)
-  write.csv(net.up, file=paste0(dir_cellchat, "/cellchat/csv/",cond_in_compare[2],"_increased_signalingLR_diffExpession.csv", sep=""))
-  write.csv(net.down, file=paste0(dir_cellchat, "/cellchat/csv/",cond_in_compare[2],"_decreased_signalingLR_diffExpession.csv", sep=""))
+  # write.csv(net.up, file=paste0(dir_cellchat, "/cellchat/csv/",cond_in_compare[2],"_increased_signalingLR_diffExpession.csv", sep=""))
+  # write.csv(net.down, file=paste0(dir_cellchat, "/cellchat/csv/",cond_in_compare[2],"_decreased_signalingLR_diffExpession.csv", sep=""))
 
   return(X)
 
@@ -563,7 +598,7 @@ compareCellComVisu <- function(dir_cellchat, X, object_list, cond_in_compare, pa
   # general network inference and comparison
   network_comparison(dir_cellchat, X, object_list, cond_in_compare)
   # compare information flow
-  information_flow(dir_cellchat, X, object_list,cond_in_compare)
+  information_flow(dir_cellchat, X, object_list, cond_in_compare)
   # find differential ligand-rceptor pairs
   X <- differential_ligand_receptor(dir_cellchat, X, cond_in_compare)
   # graph specific pathways of interests side by side for visual comparison
