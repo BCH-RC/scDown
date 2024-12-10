@@ -27,7 +27,8 @@ addSUmatrices <- function(X, loomFile){
 
     # Getting standardized cell barcodes by removing prefix and suffix
     colnames(SU[[1]]) <- colnames(SU[[2]]) <- gsub('^[[:print:]]+\\:|x$', '', colnames(SU[[1]]))
-    X <- RenameCells(X, new.names= gsub('^.*_|-[^-]*$', '', colnames(X)))
+    new.names <- gsub('^(?:.*?_)?([A-Z0-9]+)[_-].*$', '\\1', colnames(X))
+    X <- RenameCells(X, new.names= new.names)
 
     # Identifying shared barcodes
     sharedBarcodes <- intersect(colnames(SU[[1]]), colnames(X))
@@ -186,3 +187,57 @@ plotVectorField <- function(X, tpVF, time_point=NULL, time_point_column=NULL, co
 }
 
 
+#' Transfer computed pseudotime values using scvelo package to a Seurat object
+#'
+#' The function transfers the computed pseudotime values from the scvelo package
+#' to the Seurat object. The function takes in a Seurat object containing the 
+#' counts matrices and a scVeloOutput object returned by doVelocity function. 
+#' The function returns the Seurat object with two additional columns in the metadata
+#' containing the computed pseudotime values and the velocity confidence values.
+#'
+#' @param X Seurat object containing the counts matrices.
+#' @param scVeloOutput scVeloOutput object returned by doVelocity function.
+#' @return A Seurat object with two additional columns containing the computed pseudotime values and the velocity confidence values.
+#' 
+getVelocityPseudotime <- function(X, scVeloOutput){
+    # Transfering computed pseudotime values to the Seurat object
+    X$velocity_pseudotime <- scVeloOutput$velocity_pseudotime
+    X$velocity_velocity_confidence <- scVeloOutput$velocity_confidence
+    return(X)
+}
+
+
+# =============================== NOT USED FOR NOW ===============================
+#'
+#' Plot the pseudotime on lower-dimensional embeddings.
+#'
+#' This function takes in a Seurat object outputted by getVelocityPseudotime() function, which
+#' contains pseudotime values in its metadata. Lower-dimensional space is plotted using geom_point
+#' and pseudotime values are used as scales for coloring.
+#'
+#' @param X a Seurat object outputted by getVelocityPseudotime() function.
+#' @param color_scale two colors to use to define color gradient when plotting pseudotime.
+
+plotPseudotime <- function(X, color_scale=c("darkblue", "yellow")){
+    
+    # get lower-dimensional coordinates and pseudotime values
+    D <- X@reductions$umap@cell.embeddings
+    D <- as.data.frame.array(D)
+    pseudo_df <- as.data.frame(X$velocity_pseudotime)
+    D <- merge(D, pseudo_df, by='row.names', all=TRUE)
+    colnames(D)[4] <- "Pseudotime"
+    D <- D[order(D$Pseudotime, decreasing = TRUE), ]
+
+    png('V-D0D3-pseudotime.png', width = 1800, height = 1800, res = 300)
+    P <- ggplot(D, aes(UMAP_1, UMAP_2)) +
+        geom_point(aes(color = Pseudotime), size = 0.01) +
+        scale_color_gradient(low = color_scale[1], high = color_scale[2]) +
+        scale_color_discrete(na.value="gray95") +
+        theme_void() +
+        theme(panel.grid = element_blank(),
+              panel.border = element_blank()) +
+        xlab('UMAP 1') +
+        ylab('UMAP 2')
+    print(P)
+    dev.off()
+}
