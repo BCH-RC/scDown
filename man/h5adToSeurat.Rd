@@ -2,17 +2,27 @@
 % Please edit documentation in R/utility_functions.R
 \name{h5adToSeurat}
 \alias{h5adToSeurat}
-\title{Read in a h5ad file and transfer the AnnData object into a Seurat object.}
+\title{Read in a h5ad file and convert to a Seurat object.}
 \usage{
+h5adToSeurat(h5ad_file, annotation_column)
+
 h5adToSeurat(h5ad_file, annotation_column)
 }
 \arguments{
 \item{h5ad_file}{character string of full path to the h5ad file.}
+
+\item{annotation_column}{character variable specifying the metdata column name of cell type annotations.}
 }
 \value{
 a Seurat object.
+
+a Seurat object.
 }
 \description{
+This function uses the library(zellkonverter) to convert the normalized counts, metadata,
+lower dimensional embeddings (pca and umap), and spliced and unspliced counts if available from a h5ad 
+file to a Seurat object.
+
 This function uses the library(anndata) to transfer the normalized counts, metadata,
 and lower dimensional embeddings (pca and umap) from a h5ad file into a Seurat object.
 More data can be transferred between the two formats, and this function can be expanded

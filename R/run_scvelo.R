@@ -7,8 +7,8 @@
 #' @param annotation_column A string specifying the metdata column name of cell type annotations. Default: 
 #' `annotation_column <- NULL`, and `Idents(seurat_obj)` is used as the cell type annotation
 #' @param loom_files path and file names of Spliced and unspliced counts of the scRNA-seq data (Required if 
-#' not provided in `seurat_obj`). For multiple loom files, the file names in `loom_files` must match the metadata 
-#' column in the Seurat object specified by `loom_file_subset_column`
+#' not provided in `seurat_obj`). For multiple loom files, the file names in `loom_files` must correspond to 
+#' the values in the metadata column in the Seurat object specified by `loom_file_subset_column`
 #' @param output_dir A character vector specifying the output directory
 #' @param loom_file_subset_by A character variable specifying how the Seurat object should be subsetted in order 
 #' to match each indivdidual loom file name. This vector must correspond to a metadata column specified by 
