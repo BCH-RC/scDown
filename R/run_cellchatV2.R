@@ -164,10 +164,10 @@ run_cellchatV2 <- function(output_dir, seurat_obj, sample_column = NULL, annotat
       
       # Load the seurat objects and cellchat objects
       # Condition 1
-      seurat_obj_cond1 <- readRDS(paste0(output_dir, "/cellchat/rds/cellchat_obj_", cond_1, ".rds"))
+      seurat_obj_cond1 <- readRDS(paste0(output_dir, "/cellchat/rds/seurat_obj_", cond_1, ".rds"))
       cellchat_obj_cond1 <- readRDS(paste0(output_dir, "/cellchat/rds/cellchat_obj_", cond_1, ".rds"))
       # Condition 2
-      seurat_obj_cond2 <- readRDS(paste0(output_dir, "/cellchat/rds/cellchat_obj_", cond_2, ".rds"))
+      seurat_obj_cond2 <- readRDS(paste0(output_dir, "/cellchat/rds/seurat_obj_", cond_2, ".rds"))
       cellchat_obj_cond2 <- readRDS(paste0(output_dir, "/cellchat/rds/cellchat_obj_", cond_2, ".rds"))
       
       run_cellchatV2_cmp(dir_cellchat = output_dir, seurat_obj_cond1 = seurat_obj_cond1, cellchat_obj_cond1 = cellchat_obj_cond1, seurat_obj_cond2 = seurat_obj_cond2, cellchat_obj_cond2 = cellchat_obj_cond2, condition_col = group_column, condition_1 = cond_1, condition_2 = cond_2, top_n = top_n)
@@ -193,14 +193,15 @@ run_cellchatV2 <- function(output_dir, seurat_obj, sample_column = NULL, annotat
 cellchatV2_path_visu <- function(output_dir, species, pathway_to_show) {
   # Identify the conditions
   rds_files <- list.files(paste0(output_dir, "/cellchat/rds/"), pattern = "\\.rds$", full.names = TRUE)
-  
+  rds_files <- rds_files[which(regexpr("seurat_obj", rds_files)>0)]
+
   # Check if the folder is empty
   if (length(rds_files) == 0) {
     stop("Error: The folder is empty. No .rds files found.")
   }
   
   # Get the conditions
-  conditions <- unique(gsub(".*_(\\d+)\\.rds$", "\\1", rds_files))
+  conditions <- unique(sub(".*seurat_obj_(.*?)\\.rds", "\\1", rds_files))
   
   # Load the corresponding cellchat object and perform pathway analysis
   for (condition in conditions) {

@@ -165,9 +165,15 @@ pathway_visu <- function(X, Y, pathway, condition, dir_cellchat, species){
   })
   
   # contribution of specific ligand/receptor pair to this pathway
-  p1 <- netAnalysis_contribution(X, signaling = pathway)
-  ggsave(file = paste0(dir_cellchat, "/cellchat/images/pathway/LR_gene/", pathway, "_", condition, "_LR_contribution.png", sep=""), plot = p1, height = 6, width = 8)
-  
+  tryCatch({
+    p1 <- netAnalysis_contribution(X, signaling = pathway)
+    ggsave(file = paste0(dir_cellchat, "/cellchat/images/pathway/LR_gene/", pathway, "_", condition, "_LR_contribution.png", sep=""), plot = p1, height = 6, width = 8)
+  }, error = function(e) {
+    # Print the error message (optional) and continue
+    cat("Warning: ", e$message, "\n")
+    cat("Creation of LR_contribution.png file failed!\n")
+  })
+
   # extract significant L-R pairs contributing to the pathway
   pairLR <- extractEnrichedLR(X, signaling = pathway, geneLR.return = FALSE)
   # cell-cell communication mediated by a single ligand-receptor pair
@@ -180,6 +186,7 @@ pathway_visu <- function(X, Y, pathway, condition, dir_cellchat, species){
   # plot signaling gene expression distribution related to the pathway
   pairLR <- extractEnrichedLR(X, signaling = pathway, geneLR.return = FALSE) # The extractEnrichedLR() function from CellChat returns ligand-receptor (LR) pairs in upper case by default, even if the CellChat object is based on mouse data.
   LRs_uni <- unique(unlist(strsplit(split = "_", x = pairLR$interaction_name)))
+  LRs_uni <- gsub("RetinoicAcid-RA-", "", LRs_uni)
   if (species == "mouse") {
     genes <- rownames(X@data)
     indices <- match(LRs_uni, toupper(genes))
@@ -214,7 +221,7 @@ pathway_visu <- function(X, Y, pathway, condition, dir_cellchat, species){
   ggsave(file=paste0(dir_cellchat, "/cellchat/images/pathway/", pathway, "_", condition, "_signaling_role_scatter.png", sep=""), plot=p3, height = 6, width = 6)
   
   # Bubble plots for LR pairs
-  p <- netVisual_bubble(X, signaling = pathway, remove.isolate = TRUE, font.size = 7)
+  p <- netVisual_bubble(X, signaling = pathway, remove.isolate = FALSE, font.size = 7)
   png(file=paste0(dir_cellchat, "/cellchat/images/pathway/LR_gene/", pathway, "_", condition, "_LR_bubble_plot.png"), res = 300, height = 600+120*length(unique(p$data$interaction_name)), width = 600+25*length(unique(p$data$source.target)))
   print(p)
   dev.off()
