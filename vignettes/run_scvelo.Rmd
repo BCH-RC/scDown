@@ -40,28 +40,36 @@ Set up the environment for running scVelo Part I by defining key variables.
 
 Loading a Seurat object (seurat_obj) containing single-cell RNA-seq data is required. The cell type annotation column (annotation_column) is defined to specify the cell type or other annotation labels, ensuring the analysis runs with the correct group.
 
-Spliced and unspliced counts of the scRNA-seq data are required for scVelo. The loom files containing spliced and unspliced counts for the scRNA-seq datasets can be generated via [velocyto](https://velocyto.org/velocyto.py/tutorial/index.html). Users need to specify loom_file_subset_column to indicate which metadata column of the seurat object will match with the file names of input loom files, by default, loom_file_subset_column="orig.ident". The default loom_file_subset_by is left blank, and it will automatically be extracted from file names of input loom_files in the same order as input loom_files. Users may specify a character variable loom_file_subset_by to indicate how the Seurat object should be subsetted in order to match each indivdidual loom file name. Please note that the order of the loom_file_subset_by variable must match the order of loom_files. The mode for scVelo velocity calculation can be one of four options: "steady_state" (original), "deterministic", "stochastic" (fastest: recommended, default), "dynamical". 
+Spliced and unspliced mRNA counts of the scRNA-seq data are required for scVelo analysis. These counts can be obtained by generating .loom files using [velocyto](https://velocyto.org/velocyto.py/tutorial/index.html). The `loom_files` is required, except in rare cases where the spliced and unspliced data are already incoporated into the Seurat object. 
 
-The working directory (output_dir) by default is the current directory and can be changed to specific path. 
+To integrate spliced and unspliced mRNA counts from .loom files with the Seurat object, users need to specify `loom_file_subset_column` to indicate the metadata column in the seurat object that matches with the file names of input .loom files (the default is "orig.ident"). For multiple loom files, the file names in `loom_files` must correspond to the values in the specified metadata column of the Seurat object.
+
+By default, `loom_file_subset_by` is left blank, as it will automatically be extracted from .loom file names in the same order as input `loom_files`. If needed, users may specify a character vector for `loom_file_subset_by` to subset the Seurat object while ensuring that the order of `loom_file_subset_by` matches the order of file names in `loom_files`. 
+
+The mode for scVelo velocity calculation can be one of four options: "steady_state" (original), "deterministic", "stochastic" (fastest: recommended, default), "dynamical". 
+
+The working directory `output_dir` by default is the current directory and can be changed to specific path. 
 
 
 ```{r, message = FALSE}
 # Set the working directory
-output_dir="/lab-share/RC-Data-Science-e2/Public/Qianyi/test_pipeline/scdown/scDown/tests"
+output_dir="/lab-share/RC-Data-Science-e2/Public/Qianyi/test_pipeline/scdown/scDown/"
+setwd(output_dir)
 
 # Seurat object
-seurat_obj <- readRDS("/lab-share/RC-Data-Science-e2/Public/Qianyi/test_pipeline/scdown/scDown/inst/extdata/DentateGyrus/10X43_1_spliced_unspliced.rds")
+seurat_obj <- readRDS("inst/extdata/DentateGyrus/10X43_1_spliced_unspliced.rds")
 # specify which Metadata column of the Seurat object should be used as cell type annotation
 annotation_column <- "clusters"
 
-# file names for input .loom files containing spliced and unspliced counts of scRNA-seq data (This is required unless the spliced and unspliced data are already supplied in the Seurat object) 
+# file names for input .loom files containing spliced and unspliced counts of scRNA-seq data
+# e.g., loom_files=c("/path/to/directory/WT.loom", "/path/to/directory/KO.loom") 
 loom_files=NULL
-# Specify which metadata column of the Seurat object will match with the file names of input loom files, default "orig.ident"
+# specify the metadata column in the Seurat object that matches with the file names of input loom_files
 loom_file_subset_column="orig.ident"
-# The default loom_file_subset_by is left blank, and it will automatically be extracted from file names of input loom_files in the same order as input loom_files
-loom_file_subset_by=c()
+# this will automatically be extracted from file names of input loom_files 
+loom_file_subset_by=NULL
 
-# Mode for scVelo velocity calculation, can be one of four options: "steady_state" (original), "deterministic", "stochastic" (fastest: recommended, default), "dynamical"
+# mode for scVelo velocity calculation
 mode='stochastic'
 
 # the number of grids along each axis, controlling the number of vectors on umap
@@ -69,7 +77,7 @@ grid_resolutions=c(50)
 # velocity vector size (arrow head size)
 arrow_sizes=c(0.5,1)
 # velocity vector size (vector width)
-vector_widths=c(0.25,0.5)
+vector_widths=0.5
 
 # colors to be used in plotting
 color_scale=NULL
@@ -153,3 +161,19 @@ knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignette
 knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/R_wrapper/velocityField_35_gridRes50_arrowSize0.5_width0.5.png")
 
 ```
+
+# Summary
+
+This document outlines a pipeline for incorporating spliced and unspliced RNA matrices from .loom files into Seurat object, and analyzing RNA velocity using velciraptor, a R wrapper for scVelo. The pipeline begins by defining key variables, such as the working directory, Seurat object, species, and metadata for cell type annotations and preparing for input .h5ad file for the run_scvelo_full() pipeline. It runs scVelo on the entire dataset to compute RNA velocity across all cells and generates generates visualizations for Velocity vector field on UMAPs.
+
+Additionally, the pipeline supports focused analysis by selecting specific time points  (e.g., age groups 12 and 35) or comparing user-defined groups. For each group of time points, the Seurat object is subsetted and velocity is computed. 
+
+This pipeline provides a comprehensive tool for incorporating spliced and unspliced matrices from .loom and computing RNA velocity.
+
+The vignette was performed on a machine with the following specifications:
+
+- **Operating System**: Sequoia
+  - **Product Name**: macOS
+  - **Product Version**: 15.0
+- **CPU**: Apple M1 Pro
+- **Memory**: 16 GB
