@@ -2,6 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 import scvelo as scv
+scv.settings.figdir = '.'
 
 # ========================== SCVELO FUNCTIONS ==========================
 # This function takes in an AnnData object and performs all basic velocity calculations
@@ -117,6 +118,7 @@ def run_scvelo_workflow(h5ad_file='scvelo/rds/obj_spliced_unspliced.h5ad', annot
     # 3. trajectory inference using PAGA
     PAGA_trajectory_inference(adata, group_by=annotation_column)
     print('scVelo analysis completed.')
+
 
 
 

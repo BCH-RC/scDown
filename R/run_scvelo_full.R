@@ -46,6 +46,7 @@ library(reticulate)
 reticulate::source_python("inst/python/scvelo_workflow.py")
 run_scvelo_workflow(h5ad_file,annotation_column,mode,top_gene)
 
+system("stty echo")
 sessionInfo()
 
 }
