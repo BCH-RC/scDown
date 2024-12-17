@@ -9,7 +9,7 @@
 #' on umap, the phase portrait (ratio of spliced/unspliced RNA abundance) for top differential genes, and 
 #' directed graphs of predicted lineages from PAGA trajectory inference 
 #'
-#' @param h5ad_file input h5ad file path and name, if running after run_scvelo(), this object has a fixed 
+#' @param h5ad_file input h5ad file path and name, if running after `run_scvelo()`, this object has a fixed 
 #' name and does not need to be changed
 #' @param output_dir A character vector specifying the output directory
 #' @param annotation_column A character variable specifying which metadata column of the h5ad object contains 
@@ -17,10 +17,10 @@
 #' @param mode Mode to conduct scvelo velocity calculation, either 'stochastic (default)', 'deterministic', 
 #' or 'dynamical (slowest)'
 #' @param top_gene The number of top differential velocity genes to plot phase portrait for
-#' @param groups A list of character vectors representing a groups of conditions or time points used to 
+#' @param groups A list of character vectors representing groups of conditions or time points used to 
 #' calculate RNA velocity separately, default: NULL
-#' @param group_column A string specify the name of the metadata column in the h5ad object that should be 
-#' used for subsetting the groups of group points
+#' @param group_column A string specifying the name of the metadata column in the h5ad object that should be 
+#' used for subsetting each group in `groups`
 #'
 #' @return A list of scVelo data objects
 #'

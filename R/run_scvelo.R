@@ -1,7 +1,7 @@
 #' Function to run the scVelo pipeline using velociraptor 
 #'
 #' This function performs RNA velocity calculations from .loom files with the scVelo package.
-#' In this function, users can calculate RNA velocity of the whole data as well as a subset of group points.
+#' In this function, users can calculate RNA velocity of the whole data as well as a subset of groups.
 #'
 #' @param seurat_obj Seurat object containing the scRNA-seq data (Required)
 #' @param annotation_column A string specifying the metdata column name of cell type annotations. Default: 
@@ -26,10 +26,10 @@
 #' controlling the number of vectors on umap, default 50.
 #' @param arrow_sizes A vector of integers or floats controlling velocity vector size (arrow head size), default 0.5
 #' @param vector_widths A vector of integers or floats controlling velocity vector size (vector width), default 0.5
-#' @param groups A list of character vectors representing a groups of conditions or time points used to calculate RNA 
+#' @param groups A list of character vectors representing groups of conditions or time points used to calculate RNA 
 #' velocity separately, default: NULL
-#' @param group_column A string specify the name of the metadata column in the Seurat object that should be 
-#' used for subsetting the groups of group points
+#' @param group_column A string specifying the name of the metadata column in the Seurat object that should be 
+#' used for subsetting each group in `groups`
 #' @param color_scale A character vector of colors to be used in plotting, must match number of unique values in 
 #' the metadata column marked by @name_by
 #' @param name_by A string specify the name of the metadata column in the Seurat object that should be used for colors
