@@ -72,7 +72,7 @@ Workflow of run_scvelo_full():
 ```{r}
 start_time <- proc.time()
 
-# Run scVelo Part II
+# Run full scVelo using original scvelo
 run_scvelo_full(h5ad_file = h5ad_file,
                 output_dir = output_dir,
                 annotation_column = annotation_column)
@@ -94,28 +94,28 @@ This step takes in an AnnData object in .h5ad and performs all basic velocity ca
 This plot visualizes the % spliced Vs. unspliced RNA for each cell type. 
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/scvelo_proportions.png")
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_proportions.png")
 
 ```
 
 This plot visualizes the velocity stream on UMAP embeddings. 
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/scvelo_embedding_stream.png")
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_embedding_stream.png")
 
 ```
 
 This plot visualizes the vector grid on UMAP embeddings. 
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/scvelo_embedding_grid.png")
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_embedding_grid.png")
 
 ```
 
 This plot visualizes the vector arrow on UMAP embeddings. 
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/scvelo_embedding_arrow.png")
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_embedding_arrow.png")
 
 ```
 
@@ -130,7 +130,7 @@ This plot visualizes the phase portrait for top 5 highly ranked differential vel
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/Astrocytes_genePhase.png")
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_Astrocytes_genePhase.png")
 
 ```
 ```{r}
@@ -138,7 +138,7 @@ knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignette
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/Cajal Retzius_genePhase.png")
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_Cajal Retzius_genePhase.png")
 
 ```
 ```{r}
@@ -146,7 +146,7 @@ knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignette
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/Cck-Tox_genePhase.png")
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_Cck-Tox_genePhase.png")
 
 ```
 
@@ -155,7 +155,7 @@ knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignette
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/Endothelial_genePhase.png")
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_Endothelial_genePhase.png")
 
 ```
 
@@ -164,7 +164,7 @@ knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignette
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/GABA_genePhase.png")
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_GABA_genePhase.png")
 
 ```
 ```{r}
@@ -172,7 +172,7 @@ knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignette
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/Granule immature_genePhase.png")
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_Granule immature_genePhase.png")
 
 ```
 ```{r}
@@ -180,7 +180,7 @@ knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignette
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/Granule mature_genePhase.png")
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_Granule mature_genePhase.png")
 
 ```
 ```{r}
@@ -188,7 +188,7 @@ knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignette
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/Microglia_genePhase.png")
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_Microglia_genePhase.png")
 
 ```
 ```{r}
@@ -196,7 +196,7 @@ knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignette
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/Mossy_genePhase.png")
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_Mossy_genePhase.png")
 
 ```
 ```{r}
@@ -204,7 +204,7 @@ knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignette
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/Neuroblast_genePhase.png")
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_Neuroblast_genePhase.png")
 
 ```
 ```{r}
@@ -212,7 +212,7 @@ knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignette
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/nIPC_genePhase.png")
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_nIPC_genePhase.png")
 
 ```
 ```{r}
@@ -220,7 +220,7 @@ knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignette
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/OL_genePhase.png")
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_OL_genePhase.png")
 
 ```
 ```{r}
@@ -228,7 +228,7 @@ knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignette
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/Neuroblast_genePhase.png")
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_Neuroblast_genePhase.png")
 
 ```
 
@@ -240,15 +240,72 @@ This plot visualizes the directed graphs of predicted lineages.
 
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/paga_graph.png")
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_paga_graph.png")
 
 ```
+
+## Run full scVelo for specific groups
+If specific groups of conditions or time points are provided, we subset the h5ad object for each group of conditions or time points, and then compute velocity using original scVelo and visualize all the above figures in each individual group. 
+
+```{r}
+# subset a group of conditions or time points used to calculate RNA velocity
+groups=list("12","35")
+# specify which metadata column of the Seurat object should be used for the group subset 
+group_column="age(days)"
+
+# Run full scVelo using original scvelo for specific groups
+run_scvelo_full(h5ad_file = h5ad_file,
+                output_dir = output_dir,
+                annotation_column = annotation_column,
+                groups=groups,
+                group_column=group_column)
+
+```
+
+This plot visualizes the velocity stream on UMAP embeddings. 
+```{r}
+# time point: day 12 
+```
+```{r, echo = FALSE, eval = TRUE}
+
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/12_embedding_stream.png")
+
+```
+```{r}
+# time point: day 35 
+```
+```{r, echo = FALSE, eval = TRUE}
+
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/35_embedding_stream.png")
+
+```
+
+This plot visualizes the directed PAGA graphs of predicted lineages. 
+```{r}
+# time point: day 12 
+```
+```{r, echo = FALSE, eval = TRUE}
+
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/12_paga_graph.png")
+
+```
+```{r}
+# time point: day 35 
+```
+```{r, echo = FALSE, eval = TRUE}
+
+knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/35_paga_graph.png")
+
+```
+
 
 # Summary
 
 This document outlines a pipeline for analyzing RNA velocity directly employing the original Python package scVelo. The pipeline begins with the .h5ad file with spliced and unspliced RNA matrices that could be generated by run_scvelo(). It runs scvelo by fitting a stochastic model to each gene’s splicing dynamics and visualizes RNA velocity in stream plots, grid plots and arraw plots. It also identifies differential velocity genes via statistical testing and visualizes top-ranked genes in phase portraits, highlighting those influencing state transitions. 
 
 Apart from that, it conducts Partition-based Graph Abstraction (PAGA), which calculates transition probabilities and generates directed lineage graphs, providing a high-level overview of cell-state relationships, supporting lineage and trajectory inference. 
+
+Additionally, the pipeline supports focused analysis by selecting specific time points  (e.g., age groups 12 and 35) or comparing user-defined groups. For each group of conditions or time points, the h5ad object is subsetted and velocity is computed. 
 
 This python-based workflow offers a robust framework for analyzing transcriptional dynamics, providing insights into cellular trajectories and transitions.
 

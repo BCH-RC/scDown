@@ -126,21 +126,21 @@ knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignette
 
 
 
-## Run scVelo for specific time points
-If specific groups of time points are provided, we subset the Seurat object for each group of time points, and then compute velocity using scVelo and visualize. 
+## Run scVelo for specific groups 
+If specific groups of conditions or time points are provided, we subset the Seurat object for each group of conditions or time points, and then compute velocity using scVelo and visualize. 
 
 ```{r}
-# subset a group of time points used to calculate RNA velocity
-time_point=list(12,35)
-# specify which metadata column of the Seurat object should be used for time_point subset
-time_point_column="age.days."
+# subset a group of conditions or time points used to calculate RNA velocity
+groups=list(12,35)
+# specify which metadata column of the Seurat object should be used for the group subset 
+group_column="age.days."
 
 # Run scVelo Part I
 run_scvelo(seurat_obj = seurat_obj,
            output_dir = output_dir,
            annotation_column = annotation_column,
-           time_point=time_point,
-           time_point_column=time_point_column)
+           groups=groups,
+           group_column=group_column)
 
 ```
 
@@ -166,7 +166,7 @@ knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignette
 
 This document outlines a pipeline for incorporating spliced and unspliced RNA matrices from .loom files into Seurat object, and analyzing RNA velocity using velciraptor, a R wrapper for scVelo. The pipeline begins by defining key variables, such as the working directory, Seurat object, species, and metadata for cell type annotations and preparing for input .h5ad file for the run_scvelo_full() pipeline. It runs scVelo on the entire dataset to compute RNA velocity across all cells and generates generates visualizations for Velocity vector field on UMAPs.
 
-Additionally, the pipeline supports focused analysis by selecting specific time points  (e.g., age groups 12 and 35) or comparing user-defined groups. For each group of time points, the Seurat object is subsetted and velocity is computed. 
+Additionally, the pipeline supports focused analysis by selecting specific time points  (e.g., age groups 12 and 35) or comparing user-defined groups. For each group of conditions or time points, the Seurat object is subsetted and velocity is computed. 
 
 This pipeline provides a comprehensive tool for incorporating spliced and unspliced matrices from .loom and computing RNA velocity.
 

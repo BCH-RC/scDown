@@ -58,7 +58,8 @@ addSUmatrices <- function(X, loomFile){
 #' generate the plots.
 #'
 #' @param X Seurat object containing the counts matrices.
-#' @param mode Character mode specifying the type of velocity computation to use. Available modes are "steady_state" (original), "deterministic", "stochastic" (fastest:recommended), "dynamical".
+#' @param mode Character mode specifying the type of velocity computation to use. Available modes are "steady_state" 
+#'(original), "deterministic", "stochastic" (fastest:recommended), "dynamical".
 #' @return A SingleCellExperiment object with the information required to generate the plots.
 
 doVelocity <- function(X, mode = 'stochastic'){
@@ -124,15 +125,16 @@ getVectorField <- function(X, scVeloOutput, reduction = 'umap', dims = 1:2, reso
 #'
 #' @param X a Seurat object with dimension reduction coordinates.
 #' @param tpVF the 4-column dataframe outputted by getVectorField() with start and end point of each velocity vector.
-#' @param time_point a character vector of timepoints in the datasets specifying cells from which time should be plotted with velocity arrows.
-#' @param time_point_column a character string specifying name of the metadata that has timepoint information.
+#' @param group a character vector of conditions or timepoints in the datasets specifying cells from which time should 
+#'be plotted with velocity arrows.
+#' @param group_column a character string specifying name of the metadata that has timepoint information.
 #' @param color_scale a character vector of colors to be used in plotting.
 #' @param name_by a character string specifying which metadata in X is the color scale named by.
 #' @param grid_res numeric value specifying the resolution of the grid, purely for figure naming purpose.
 #' @param arrow_size a float or integer specifying the velocity vector arrow head size.
 #' @param vector_width a float or integer specifying the velocity vector line width.
 
-plotVectorField <- function(X, tpVF, time_point=NULL, time_point_column=NULL, color_scale=NULL, name_by=NULL, grid_res=NULL, arrow_size=0.5, vector_width=0.5){
+plotVectorField <- function(X, tpVF, group=NULL, group_column=NULL, color_scale=NULL, name_by=NULL, grid_res=NULL, arrow_size=0.5, vector_width=0.5){
     
     # get lower-dimensional coordinates
     D <- X@reductions$umap@cell.embeddings
@@ -159,11 +161,11 @@ plotVectorField <- function(X, tpVF, time_point=NULL, time_point_column=NULL, co
     }
     
     # set uninterested cells to gray color
-    if (!is.null(time_point)){
-        D$Color[!X[[time_point_column]][[time_point_column]] %in% time_point] <- 'gray95'
+    if (!is.null(group)){
+        D$Color[!X[[group_column]][[group_column]] %in% group] <- 'gray95'
     }
 
-    png(file=paste0("scvelo/images/velocityField_",paste(time_point, collapse="_"),"_gridRes",grid_res,"_arrowSize",arrow_size,"_width",vector_width,".png",sep=""), width = 1800, height = 1800, res = 300)
+    png(file=paste0("scvelo/images/velocityField_",paste(group, collapse="_"),"_gridRes",grid_res,"_arrowSize",arrow_size,"_width",vector_width,".png",sep=""), width = 1800, height = 1800, res = 300)
     P <- ggplot(D, aes(UMAP_1, UMAP_2)) +
             geom_point(color = D$Color, size = 0.01) +
             theme_void() +

@@ -1,7 +1,7 @@
 #' Function to run the scVelo pipeline using velociraptor 
 #'
 #' This function performs RNA velocity calculations from .loom files with the scVelo package.
-#' In this function, users can calculate RNA velocity of the whole data as well as a subset of time points.
+#' In this function, users can calculate RNA velocity of the whole data as well as a subset of group points.
 #'
 #' @param seurat_obj Seurat object containing the scRNA-seq data (Required)
 #' @param annotation_column A string specifying the metdata column name of cell type annotations. Default: 
@@ -26,10 +26,10 @@
 #' controlling the number of vectors on umap, default 50.
 #' @param arrow_sizes A vector of integers or floats controlling velocity vector size (arrow head size), default 0.5
 #' @param vector_widths A vector of integers or floats controlling velocity vector size (vector width), default 0.5
-#' @param time_point A list of character vectors representing a group of time points used to calculate RNA velocity 
-#' together, can be left blank
-#' @param time_point_column A string specify the name of the metadata column in the Seurat object that should be 
-#' used for subsetting the group of time points
+#' @param groups A list of character vectors representing a groups of conditions or time points used to calculate RNA 
+#' velocity separately, default: NULL
+#' @param group_column A string specify the name of the metadata column in the Seurat object that should be 
+#' used for subsetting the groups of group points
 #' @param color_scale A character vector of colors to be used in plotting, must match number of unique values in 
 #' the metadata column marked by @name_by
 #' @param name_by A string specify the name of the metadata column in the Seurat object that should be used for colors
@@ -43,7 +43,7 @@
 
 run_scvelo <- function(seurat_obj,loom_files=NULL,output_dir=".",loom_file_subset_by=NULL,loom_file_subset_column="orig.ident",
                     annotation_column=NULL,mode='stochastic',grid_resolutions=c(50),arrow_sizes=c(0.5,1),vector_widths=c(0.25,0.5),
-                    time_point=list(),time_point_column=NULL,color_scale=NULL,name_by=NULL){
+                    groups=NULL,group_column=NULL,color_scale=NULL,name_by=NULL){
 
 # create subdirectories in the output directory
 setwd(output_dir)
@@ -61,11 +61,16 @@ checkmate::test_class(seurat_obj, "Seurat")
 object_annotated <- seurat_obj
 
 # use cell type annotation column as identity
-  if(checkmate::test_string(annotation_column, null.ok=FALSE))
-  {
-    Seurat::Idents(object_annotated) <- object_annotated[[annotation_column]]
-  }
+if(checkmate::test_string(annotation_column, null.ok=FALSE)){
+  checkmate::expect_choice(annotation_column, colnames(seurat_obj@meta.data), label = "annotation_column")
+  Seurat::Idents(object_annotated) <- object_annotated[[annotation_column]]
+}
 
+checkmate::assert_list(groups, types = c("integer", "character"), null.ok = TRUE)
+if(!is.null(groups)){
+  checkmate::assert_string(group_column, null.ok = FALSE)
+  checkmate::expect_choice(group_column, colnames(seurat_obj@meta.data), label = "group_column")
+}
 
 # check if spliced and unspliced data is already in seurat_obj
 if(!(("spliced" %in% names(object_annotated@assays) & ("unspliced" %in% names(object_annotated@assays))))){
@@ -134,23 +139,30 @@ for (grid_resolution in grid_resolutions){
 
 print("RNA velocity done for the inputted, complete Seurat object.")
 
-# RNA velocity for specified time points, if any
-if (length(time_point) != 0){
-    for (time in time_point){
-        tpData <- object_annotated[ ,object_annotated[[time_point_column]][[time_point_column]] %in% time]
+# RNA velocity for specified conditions or time points, if any
+if (length(groups) != 0){
+    for (group in groups){
+        tpData <- object_annotated[ ,object_annotated[[group_column]][[group_column]] %in% group]
+        if (!file.exists(paste0("scvelo/rds/obj_spliced_unspliced_",paste(group, collapse="_"),".h5Seurat"))) {
+            SaveH5Seurat(tpData, filename = paste0("scvelo/rds/obj_spliced_unspliced_",paste(group, collapse="_"),".h5Seurat"))
+        }
+        if (!file.exists(paste0("scvelo/rds/obj_spliced_unspliced_",paste(group, collapse="_"),".h5ad"))) {
+            Convert(paste0("scvelo/rds/obj_spliced_unspliced_",paste(group, collapse="_"),".h5Seurat"), dest = "h5ad")
+        }
+
         tpV <- doVelocity(tpData, mode=mode)
         for (grid_resolution in grid_resolutions){
             tpVF <- getVectorField(tpData, tpV, reduction = 'umap', resolution = grid_resolution)
-            save(tpVF, file = paste0('scvelo/rds/',paste(time, collapse="_"),'_gridRes',grid_resolution,'.RData',sep=""))
+            save(tpVF, file = paste0('scvelo/rds/',paste(group, collapse="_"),'_gridRes',grid_resolution,'.RData',sep=""))
 
             for (arrow_size in arrow_sizes){
                 for (vector_width in vector_widths){
-                    plotVectorField(object_annotated, tpVF, time_point=time, time_point_column=time_point_column, color_scale=color_scale, name_by=name_by, grid_res=grid_resolution, arrow_size=arrow_size, vector_width=vector_width)
+                    plotVectorField(object_annotated, tpVF, group=group, group_column=group_column, color_scale=color_scale, name_by=name_by, grid_res=grid_resolution, arrow_size=arrow_size, vector_width=vector_width)
                 }
             }
         }
 
-        print(paste0("RNA velocity done for timepoints ", time, sep=""))
+        print(paste0("RNA velocity done for group ", group, sep=""))
     }
 }
 
