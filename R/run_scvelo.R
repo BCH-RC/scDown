@@ -18,7 +18,7 @@
 #' If there is only one loom file provided, this variable should be left blank: `loom_file_subset_by <- NULL`
 #' @param loom_file_subset_column A string specifying the name of the metadata column in the Seurat object that
 #' should be used for subsetting to match each of the loom files. This column must exist in the Seurat object 
-#' metadata. If there is only one loom file provided, this #' variable should be left blank: 
+#' metadata. If there is only one loom file provided, this variable should be left blank: 
 #' `loom_file_subset_column <- NULL`; if there are multiple loom files provided, this variable needs to be provided. 
 #' @param mode Mode for scVelo velocity calculation, default: stochastic; can be one of four options: "steady_state" 
 #' (original), "deterministic", "stochastic" (fastest: recommended, default), "dynamical"
