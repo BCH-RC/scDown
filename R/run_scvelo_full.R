@@ -78,18 +78,19 @@ system("stty echo")
 
 
 # RNA velocity for specified conditions or time points, if any
+library(anndata)
 if (length(groups) != 0){
-    file_base=gsub(".h5ad","",h5ad_file)
-    for (group in groups){        
-        group_label=paste(group, collapse="_")
-        h5ad_group_file=paste0(file_base,"_",group_label,".h5ad")
-        if(!file.exists(h5ad_group_file)){
-          adata <- read_h5ad(h5ad_file)
-          subset_adata <- adata[adata$obs[[group_column]] %in% group, ]
-          subset_adata$write_h5ad(h5ad_group_file)
-        }
-        run_scvelo_workflow(h5ad_group_file,annotation_column,mode,top_gene,group_label)
-    }
+  file_base=gsub(".h5ad","",h5ad_file)
+  for (group in groups){        
+      group_label=paste(group, collapse="_")
+      h5ad_group_file=paste0(file_base,"_",group_label,".h5ad")
+      if(!file.exists(h5ad_group_file)){
+        adata <- anndata::read_h5ad(h5ad_file)
+        subset_adata <- adata[adata$obs[[group_column]] %in% group, ]
+        subset_adata$write_h5ad(h5ad_group_file)
+      }
+      run_scvelo_workflow(h5ad_group_file,annotation_column,mode,top_gene,group_label)
+  }
 }
 system("stty sane")
 #system("stty echo")
