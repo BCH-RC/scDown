@@ -8,7 +8,7 @@
 # library(tibble)
 # library(pheatmap)
 # library(SCENT)
-# library(patchwork)
+# library(magrittr)
 
 #' Learn trajectory graph for the inputted Seurat object.
 #'
@@ -25,6 +25,7 @@
 #' @importFrom checkmate expect_choice
 #' @importFrom stats na.omit
 #' @importFrom utils read.csv read.table write.csv
+#' @import magrittr
 #'
 #'
 #' @noRd
@@ -79,7 +80,7 @@ getTrajectory <- function(X, nDim=30, batch=NULL, transferUMAP=TRUE, subset=NULL
   dev.off()
 
   # plot umap by cell types
-  cds[["cell.type"]] <- unname(Seurat::Idents(X)) # transfer labels
+  cds[["cell.type"]] <- unname(Seurat::Idents(X[,selected_cells])) # transfer labels
   png(filename = file.path(outputDir,"images","pseudotime",paste0("umap_celltypes_","transferUMAP_",transferUMAP,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond),"",paste0("_",cond)),".png",sep="")), width = 2000*1.4, height = 1500*1.5, res = 400)
   p4 <- monocle3::plot_cells(cds, color_cells_by="cell.type", show_trajectory_graph=FALSE,label_groups_by_cluster=FALSE) +
     ggplot2::theme_void() +
@@ -228,11 +229,11 @@ getPotency <- function(cds, specie = 'mouse', ppiThreshold = 600){
 #' @noRd
 
 getRootPrincipalNodes <- function(cds, timePoint, timePointCol){
-  cell_ids <- which(colData(cds)[, timePointCol] == timePoint)
+  cell_ids <- which(SummarizedExperiment::colData(cds)[, timePointCol] == timePoint)
 
   closest_vertex <- cds@principal_graph_aux[["UMAP"]]$pr_graph_cell_proj_closest_vertex
   closest_vertex <- as.matrix(closest_vertex[colnames(cds), ])
-  root_pr_nodes <- igraph::V(principal_graph(cds)[["UMAP"]])$name[as.numeric(names(which.max(table(closest_vertex[cell_ids,]))))]
+  root_pr_nodes <- igraph::V(monocle3::principal_graph(cds)[["UMAP"]])$name[as.numeric(names(which.max(table(closest_vertex[cell_ids,]))))]
 
   return(root_pr_nodes)
 }
@@ -293,9 +294,9 @@ regressionAnalysis <- function(cds, model, batch, distribution, top_gene, subset
     violinplot_filename<-file.path(outputDir,"images","DEG",paste0("significant_by_",model,"+",batch,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),"_violinPlot",".png",sep=""))
     #png(violinplot_filename, width = 2000*5, height = 1500*7, res = 400)
     png(violinplot_filename, width = 1000*sqrt(top_gene)*2, height = 875*sqrt(top_gene), res = 300)
-    p1 <- monocle3::plot_genes_violin(cds[rowData(cds)$gene_short_name %in% (top_diff_genes$gene_short_name), ], group_cells_by=model, ncol=ceiling(sqrt(top_gene))) +
+    p1 <- monocle3::plot_genes_violin(cds[SummarizedExperiment::rowData(cds)$gene_short_name %in% (top_diff_genes$gene_short_name), ], group_cells_by=model, ncol=ceiling(sqrt(top_gene))) +
       ggplot2::theme(axis.text.x=ggplot2::element_text(angle=45, hjust=1))
-    p2 <- monocle3::plot_genes_violin(cds[rowData(cds)$gene_short_name %in% (top_diff_genes$gene_short_name), ], group_cells_by=batch, ncol=ceiling(sqrt(top_gene))) +
+    p2 <- monocle3::plot_genes_violin(cds[SummarizedExperiment::rowData(cds)$gene_short_name %in% (top_diff_genes$gene_short_name), ], group_cells_by=batch, ncol=ceiling(sqrt(top_gene))) +
       ggplot2::theme(axis.text.x=ggplot2::element_text(angle=45, hjust=1))
     pfinal<-p1+p2
     print(pfinal)
@@ -334,7 +335,7 @@ regressionAnalysis <- function(cds, model, batch, distribution, top_gene, subset
   #dev.off()
 
   O <- lapply(top_diff_genes$gene_short_name, function(gene){
-    p4 <- monocle3::plot_genes_violin(cds[rowData(cds)$gene_short_name %in% (gene), ], group_cells_by=model, ncol=1) +
+    p4 <- monocle3::plot_genes_violin(cds[SummarizedExperiment::rowData(cds)$gene_short_name %in% (gene), ], group_cells_by=model, ncol=1) +
       ggplot2::theme(axis.text.x=ggplot2::element_text(angle=45, hjust=1)) + ggplot2::labs(x="")
   })
   print_violinPlot(O,violinplot_filename,top_gene)
@@ -409,7 +410,7 @@ graphAutoCorrelation <- function(cds,conditions_all,colData_name, top_gene, subs
 
   print("Module information saved to csv successfully.")
 
-  cell_group_df <- tibble::tibble(cell=row.names(colData(cds)), cell_group=colData(cds)$cell.type)
+  cell_group_df <- tibble::tibble(cell=row.names(SummarizedExperiment::colData(cds)), cell_group=SummarizedExperiment::colData(cds)$cell.type)
   agg_mat <- monocle3::aggregate_gene_expression(cds, gene_module_df, cell_group_df)
   row.names(agg_mat) <- stringr::str_c("Module ", row.names(agg_mat))
 
@@ -428,7 +429,7 @@ graphAutoCorrelation <- function(cds,conditions_all,colData_name, top_gene, subs
   # plot top genes' dynamics as a function of pseudotime
   png(filename = file.path(outputDir,"images","DEG",paste0("significant_by_trajectory_genesInPseudotime",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),".png",sep="")), width = 1000*sqrt(top_gene), height = 875*sqrt(top_gene), res = 300)
   #p3 <- plot_genes_in_pseudotime(cds[rowData(cds)$gene_short_name %in% DEG_ids , ], nrow = ceiling(top_gene/4), ncol = 4,color_cells_by="cell.type", min_expr=0.5)
-  p3 <- monocle3::plot_genes_in_pseudotime(cds[rowData(cds)$gene_short_name %in% DEG_ids , ], ncol = ceiling(sqrt(top_gene)),color_cells_by="cell.type", min_expr=0.5)
+  p3 <- monocle3::plot_genes_in_pseudotime(cds[SummarizedExperiment::rowData(cds)$gene_short_name %in% DEG_ids , ], ncol = ceiling(sqrt(top_gene)),color_cells_by="cell.type", min_expr=0.5)
   print(p3)
   dev.off()
 
@@ -449,7 +450,7 @@ graphAutoCorrelation <- function(cds,conditions_all,colData_name, top_gene, subs
         # plot expression dynamics as a function of pseudotime for top differential gene along the trajectory AND between two conditions
         png(filename = file.path(outputDir,"images","DEG",paste0("significant_by_",colData_name,ifelse(is.null(batch),"",paste0("+",batch)),"+trajectory",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""), "_",conditions_all[i],"_",conditions_all[j],"_genesInPseudotime",".png",sep="")), width = 1000*sqrt(top_gene), height = 875*sqrt(top_gene), res = 300)
         #p4 <- plot_genes_in_pseudotime(cds_for_compare[rowData(cds_for_compare)$gene_short_name %in% (top_diff_genes$gene_short_name) , ], nrow = ceiling(top_gene/4), ncol = 4,color_cells_by=colData_name, min_expr=0.5)
-        p4 <-monocle3::plot_genes_in_pseudotime(cds_for_compare[rowData(cds_for_compare)$gene_short_name %in% (top_diff_genes$gene_short_name) , ], ncol = ceiling(sqrt(top_gene)),color_cells_by=colData_name, min_expr=0.5)
+        p4 <-monocle3::plot_genes_in_pseudotime(cds_for_compare[SummarizedExperiment::rowData(cds_for_compare)$gene_short_name %in% (top_diff_genes$gene_short_name) , ], ncol = ceiling(sqrt(top_gene)),color_cells_by=colData_name, min_expr=0.5)
         print(p4)
         dev.off()
       }
@@ -503,7 +504,7 @@ cellTypeDistribution <- function(cds, colData_name, subset=NULL, cond=NULL,outpu
 
   png(filename = file.path(outputDir,"images","cellDistribution",paste0("celltype_distribution_histogram",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(!is.null(cond),paste0("_",cond),""),".png",sep="")), width = 2000*1.4*ceiling(celltype_count/20), height = 1500*1.6*ceiling(celltype_count/12), res = 400)
   p3 <- ggplot2::ggplot(pseud_cells, ggplot2::aes(x = pseudotime, color = Condition, fill = Condition)) +
-    geom_histogram(
+    ggplot2::geom_histogram(
       alpha = 0.2,
       position = "identity", bins = 50
     ) +

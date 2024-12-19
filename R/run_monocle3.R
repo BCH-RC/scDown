@@ -14,7 +14,7 @@
 #' @param transferUMAP A boolean variable specifying whether to transfer UMAP coordinates or not from Seurat object
 #' @param rootNode_method A character variable specifying the method to identify root node (Either potency or rootNodes)
 #' @param rootNode A character variable specifying the principal point on the trajectory, in the format of "Y_<node number>".
-#' @param timepoint A character variable specifying the category inside a metadata to be used to automatically decide the root node.
+#' @param timePoint A character variable specifying the category inside a metadata to be used to automatically decide the root node.
 #' @param timePoint_metadata A character variable specifying the metadata to be used to automatically decide the root node.
 #' @param batch_metadata A character vector specifying the name of metadata column name with batch information to perform batch correction
 #' @param celltype_groups A list of character vectors that represents a group of cell types to be subsetted and constructed trajectory by monocle
@@ -32,7 +32,7 @@
 #'
 
 run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_column=NULL,group_column=NULL,transferUMAP=TRUE,rootNode_method="potency",
-                         rootNode = NULL, timepoint = NULL,timePoint_metadata=NULL,batch_metadata=NULL,celltype_groups=NULL,top_genes=10,
+                         rootNode = NULL, timePoint = NULL,timePoint_metadata=NULL,batch_metadata=NULL,celltype_groups=NULL,top_genes=10,
                          deg_method="quasipoisson",metadata_deg_model=NULL,graph_test=FALSE,cores=1,output_dir="."){
 
   ###TODO: Add code to check the input options
