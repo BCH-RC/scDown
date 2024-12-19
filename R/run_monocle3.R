@@ -66,8 +66,8 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
     checkmate::expect_character(rootNode, min.len = 1, max.len = 1, any.missing = TRUE,label="rootNode",null.ok = TRUE)
     if(checkmate::test_character(rootNode, min.len = 1, any.missing = FALSE))
     {
-      checkmate::expect_character(timepoint, min.len = 1, max.len = 1, any.missing = TRUE,label="timepoint",null.ok = TRUE)
-      if(checkmate::test_character(timepoint, min.len = 1, any.missing = FALSE))
+      checkmate::expect_character(timePoint, min.len = 1, max.len = 1, any.missing = TRUE,label="timePoint",null.ok = TRUE)
+      if(checkmate::test_character(timePoint, min.len = 1, any.missing = FALSE))
       {
         checkmate::expect_choice(timePoint_metadata,colnames(seurat_obj@meta.data),label="timePoint_metadata",null.ok = TRUE)
       }
