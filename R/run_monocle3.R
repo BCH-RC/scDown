@@ -72,7 +72,7 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
         checkmate::expect_choice(timePoint_metadata,colnames(seurat_obj@meta.data),label="timePoint_metadata",null.ok = TRUE)
       }
     }
-    if(!checkmate::test_character(rootNode, min.len = 1, any.missing = FALSE) && !checkmate::test_character(timepoint, min.len = 1, any.missing = FALSE))
+    if(!checkmate::test_character(rootNode, min.len = 1, any.missing = FALSE) && !checkmate::test_character(timePoint, min.len = 1, any.missing = FALSE))
     {
       stop("For rootNodes method, user need to supply either rootNode, or a combination of timePoint and timePoint_metadata")
     }
