@@ -90,7 +90,7 @@ knitr::include_graphics("./monocle3_figures/umap_partitions_transferUMAP_TRUE.pn
 
 ```
 
-## Construction and visulization of single-cell trajectories
+## Construction and visualization of single-cell trajectories
 Next, the trajectories in the single-cell data is learned by fitting a principal graph within each partition. These trajectories are further used to fit or order the cells in the pseudotime. Pseudotime is a measure of how much progress an individual cell has made through a process such as cell differentiation. In order to do that, monocle needs a root node which acts as a starting point for the differentiation or the biological process. The UMAP plot shows the different nodes along the trajectories.
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
@@ -110,7 +110,7 @@ knitr::include_graphics("./monocle3_figures/umap_pseudotime_potency.png")
 The second method is to automatically identify the root node which is most heavily occupied by early time point cells ((`rootNode_method = "rootNodes"`)). For that, the users need to provide the early timepoint category (`timepoint`) and the meta data column (`timePoint_metadata`) in the seurat object. The third method is that users can provide the root name by selecting and passing the principal point (`rootNode`) on the trajectory in the trajectory UMAP plot.  
 
 ## Identifiation of significant trajectory-variable genes and modules
-The pipeline also identifies the genes that vary between groups of cells across the trajectories using the spatial autocorrelation analysis called Moran's I developed by Cao & Spielmann et al. This method identifies genes that vary between groups of cells in UMAP space and is effective in finding genes that vary in single-cell RNA-seq datasets. All the sginificant trajectory-variable genes were exported in a csv file (`monocleDEG_significant_by_trajectory.csv`).The plot below shows the expression of the top trajectory-variable genes in a feature plot.
+The pipeline also identifies the genes that vary between groups of cells across the trajectories using the spatial autocorrelation analysis called Moran's I developed by Cao & Spielmann et al. This method identifies genes that vary between groups of cells in UMAP space and is effective in finding genes that vary in single-cell RNA-seq datasets. All the significant trajectory-variable genes were exported in a csv file (`monocleDEG_significant_by_trajectory.csv`).The plot below shows the expression of the top trajectory-variable genes in a feature plot.
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
 
@@ -134,9 +134,29 @@ knitr::include_graphics("./monocle3_figures/significant_by_trajectory_moduleHeat
 
 ```
 
-# Comparison of trajectory between different groups
+## Visualization of cell distribution across the pseudotime
+The function will also generate plots that shows the distribution of the cells across the pseudotime. Below the density plot shows the distribution of cells across the pseudotime for the complete dataset separated by the timepoints.
+
+```{r, echo = FALSE, eval = TRUE, out.width = "60%", out.height = "70%"}
+
+knitr::include_graphics("./monocle3_figures/cell_distribution_density-NoCond.png")
+
+```
+
+Below the histogram shows the distribution of cells across the pseudotime for the complete dataset per cell type separated by timepoints.
+
+```{r, echo = FALSE, eval = TRUE, out.width = "60%", out.height = "80%"}
+
+knitr::include_graphics("./monocle3_figures/celltype_distribution_histogram-NoCond.png")
+
+```
+
+The workflow also generates the distribution of cells per condition too in the output folder.
+
+# Comparison of trajectories between different groups
 In this part, we will show how the pipeline can be used to analyze the trajectories between the different conditions and compare the expression of the significant trajectory variable genes across the conditions using regression analysis.
 
+## Construction and visulization of single-cell trajectories per group
 The users need to provide the conditions and condition metadata in the `run_monocle3` function to carry out the trajectory analysis across different conditions. This workflow also need the `deg_method` (By default, `deg_method = "quasipoisson"`) to carry out the regression analysis to identify those trajectory variable genes that differ between the conditions. In our test data, we selected the age of the mouse in days (12 and 35 days) as the conditions. 
 
 ```{r, message = FALSE,eval=FALSE}
@@ -164,23 +184,95 @@ knitr::include_graphics("./monocle3_figures/umap_celltypes_transferUMAP_TRUETRUE
 
 ```
 
-The UMAP plot shows the different cell types in the data at timepoint 35.
+Below we show the UMAP plot that ordered the cells based on the root node selected using potency at timepoint 12.
+
 ```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
 
-knitr::include_graphics("./monocle3_figures/umap_celltypes_transferUMAP_TRUETRUE_35.png")
+knitr::include_graphics("./monocle3_figures/umap_pseudotime_potency_12.png")
+
+```
+
+## Visualization of cell distribution across the pseudotime separated by conditions
+When conditions are supplied, the function will also generate plots that shows the distribution of the cells across the pseudotime separated by conditions. Below the density plot shows the distribution of cells across the pseudotime for the complete dataset separated by the timepoints.
+
+```{r, echo = FALSE, eval = TRUE, out.width = "60%", out.height = "70%"}
+
+knitr::include_graphics("./monocle3_figures/cell_distribution_density.png")
+
+```
+
+Below the histogram shows the distribution of cells across the pseudotime for the complete dataset per cell type separated by timepoints.
+
+```{r, echo = FALSE, eval = TRUE, out.width = "60%", out.height = "80%"}
+
+knitr::include_graphics("./monocle3_figures/celltype_distribution_histogram.png")
+
+```
+
+The workflow also generates the distribution of cells per condition too in the output folder.
+
+
+## Identifiation of significant differential trajectory-variable genes between conditions
+When conditions are supplied, the pipeline also identifies the significant differential trajectory-variable genes between conditions by fitting a regression model (using the conditions metadata) to each identified trajectory-variable genes. All the significant differential trajectory-variable genes were exported in a csv file (`monocleDEG_significant_by_age.days.+trajectory_12_35.csv`).The plot below shows the expression of the top trajectory-variable genes in a feature plot.
+
+```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
+
+knitr::include_graphics("./monocle3_figures/significant_by_age.days.+trajectory_12_35_featurePlot.png")
+
+```
+
+We also visualized the expression levels of top trajectory-variable genes across the pseudotime and colored as cell types.
+
+```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
+
+knitr::include_graphics("./monocle3_figures/significant_by_age.days.+trajectory_12_35_genesInPseudotime.png")
 
 ```
 
 
+# Regression analysis between various groups in the scRNASeq data
+The pipeline can also be used to identify the significant differential expression genes between conditions using a generalized linear model using "quasipoisson" distribution by default. The users can use four different models ("quasipoisson", "negbinomial","poisson" or "binomial") by supplying it in `deg_model` variable. This is an optional feature which can be turned on by supplying the metadata in the `metadata_deg_model`.
 
-## Regression analysis between various groups in the scRNASeq data
+```{r, message = FALSE,eval=FALSE}
+conditions <- c("12","35") # a string specifying a column in seurat_object@meta.data that contains the condition names, or NULL when no condition is filled.
+condition_metadata <- "age.days."
+deg_method = "quasipoisson"
+
+library(scDown)
+run_monocle3(seurat_obj=seurat_obj,
+             species=species,
+             nDim = nDim,
+             annotation_column = annotation_column,
+             deg_method = "quasipoisson",
+             metadata_deg_model=condition_metadata,
+             output_dir = output_dir)
+
+```
+
+All the significant differential expressed genes were exported in a csv file (`monocleDEG_significant_by_age.days..csv`).The plot below shows the expression of the top differential expressed genes in a feature plot.
+
+```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
+
+knitr::include_graphics("./monocle3_figures/significant_by_age.days._featurePlot.png")
+
+```
+
+We also visualized the expression levels of top differential expressed genes in violin plot.
+```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
+
+knitr::include_graphics("./monocle3_figures/significant_by_age.days._violinPlot.png")
+
+```
+
+
+# Comparison of trajectories between different cell types groups
+
+In this workflow, the users can also provide list of combinations of cell types between which they would like to analyze using the trajectory analysis workflow.
 
 ```{r, message = FALSE,eval=FALSE}
 library(scDown)
 
-metadata_deg_model <- "age.days."
-deg_method = "quasipoisson"
-
+cell_types_monocle<-list(c("Granule immature","Granule mature"))
 library(scDown)
 run_monocle3(seurat_obj=seurat_obj,
              species=species,
@@ -189,22 +281,70 @@ run_monocle3(seurat_obj=seurat_obj,
              conditions = conditions,
              condition_metadata=condition_metadata,
              deg_method = "quasipoisson",
-             metadata_deg_model = metadata_deg_model,
+             celltype_groups = cell_types_monocle
              output_dir = output_dir)
 
 ```
 
+## Construction and visualization of single-cell trajectories
+As mentioned previously, the trajectory in the cell type groups is learned by fitting a principal graph within each partition which are further used to fit or order the cells in the pseudotime. The UMAP plot shows the different nodes along the trajectories for the cell type groups.
 
-# Comparison of trajectories between different cell types groups
+```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
 
-```{r, message = FALSE,eval=FALSE}
-library(scDown)
-
-nDim <- 30        # dimension to use for PCA, if object has been clustered by Seurat previously, this dimension can be the same with dimension used in Seurat clustering workflow.
-cell_types_monocle<-list(c("OPC","MOL"),c("OL I","OL II"))
-run_monocle3(seurat=scRNAseq_seuratobj,species=species,nDim = nDim,conditions = conditions_all,condition_metadata=colData_name, celltype_groups = cell_types_monocle)
+knitr::include_graphics("./monocle3_figures/umap_trajectory_transferUMAP_TRUE_Granule immature_Granule mature.png")
 
 ```
+
+In our workflow, we used the potency method to find the root node (`rootNode_method = "potency"`). Below we show the UMAP plot that ordered the cells based on the root node selected using potency. As expected, the root node is found in the Granule immature cells.
+
+```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
+
+knitr::include_graphics("./monocle3_figures/umap_pseudotime_potency_Granule immature_Granule mature.png")
+
+```
+
+## Identifiation of significant trajectory-variable genes and modules
+After that, the pipeline identifies the genes that vary between cell types across the trajectories using the spatial autocorrelation analysis. All the significant trajectory-variable genes were exported in a csv file (`monocleDEG_significant_by_trajectory_Granule immature_Granule mature.csv`).The plot below shows the expression of the top trajectory-variable genes in a feature plot.
+
+```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
+
+knitr::include_graphics("./monocle3_figures/significant_by_trajectory_gene_featurePlot_Granule immature_Granule mature.png")
+
+```
+
+We also visualized the expression levels of top trajectory-variable genes across the pseudotime and colored as cell types.
+
+```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
+
+knitr::include_graphics("./monocle3_figures/significant_by_trajectory_genesInPseudotime_Granule immature_Granule mature.png")
+
+```
+
+The set of the trajectory-variable genes is further grouped into modules using Louvain community analysis. The clustering information is exported in a csv file (`monocleDEG_by_trajectory_moduleInformation.csv`). The module heatmap below shows the expression levels of each module across the two cell types.
+
+```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
+
+knitr::include_graphics("./monocle3_figures/significant_by_trajectory_moduleHeatmap_Granule immature_Granule mature.png")
+
+```
+
+## Visualization of cell distribution across the pseudotime
+The function generate plots that shows the distribution of the cells across the pseudotime. Below the density plot shows the distribution of cells across the pseudotime for the cell types separated by the timepoints.
+
+```{r, echo = FALSE, eval = TRUE, out.width = "60%", out.height = "70%"}
+
+knitr::include_graphics("./monocle3_figures/celltype_distribution_density_Granule immature_Granule mature.png")
+
+```
+
+Below the histogram shows the distribution of cells across the pseudotime for the cell types separated by timepoints.
+
+```{r, echo = FALSE, eval = TRUE, out.width = "60%", out.height = "80%"}
+
+knitr::include_graphics("./monocle3_figures/celltype_distribution_histogram_Granule immature_Granule mature.png")
+
+```
+
 
 # Output folders and files explained
 All outputs of the pipeline will be in the **monocle** folder, which is divided into:
@@ -237,9 +377,9 @@ The **rds** subfolder contains:
 
 # Summary
 
-This document outlines a pipeline for analyzing cell-to-cell communication using CellChat V2. The pipeline begins by defining key variables, such as the working directory, Seurat object, species, and metadata for cell type annotations. It runs CellChat V2 on the entire dataset to explore global interactions across all cells and generates visualizations like aggregated circle plots, scatter plots, heatmaps, and violin plots, which highlight signaling strength, interaction patterns, and ligand-receptor pairs.
+This document outlines a pipeline for analyzing trajectory analysis using monocle3. The pipeline begins by defining key variables, such as the working directory, Seurat object, species, and metadata for cell type annotations. It runs monocle3 on the entire dataset to explore global trajectory analysis and generates visualizations like UMAPs, density, histogram, heatmaps, and violin plots, which highlight trajectories, expression of genes, distribution of cells across pseudotime, and expression of differential expressed genes.
 
-Additionally, the pipeline supports focused analysis by selecting specific cell types or comparing user-defined groups (e.g., age groups 35 and 12). Pairwise comparisons are made to examine differences in cell signaling, with rankNet plots and signaling change scatter plots identifying differentially regulated pathways. Side-by-side plots also allow for direct comparison of communication strength across cell types between groups, offering insights into age-related signaling changes. This pipeline provides a comprehensive tool for exploring and comparing cell communication networks.
+Additionally, the pipeline supports focused analysis by selecting specific cell types or comparing user-defined groups (e.g., age groups 35 and 12). Pairwise comparisons are made to examine differences in trahetcory differences. This pipeline provides a comprehensive tool for exploring and comparing trajectory analysis.
 
 The analysis was performed on a machine with the following specifications:
 

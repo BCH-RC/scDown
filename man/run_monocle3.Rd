@@ -14,7 +14,7 @@ run_monocle3(
   transferUMAP = TRUE,
   rootNode_method = "potency",
   rootNode = NULL,
-  timepoint = NULL,
+  timePoint = NULL,
   timePoint_metadata = NULL,
   batch_metadata = NULL,
   celltype_groups = NULL,
@@ -45,7 +45,7 @@ run_monocle3(
 
 \item{rootNode}{A character variable specifying the principal point on the trajectory, in the format of "Y_<node number>".}
 
-\item{timepoint}{A character variable specifying the category inside a metadata to be used to automatically decide the root node.}
+\item{timePoint}{A character variable specifying the category inside a metadata to be used to automatically decide the root node.}
 
 \item{timePoint_metadata}{A character variable specifying the metadata to be used to automatically decide the root node.}
 
