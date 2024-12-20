@@ -63,15 +63,25 @@ Users can load their scRNASeq data which they would like to run the trajectory a
 
 ```{r, message = FALSE,eval=FALSE}
 library(scDown)
-run_monocle3(seurat = seurat_obj,
+run_monocle3(seurat_obj = seurat_obj,
              species = species,
              nDim = nDim,
-             annotation_column = annotation_column, 
+             annotation_column = annotation_column,
+             graph_test=TRUE,
              output_dir = output_dir)
 
 ```
 
-**Running Time**: ~9 minutes
+**Running Time**: ~ 5 minutes
+
+**Operating System**: Rocky Linux 8.9 (Green Obsidian)
+
+  - **Product Name**: RHEL
+  - **Product Version**: 8.9
+  
+**CPU**: Intel(R) Xeon(R) Platinum 8358 CPU @ 2.60GHz
+
+**Memory**: 10 GB
 
 ## Pre-processing and visualization of the single cell data
 The first step of construction of the single cell trajectories is the pre-processing step of the data. In this step, the data is normalized and batch corrected (if the user provides the batch metadata in the `batch_metadata` variable. By Default, it is NULL). After that, the dimensionality reduction is carried out and UMAP coordinates are calculated. The function can also use the UMAP coordinates from the Seurat object (by setting `transferUMAP=TRUE`). The UMAP plot shows the different cell types in the data after transferring the UMAP coordinates.
@@ -168,13 +178,24 @@ library(scDown)
 run_monocle3(seurat_obj=seurat_obj,
              species=species,
              nDim = nDim,
-             annotation_column = annotation_column, 
+             annotation_column = annotation_column,
+             graph_test=TRUE,
              conditions = conditions,
-             condition_metadata=condition_metadata,
+             group_column=condition_metadata,
              deg_method = "quasipoisson",
              output_dir = output_dir)
 
 ```
+**Running Time**: ~ 8 minutes
+
+**Operating System**: Rocky Linux 8.9 (Green Obsidian)
+
+  - **Product Name**: RHEL
+  - **Product Version**: 8.9
+  
+**CPU**: Intel(R) Xeon(R) Platinum 8358 CPU @ 2.60GHz
+
+**Memory**: 10 GB
 
 The UMAP plot shows the different cell types in the data at timepoint 12.
 
@@ -248,6 +269,7 @@ run_monocle3(seurat_obj=seurat_obj,
              output_dir = output_dir)
 
 ```
+**Running Time**: ~ 8 minutes
 
 All the significant differential expressed genes were exported in a csv file (`monocleDEG_significant_by_age.days..csv`).The plot below shows the expression of the top differential expressed genes in a feature plot.
 
@@ -279,12 +301,23 @@ run_monocle3(seurat_obj=seurat_obj,
              nDim = nDim,
              annotation_column = annotation_column, 
              conditions = conditions,
-             condition_metadata=condition_metadata,
+             group_column=condition_metadata,
              deg_method = "quasipoisson",
-             celltype_groups = cell_types_monocle
+             celltype_groups = cell_types_monocle,
+             graph_test=TRUE,
              output_dir = output_dir)
 
 ```
+**Running Time**: ~10 minutes
+
+**Operating System**: Rocky Linux 8.9 (Green Obsidian)
+
+  - **Product Name**: RHEL
+  - **Product Version**: 8.9
+  
+**CPU**: Intel(R) Xeon(R) Platinum 8358 CPU @ 2.60GHz
+
+**Memory**: 10 GB
 
 ## Construction and visualization of single-cell trajectories
 As mentioned previously, the trajectory in the cell type groups is learned by fitting a principal graph within each partition which are further used to fit or order the cells in the pseudotime. The UMAP plot shows the different nodes along the trajectories for the cell type groups.
@@ -320,7 +353,7 @@ knitr::include_graphics("./monocle3_figures/significant_by_trajectory_genesInPse
 
 ```
 
-The set of the trajectory-variable genes is further grouped into modules using Louvain community analysis. The clustering information is exported in a csv file (`monocleDEG_by_trajectory_moduleInformation.csv`). The module heatmap below shows the expression levels of each module across the two cell types.
+The set of the trajectory-variable genes is further grouped into modules using Louvain community analysis. The clustering information is exported in a csv file (`monocleDEG_by_trajectory_moduleInformation_Granule immature_Granule mature.csv`). The module heatmap below shows the expression levels of each module across the two cell types.
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
 
