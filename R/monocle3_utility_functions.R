@@ -8,7 +8,7 @@
 # library(tibble)
 # library(pheatmap)
 # library(SCENT)
-# library(magrittr)
+# library(patchwork)
 
 #' Learn trajectory graph for the inputted Seurat object.
 #'
@@ -251,16 +251,18 @@ getRootPrincipalNodes <- function(cds, timePoint, timePointCol){
 #' @param subset a character vector of cell types to subset for, for result naming purpose
 #' @param cond1 a character string specifying a condition, for result naming purpose
 #' @param cond2 a character string specifying a condition, for result naming purpose
+#' @param outputDir outputDir
+#' @param cores cores
 #' @noRd
 
-regressionAnalysis <- function(cds, model, batch, distribution, top_gene, subset=NULL, cond1=NULL, cond2=NULL,outputDir="."){
+regressionAnalysis <- function(cds, model, batch, distribution, top_gene, subset=NULL, cond1=NULL, cond2=NULL,outputDir=".",cores=4){
 
   add_title <- ""
   if (!is.null(cond1) & !is.null(cond2)){
     add_title <- "+trajectory"
   }
 
-  reduced_model <- monocle3::fit_models(cds, model_formula_str = paste0("~",model,sep=""), expression_family=distribution)
+  reduced_model <- monocle3::fit_models(cds, model_formula_str = paste0("~",model,sep=""), expression_family=distribution,cores=cores)
   fit_coefs <- monocle3::coefficient_table(reduced_model)
 
   fit_coefs <- fit_coefs[,!names(fit_coefs) %in% c("model", "model_summary")]
@@ -442,8 +444,7 @@ graphAutoCorrelation <- function(cds,conditions_all,colData_name, top_gene, subs
         cds_for_compare <- cds[pr_graph_test_sig$gene_short_name, cds[[colData_name]] == c(conditions_all[i], conditions_all[j])]
 
         # run regression analysis
-        #regressionAnalysis(cds_for_compare , colData_name, batch, deg_method, top_gene, subset, conditions_all[i], conditions_all[j])
-        regressionAnalysis(cds=cds_for_compare , model=colData_name, batch=batch, distribution=deg_method, top_gene=top_gene, subset=subset, cond1=conditions_all[i], cond2=conditions_all[j],outputDir=outputDir)
+        regressionAnalysis(cds=cds_for_compare , model=colData_name, batch=batch, distribution=deg_method, top_gene=top_gene, subset=subset, cond1=conditions_all[i], cond2=conditions_all[j],outputDir=outputDir,cores=cores)
         # read in csv of significant differential gene along the trajectory AND between two conditions
         gene_csv <- read.csv(file=file.path(outputDir,"csv",paste0("monocleDEG_significant_by_",colData_name,ifelse(is.null(batch),"",paste0("+",batch)),"+trajectory",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""), "_",conditions_all[i],"_",conditions_all[j],".csv", sep="")))
         top_diff_genes <- dplyr::slice_min(gene_csv, q_value, n=top_gene)
