@@ -78,8 +78,8 @@ system("stty echo")
 
 
 # RNA velocity for specified conditions or time points, if any
-library(anndata)
 if (length(groups) != 0){
+  library(anndata)
   file_base=gsub(".h5ad","",h5ad_file)
   for (group in groups){        
       group_label=paste(group, collapse="_")
