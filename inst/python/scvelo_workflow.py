@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
+import scanpy as sc
 import scvelo as scv
 scv.settings.figdir = '.'
 
@@ -117,10 +118,7 @@ def run_scvelo_workflow(h5ad_file='scvelo/rds/obj_spliced_unspliced.h5ad', annot
     scv.settings.verbosity = 3  # show errors(0), warnings(1), info(2), hints(3)
     scv.set_figure_params('scvelo', transparent=False, format='png')  # set figure format for visualization
     # reading data
-    scv.settings.verbosity = 3  # show errors(0), warnings(1), info(2), hints(3)
-    scv.set_figure_params('scvelo', transparent=False, format='png')  # set figure format for visualization
-    # reading data
-    adata = scv.read(h5ad_file)
+    adata = sc.read(h5ad_file)
     # Workflow:
     # 1. calculate RNA velocity using scVelo workflow
     velocity_calculation(adata, annotation_column=annotation_column, mode=mode, group_label=group_label)
