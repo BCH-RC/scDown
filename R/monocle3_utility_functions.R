@@ -255,92 +255,104 @@ getRootPrincipalNodes <- function(cds, timePoint, timePointCol){
 #' @param cores cores
 #' @noRd
 
-regressionAnalysis <- function(cds, model, batch, distribution, top_gene, subset=NULL, cond1=NULL, cond2=NULL,outputDir=".",cores=4){
-
+regressionAnalysis <- function(cds, model, batch, distribution, top_gene=10, subset=NULL, cond1=NULL, cond2=NULL,outputDir=".",cores=4){
+  
   add_title <- ""
   if (!is.null(cond1) & !is.null(cond2)){
     add_title <- "+trajectory"
   }
-
+  
   reduced_model <- monocle3::fit_models(cds, model_formula_str = paste0("~",model,sep=""), expression_family=distribution,cores=cores)
   fit_coefs <- monocle3::coefficient_table(reduced_model)
-
+  
   fit_coefs <- fit_coefs[,!names(fit_coefs) %in% c("model", "model_summary")]
   deg_file_name <- file.path(outputDir,"csv",paste0("monocleDEG_by_",model,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),".csv"))
   write.csv(fit_coefs, file=deg_file_name)
-  fit_coefs_sig <- fit_coefs %>% dplyr::filter(term != "(Intercept)") %>% dplyr::filter (q_value < 0.05) %>% dplyr::select(gene_short_name, term, q_value, estimate)
+  fit_coefs_sig <- fit_coefs %>% dplyr::filter(term != "(Intercept)") %>% dplyr::filter (q_value < 0.05) %>% dplyr::select(gene_short_name, term, p_value, q_value, estimate)
   deg_sigfile_name <- file.path(outputDir,"csv",paste0("monocleDEG_significant_by_",model,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),".csv"))
   write.csv(fit_coefs_sig, file=deg_sigfile_name)
-
+  
   if (!is.null(batch)){
     full_model <- monocle3::fit_models(cds, model_formula_str = paste0("~",model,"+",batch, sep=""), expression_family=distribution)
     fit_coefs_full <- monocle3::coefficient_table(full_model)
     fit_coefs_full <- fit_coefs_full[,!names(fit_coefs_full) %in% c("model", "model_summary")]
-
+    
     deg_file_name <- file.path(outputDir,"csv",paste0("monocleDEG_by_",model,"+",batch,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),".csv"))
     write.csv(fit_coefs_full, file=deg_file_name)
     fit_coefs_sig_full <- fit_coefs_full %>% dplyr::filter(term != "(Intercept)") %>% dplyr::filter (q_value < 0.05) %>% dplyr::select(gene_short_name, term, q_value, estimate)
     deg_sigfile_name <- file.path(outputDir,"csv",paste0("monocleDEG_significant_by_",model,"+",batch,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),".csv"))
     write.csv(fit_coefs_sig_full, file=deg_sigfile_name)
-
+    
     model_compare <- monocle3::compare_models(full_model, reduced_model) %>% dplyr::select(gene_short_name, q_value)
     deg_modelfile_name <- file.path(outputDir,"csv",paste0("monocleDEG_modelCompare_",model,"_VS_",model,"+",batch,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),".csv"))
     write.csv(model_compare, file=deg_modelfile_name)
-
+    
     if (nrow(dplyr::filter(model_compare, q_value < 0.05)) >= (nrow(model_compare)/2)){
       warning("More than half of the genes' likelihood ratio tests are significant, indicating that there are substantial batch effects in the data. Consider using DEGs found by incorporating batch term!")
     }
-
-    top_diff_genes <- dplyr::slice_min(fit_coefs_sig_full, q_value, n=top_gene)
-
-    violinplot_filename<-file.path(outputDir,"images","DEG",paste0("significant_by_",model,"+",batch,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),"_violinPlot",".png",sep=""))
-    #png(violinplot_filename, width = 2000*5, height = 1500*7, res = 400)
-    png(violinplot_filename, width = 1000*sqrt(top_gene)*2, height = 875*sqrt(top_gene), res = 300)
-    p1 <- monocle3::plot_genes_violin(cds[SummarizedExperiment::rowData(cds)$gene_short_name %in% (top_diff_genes$gene_short_name), ], group_cells_by=model, ncol=ceiling(sqrt(top_gene))) +
-      ggplot2::theme(axis.text.x=ggplot2::element_text(angle=45, hjust=1))
-    p2 <- monocle3::plot_genes_violin(cds[SummarizedExperiment::rowData(cds)$gene_short_name %in% (top_diff_genes$gene_short_name), ], group_cells_by=batch, ncol=ceiling(sqrt(top_gene))) +
-      ggplot2::theme(axis.text.x=ggplot2::element_text(angle=45, hjust=1))
-    pfinal<-p1+p2
-    print(pfinal)
-    dev.off()
-
-    featureplot_filename<-file.path(outputDir,"images","DEG",paste0("significant_by_",model,"+",batch,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),"_featurePlot",".png",sep=""))
-    png(featureplot_filename, width = 2000*1.4, height = 1500*1.5, res = 400)
-    p2 <- monocle3::plot_cells(cds, genes=unique(top_diff_genes$gene_short_name),
-                     show_trajectory_graph=FALSE,
-                     label_cell_groups=FALSE,
-                     label_leaves=FALSE)
-    print(p2)
-    dev.off()
+    
+    fit_coefs_sig_full <- fit_coefs_sig_full[order(fit_coefs_sig_full$q_value),]
+    top_diff_genes <- head(fit_coefs_sig_full,n=top_gene)
+    #top_diff_genes <- dplyr::slice_min(fit_coefs_sig_full, q_value, n=top_gene)
+    
+    if(nrow(top_diff_genes) > 0)
+    {
+      violinplot_filename<-file.path(outputDir,"images","DEG",paste0("significant_by_",model,"+",batch,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),"_violinPlot",".png",sep=""))
+      #png(violinplot_filename, width = 2000*5, height = 1500*7, res = 400)
+      png(violinplot_filename, width = 1000*sqrt(top_gene)*2, height = 875*sqrt(top_gene), res = 300)
+      p1 <- monocle3::plot_genes_violin(cds[SummarizedExperiment::rowData(cds)$gene_short_name %in% (top_diff_genes$gene_short_name), ], group_cells_by=model, ncol=ceiling(sqrt(top_gene))) +
+        ggplot2::theme(axis.text.x=ggplot2::element_text(angle=45, hjust=1))
+      p2 <- monocle3::plot_genes_violin(cds[SummarizedExperiment::rowData(cds)$gene_short_name %in% (top_diff_genes$gene_short_name), ], group_cells_by=batch, ncol=ceiling(sqrt(top_gene))) +
+        ggplot2::theme(axis.text.x=ggplot2::element_text(angle=45, hjust=1))
+      pfinal<-p1+p2
+      print(pfinal)
+      dev.off()
+      
+      featureplot_filename<-file.path(outputDir,"images","DEG",paste0("significant_by_",model,"+",batch,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),"_featurePlot",".png",sep=""))
+      png(featureplot_filename, width = 2000*1.4, height = 1500*1.5, res = 400)
+      p2 <- monocle3::plot_cells(cds, genes=unique(top_diff_genes$gene_short_name),
+                                 show_trajectory_graph=FALSE,
+                                 label_cell_groups=FALSE,
+                                 label_leaves=FALSE)
+      print(p2)
+      dev.off()
+    }
   }
-
-  top_diff_genes <- dplyr::slice_min(fit_coefs_sig, q_value, n=top_gene)
-
+  
+  fit_coefs_sig <- fit_coefs_sig[order(fit_coefs_sig$q_value),]
+  top_diff_genes <- head(fit_coefs_sig,n=top_gene)
+  #top_diff_genes <- dplyr::slice_min(fit_coefs_sig, q_value, n=top_gene)
+  
+  #print("Top genes DEGs number in regression function")
+  #print(nrow(top_diff_genes))
+  #print(top_gene)
+  
   violinplot_filename<-file.path(outputDir,"images","DEG",paste0("significant_by_",model,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),"_violinPlot",".png",sep=""))
   #png(violinplot_filename, width = 2000*1.5, height = 1500*3, res = 300)
-
+  
   # png(violinplot_filename, width = 900*sqrt(top_gene), height = 875*sqrt(top_gene), res = 300)
   # p4 <- plot_genes_violin(cds[rowData(cds)$gene_short_name %in% (top_diff_genes$gene_short_name), ], group_cells_by=model, ncol=ceiling(sqrt(top_gene))) +
   #       theme(axis.text.x=element_text(angle=45, hjust=1))
-
+  
   # print(p4)
   # dev.off()
-
-  featureplot_filename<-file.path(outputDir,"images","DEG",paste0("significant_by_",model,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),"_featurePlot",".png",sep=""))
-  #png(featureplot_filename, width = 2000*1.4, height = 1500*1.5, res = 400)
-  p5 <- monocle3::plot_cells(cds, genes=unique(top_diff_genes$gene_short_name),
-                   show_trajectory_graph=FALSE,
-                   label_cell_groups=FALSE,
-                   label_leaves=FALSE)
-  ggplot2::ggsave(file=featureplot_filename, plot = p5, width = 10, height = 8)
-  #print(p5)
-  #dev.off()
-
-  O <- lapply(top_diff_genes$gene_short_name, function(gene){
-    p4 <- monocle3::plot_genes_violin(cds[SummarizedExperiment::rowData(cds)$gene_short_name %in% (gene), ], group_cells_by=model, ncol=1) +
-      ggplot2::theme(axis.text.x=ggplot2::element_text(angle=45, hjust=1)) + ggplot2::labs(x="")
-  })
-  print_violinPlot(O,violinplot_filename,top_gene)
+  
+  if(nrow(top_diff_genes) > 0)
+  {
+    featureplot_filename<-file.path(outputDir,"images","DEG",paste0("significant_by_",model,add_title,ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond1),"",paste0("_",cond1)),ifelse(is.null(cond2),"",paste0("_",cond2)),"_featurePlot",".png",sep=""))
+    #png(featureplot_filename, width = 2000*1.4, height = 1500*1.5, res = 400)
+    p5 <- monocle3::plot_cells(cds, genes=unique(top_diff_genes$gene_short_name),
+                               show_trajectory_graph=FALSE,
+                               label_cell_groups=FALSE,
+                               label_leaves=FALSE)
+    ggplot2::ggsave(file=featureplot_filename, plot = p5, width = 10, height = 8)
+    
+    O <- lapply(top_diff_genes$gene_short_name, function(gene){
+      p4 <- monocle3::plot_genes_violin(cds[SummarizedExperiment::rowData(cds)$gene_short_name %in% (gene), ], group_cells_by=model, ncol=1) +
+        ggplot2::theme(axis.text.x=ggplot2::element_text(angle=45, hjust=1)) + ggplot2::labs(x="")
+    })
+    print_violinPlot(O,violinplot_filename,top_gene)
+  }
 }
 
 print_violinPlot<-function(O,filename,top_gene)
