@@ -33,7 +33,7 @@
 
 run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_column=NULL,group_column=NULL,transferUMAP=TRUE,rootNode_method="potency",
                          rootNode = NULL, timePoint = NULL,timePoint_metadata=NULL,batch_metadata=NULL,celltype_groups=NULL,top_genes=10,
-                         deg_method="quasipoisson",metadata_deg_model=NULL,graph_test=FALSE,cores=4,output_dir="."){
+                         deg_method="quasipoisson",metadata_deg_model=NULL,graph_test=FALSE,cores=8,output_dir="."){
 
   ###TODO: Add code to check the input options
   check_required_variables(seurat_obj,species,output_dir,annotation_column,group_column)
