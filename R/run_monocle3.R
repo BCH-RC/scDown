@@ -59,17 +59,37 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
   }
   checkmate::expect_flag(transferUMAP,label="transferUMAP")
   checkmate::expect_choice(rootNode_method,c("potency","rootNodes"),label = "rootNode_method")
-
+  ##Use all conditions for potency method
+  passed_conditions <- conditions
+  
   if(rootNode_method == "rootNodes")
   {
     # if "rootNodes", need to supply either @rootNode, or a combination of @timePoint and @timePoint_metadata
     checkmate::expect_character(rootNode, min.len = 1, max.len = 1, any.missing = TRUE,label="rootNode",null.ok = TRUE)
     if(checkmate::test_character(rootNode, min.len = 1, any.missing = FALSE))
     {
-      checkmate::expect_character(timePoint, min.len = 1, max.len = 1, any.missing = TRUE,label="timePoint",null.ok = TRUE)
-      if(checkmate::test_character(timePoint, min.len = 1, any.missing = FALSE))
+      # checkmate::expect_character(timePoint, min.len = 1, max.len = 1, any.missing = TRUE,label="timePoint",null.ok = TRUE)
+      # if(checkmate::test_character(timePoint, min.len = 1, any.missing = FALSE))
+      # {
+      #   checkmate::expect_choice(timePoint_metadata,colnames(seurat_obj@meta.data),label="timePoint_metadata",null.ok = TRUE)
+      # }
+      checkmate::expect_choice(timePoint_metadata,colnames(seurat_obj@meta.data),label="timePoint_metadata",null.ok = TRUE)
+      checkmate::expect_choice(timePoint,as.character(unique(seurat_obj@meta.data[,timePoint_metadata])),label="timePoint",null.ok = TRUE)
+      if(checkmate::test_character(conditions, min.len = 1, any.missing = FALSE))
       {
-        checkmate::expect_choice(timePoint_metadata,colnames(seurat_obj@meta.data),label="timePoint_metadata",null.ok = TRUE)
+        seurat_obj_subset <- seurat_obj[,row.names(seurat_obj@meta.data %>% dplyr::filter(seurat_obj@meta.data[,timePoint_metadata] == timePoint))]
+        condList <- lapply(conditions, function(cond){  
+          t<-table(seurat_obj_sub@meta.data[,group_column])
+          if(t[cond] < 2)
+          {
+            msg<-paste0("There is less than 2 cells for the ",timePoint," timepoint for condition ",cond,". Trajectory analysis will not be carried out for this condition separately.")
+            print(msg)
+            return(NULL)
+          }else{
+            return(cond)
+          }
+        })
+        passed_conditions<-condList[!sapply(condList, is.null)]
       }
     }
     if(!checkmate::test_character(rootNode, min.len = 1, any.missing = FALSE) && !checkmate::test_character(timePoint, min.len = 1, any.missing = FALSE))
@@ -172,7 +192,7 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
     }
 
     if (conditions_to_compare){
-      for (condition in conditions){
+      for (condition in passed_conditions){
         cds.condition <- cds.current[ ,cds.current[[group_column]] == condition]
         cds.condition <- monocle3::cluster_cells(cds.condition,cluster_method = "louvain")
         cds.condition <- monocle3::learn_graph(cds.condition, use_partition = FALSE)
