@@ -80,10 +80,11 @@ doCellCom <- function(X, species) {
 aggregate_visu <- function(X, condition, dir_cellchat){
   
   groupSize <- as.numeric(table(X@idents))
-  
+  numofcelltypes <- length(groupSize)
+
   # Circle plot: interaction strength and total interactions for all cell types
   # According to https://github.com/sqjin/CellChat/issues/499, position of vertex labels cannot be changed?
-  png(paste0(dir_cellchat, "/cellchat/images/aggregate/", condition, "_net_interaction_and_weight.png", sep=""), height = 600*2, width = 800*3, res=300)
+  png(paste0(dir_cellchat, "/cellchat/images/aggregate/", condition, "_net_interaction_and_weight.png", sep=""), height = 600*(numofcelltypes/4), width = 800*(numofcelltypes/4+1), res=300)
   par(mfrow = c(1, 2), xpd=TRUE)
   netVisual_circle(X@net$count, vertex.weight = groupSize, weight.scale = T, label.edge= F, title.name = "Number of interactions")
   netVisual_circle(X@net$weight, vertex.weight = groupSize, weight.scale = T, label.edge= F, title.name = "Interaction weights/strength")
@@ -91,12 +92,12 @@ aggregate_visu <- function(X, condition, dir_cellchat){
   
   # Circle plot: interaction strength for each individual cell type
   mat <- X@net$weight
-  png(paste0(dir_cellchat, "/cellchat/images/aggregate/", condition, "_net_weight_per_celltype.png", sep=""), height = 600*3*ceiling(length(groupSize)/4), width = 600*4*3, res = 300)
+  png(paste0(dir_cellchat, "/cellchat/images/aggregate/", condition, "_net_weight_per_celltype.png", sep=""), height = 600*3*ceiling(numofcelltypes/4), width = 600*4*3, res = 300)
   par(mfrow = c(ceiling(length(groupSize)/4),4), xpd=TRUE)
   for (i in 1:nrow(mat)) {
     mat2 <- matrix(0, nrow = nrow(mat), ncol = ncol(mat), dimnames = dimnames(mat))
     mat2[i, ] <- mat[i, ]
-    netVisual_circle(mat2, vertex.weight = groupSize, weight.scale = T, edge.weight.max = max(mat), title.name = rownames(mat)[i])
+    netVisual_circle(mat2, vertex.weight = groupSize, weight.scale = T, edge.weight.max = max(mat), vertex.label.cex = 1 + 4/numofcelltypes, title.name = rownames(mat)[i])
   }
   dev.off()
   
@@ -111,7 +112,7 @@ aggregate_visu <- function(X, condition, dir_cellchat){
       # "/50" is used here because even with really large datasets, number of pathways normally won't exceed 100.
       # "/30" is used here because 30 cell types are the maximum a png figure of width 800*2.7 can take.
       # these values can be modified to tune to different figure sizes.
-      png(paste0(dir_cellchat, "/cellchat/images/aggregate/", condition, "_outgoing_incoming_signal.png", sep=""), height = 600*1.8*(ceiling(pathway_num/50)), width = 800*2.7*ceiling(length(groupSize)/30), res = 300)
+      png(paste0(dir_cellchat, "/cellchat/images/aggregate/", condition, "_outgoing_incoming_signal.png", sep=""), height = 600*3*(ceiling(pathway_num/50)), width = 800*3.5*ceiling(length(groupSize)/30), res = 300)
       ht1 <- netAnalysis_signalingRole_heatmap(X, pattern = "outgoing", height = 10*ceiling(pathway_num/50), width = 10*ceiling(length(groupSize)/30), font.size = 6)
       ht2 <- netAnalysis_signalingRole_heatmap(X, pattern = "incoming", height = 10*ceiling(pathway_num/50), width = 10*ceiling(length(groupSize)/30), font.size = 6)
       draw(ht1 + ht2)
