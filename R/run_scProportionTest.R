@@ -20,7 +20,7 @@
 #' 
 #'
 run_scproportion <- function(seurat_obj,annotation_column,group_column,comparision1=NULL,comparision2=NULL,
-                             output_dir=".",output_format = "png",verbose = TRUE,cores = detectCores() - 1){
+                             output_dir=".",output_format = "png",verbose = TRUE,cores = 8){
 
   # check the input data format 
   check_required_variables(seurat_obj,species=NULL,output_dir,annotation_column,group_column)
