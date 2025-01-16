@@ -35,7 +35,7 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
                          rootNode = NULL, timePoint = NULL,timePoint_metadata=NULL,batch_metadata=NULL,celltype_groups=NULL,top_genes=10,
                          deg_method="quasipoisson",metadata_deg_model=NULL,graph_test=FALSE,cores=8,output_dir="."){
 
-  ###TODO: Add code to check the input options
+  `%dopar%` <- foreach::`%dopar%`
   check_required_variables(seurat_obj,species,output_dir,annotation_column,group_column)
   #checkmate::expect_class(seurat_obj,"Seurat",label="seurat_obj")
   checkmate::expect_choice(species,c("human","mouse"),label = "species")
@@ -150,17 +150,24 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
   cds_by_group <- list("ALL"=cds) # add cds with completed trrajectory inference to list
   print("Trajectory and pseudotime for the entire object completed.")
 
+  process_celltypegroup <- function(celltype_group)
+  {
+    cell_group <- celltype_groups[[celltype_group]]
+    # trajectory and pseudotime for selected cell types
+    cds.sub <- getTrajectory(X=seurat_obj, nDim=nDim, batch=batch_metadata, transferUMAP=transferUMAP, subset=unlist(cell_group),outputDir=output_dir)
+    cds.sub <- orderCells(cds=cds.sub, method=rootNode_method, rootNodes=rootNode, timePoint=timePoint, timePointCol=timePoint_metadata, species=species, subset=unlist(cell_group),outputDir=output_dir)
+    cellTypeDistribution(cds=cds.sub, colData_name=group_column, subset=unlist(cell_group),outputDir=output_dir)
+    return(cds.sub)
+    
+  }
   # Individual trajectories and pseudotime by selected cell types
   if (subset){
-    for (cell_group in celltype_groups){
-      # trajectory and pseudotime for selected cell types
-      cds.sub <- getTrajectory(X=seurat_obj, nDim=nDim, batch=batch_metadata, transferUMAP=transferUMAP, subset=unlist(cell_group),outputDir=output_dir)
-      cds.sub <- orderCells(cds=cds.sub, method=rootNode_method, rootNodes=rootNode, timePoint=timePoint, timePointCol=timePoint_metadata, species=species, subset=unlist(cell_group),outputDir=output_dir)
-      cellTypeDistribution(cds=cds.sub, colData_name=group_column, subset=unlist(cell_group),outputDir=output_dir)
-      # add cds with completed trajectory inference to list
-      #cds_by_group <- c(cds_by_group, list(cds.sub))
-      cds_by_group[[paste(unlist(cell_group),collapse = '_')]] <- cds.sub
-    }
+    cl <- parallel::makeCluster(cores)
+    cds_subset <- foreach::foreach(i=1:length(celltype_groups), .packages='monocle3') %dopar%
+      process_celltypegroup(celltype_group=i)
+    parallel::stopCluster(cl)
+    names(cds_subset)<-unlist(lapply(celltype_groups,function(x){paste(unlist(x),collapse = '_')}))
+    cds_by_group<-c(cds_by_group,cds_subset)
     print("Trajectory and pseudotime for all subsetted objects completed.")
   }
 
@@ -169,7 +176,8 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
   #   - graph auto-correlation for finding genes that vary along pseudotime/trajectory
   #       - if there are multiple conditions, regression method is used to find genes that vary along pseudotime AND differentially expressed between any two conditions
   #   - split cds object by conditions and find trajectory and pseudotime for each condition
-  for (i in 1:length(cds_by_group)){
+  process_cell_data_object <- function(i)
+  {
 
     cds.current <- cds_by_group[[i]]
 
@@ -224,7 +232,13 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
       }
       print(paste0("Trajectory and pseudotime for all conditions subsetted from cds object #",i," completed.", sep=""))
     }
+    return(cds.current)
   }
+
+  cl <- parallel::makeCluster(cores)
+  cds_by_group <- foreach::foreach(i=1:length(cds_by_group), .packages=c('monocle3','magrittr')) %dopar%
+    process_cell_data_object(i=i)
+  parallel::stopCluster(cl)
   return(cds_by_group)
 }
 
