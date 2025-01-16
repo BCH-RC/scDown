@@ -66,7 +66,7 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
   {
     # if "rootNodes", need to supply either @rootNode, or a combination of @timePoint and @timePoint_metadata
     checkmate::expect_character(rootNode, min.len = 1, max.len = 1, any.missing = TRUE,label="rootNode",null.ok = TRUE)
-    if(checkmate::test_character(rootNode, min.len = 1, any.missing = FALSE))
+    if(!checkmate::test_character(rootNode, min.len = 1, any.missing = FALSE))
     {
       # checkmate::expect_character(timePoint, min.len = 1, max.len = 1, any.missing = TRUE,label="timePoint",null.ok = TRUE)
       # if(checkmate::test_character(timePoint, min.len = 1, any.missing = FALSE))
@@ -79,7 +79,7 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
       {
         seurat_obj_subset <- seurat_obj[,row.names(seurat_obj@meta.data %>% dplyr::filter(seurat_obj@meta.data[,timePoint_metadata] == timePoint))]
         condList <- lapply(conditions, function(cond){  
-          t<-table(seurat_obj_sub@meta.data[,group_column])
+          t<-table(seurat_obj_subset@meta.data[,group_column])
           if(t[cond] < 2)
           {
             msg<-paste0("There is less than 2 cells for the ",timePoint," timepoint for condition ",cond,". Trajectory analysis will not be carried out for this condition separately.")
