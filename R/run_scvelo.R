@@ -66,7 +66,7 @@ if(checkmate::test_string(annotation_column, null.ok=FALSE)){
   Seurat::Idents(object_annotated) <- object_annotated[[annotation_column]]
 }
 
-checkmate::assert_list(groups, types = c("integer", "character"), null.ok = TRUE)
+checkmate::assert_list(groups, types = c("integer","numeric", "character"), null.ok = TRUE)
 if(!is.null(groups)){
   checkmate::assert_string(group_column, null.ok = FALSE)
   checkmate::expect_choice(group_column, colnames(seurat_obj@meta.data), label = "group_column")
@@ -140,31 +140,58 @@ for (grid_resolution in grid_resolutions){
 print("RNA velocity done for the inputted, complete Seurat object.")
 
 # RNA velocity for specified conditions or time points, if any
-if (length(groups) != 0){
-    for (group in groups){
-        tpData <- object_annotated[ ,object_annotated[[group_column]][[group_column]] %in% group]
-        if (!file.exists(paste0("scvelo/rds/obj_spliced_unspliced_",paste(group, collapse="_"),".h5Seurat"))) {
-            SaveH5Seurat(tpData, filename = paste0("scvelo/rds/obj_spliced_unspliced_",paste(group, collapse="_"),".h5Seurat"))
-        }
-        if (!file.exists(paste0("scvelo/rds/obj_spliced_unspliced_",paste(group, collapse="_"),".h5ad"))) {
-            Convert(paste0("scvelo/rds/obj_spliced_unspliced_",paste(group, collapse="_"),".h5Seurat"), dest = "h5ad")
-        }
-
-        tpV <- doVelocity(tpData, mode=mode)
-        for (grid_resolution in grid_resolutions){
-            tpVF <- getVectorField(tpData, tpV, reduction = 'umap', resolution = grid_resolution)
-            save(tpVF, file = paste0('scvelo/rds/',paste(group, collapse="_"),'_gridRes',grid_resolution,'.RData',sep=""))
-
-            for (arrow_size in arrow_sizes){
-                for (vector_width in vector_widths){
-                    plotVectorField(object_annotated, tpVF, group=group, group_column=group_column, color_scale=color_scale, name_by=name_by, grid_res=grid_resolution, arrow_size=arrow_size, vector_width=vector_width)
-                }
-            }
-        }
-
-        print(paste0("RNA velocity done for group ", group, sep=""))
+# Function to process each condition
+process_group <- function(group) {
+  tpData <- object_annotated[ , object_annotated[[group_column]][[group_column]] %in% group]
+  
+  # Save as H5Seurat if it doesn't already exist
+  h5Seurat_file <- paste0("scvelo/rds/obj_spliced_unspliced_", paste(group, collapse = "_"), ".h5Seurat")
+  if (!file.exists(h5Seurat_file)) {
+    SaveH5Seurat(tpData, filename = h5Seurat_file)
+  }
+  
+  # Convert to h5ad if it doesn't already exist
+  h5ad_file <- paste0("scvelo/rds/obj_spliced_unspliced_", paste(group, collapse = "_"), ".h5ad")
+  if (!file.exists(h5ad_file)) {
+    Convert(h5Seurat_file, dest = "h5ad")
+  }
+  
+  # Perform RNA velocity analysis
+  tpV <- doVelocity(tpData, mode = mode)
+  
+  # Loop through grid resolutions
+  for (grid_resolution in grid_resolutions) {
+    tpVF <- getVectorField(tpData, tpV, reduction = "umap", resolution = grid_resolution)
+    
+    # Save the vector field object
+    save(tpVF, file = paste0("scvelo/rds/", paste(group, collapse = "_"), "_gridRes", grid_resolution, ".RData"))
+    
+    # Generate plots for different arrow sizes and vector widths
+    for (arrow_size in arrow_sizes) {
+      for (vector_width in vector_widths) {
+        plotVectorField(
+          object_annotated, tpVF, group = group, group_column = group_column, 
+          color_scale = color_scale, name_by = name_by, 
+          grid_res = grid_resolution, arrow_size = arrow_size, vector_width = vector_width
+        )
+      }
     }
+  }
+  
+  # Return status
+  return(paste0("RNA velocity done for group ", paste(group, collapse = "_")))
 }
+
+# Run in parallel
+if (length(groups) != 0) {
+  cores <- parallel::detectCores() - 1  # Use one less than the total cores
+  results <- parallel::mclapply(groups, process_group, mc.cores = cores)
+  
+  # Print results
+  message("RNA velocity completed for all groups.")
+  message(unlist(results))
+}
+
 
 sessionInfo()
 

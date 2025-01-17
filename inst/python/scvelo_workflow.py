@@ -1,10 +1,12 @@
 import os
 import numpy as np
 import pandas as pd
-import scanpy as sc
 import scvelo as scv
+import scanpy as sc
 scv.settings.figdir = '.'
 
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 # ========================== SCVELO FUNCTIONS ==========================
 # This function takes in an AnnData object and performs all basic velocity calculations
@@ -29,6 +31,7 @@ def velocity_calculation(adata, annotation_column, mode='stochastic', group_labe
     scv.pl.proportions(adata, groupby=annotation_column, fontsize=8, figsize=(14, 10), dpi=500, show=False, save=f'scvelo/images/{group_label}_proportions')
     # velocity calculation workflow
     scv.pp.filter_and_normalize(adata, min_shared_counts=20, n_top_genes=2000)
+    sc.pp.neighbors(adata, n_neighbors=15, n_pcs=30)
     scv.pp.moments(adata, n_pcs=30, n_neighbors=30)
     if mode == 'dynamical':
         scv.tl.recover_dynamics(adata) # required if running dynamical model
