@@ -56,7 +56,7 @@ run_scproportion <- function(seurat_obj,annotation_column,group_column,comparisi
   
   # Function to process each comparison
   process_comparison <- function(i) {
-    if (verbose) message("Running comparison: ", comparisons_condition[i, 2], " vs ", comparisons_condition[i, 1)
+    if (verbose) message("Running comparison: ", comparisons_condition[i, 2], " vs ", comparisons_condition[i, 1])
     
     prop_test_i <- scProportionTest::permutation_test(prop_test,
                                     cluster_identity = annotation_column,
