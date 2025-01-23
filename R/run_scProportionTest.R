@@ -70,7 +70,7 @@ run_scproportion <- function(seurat_obj,annotation_column,group_column,comparisi
     # save the results
     stat_res(prop_test_i,comparisons_condition, output_dir, i)
     
-    if (verbose) message("Completed comparison: ", comparisons_condition[i, 1], " vs ", comparisons_condition[i, 2])
+    if (verbose) message("Completed comparison: ", comparisons_condition[i, 2], " vs ", comparisons_condition[i, 1])
   }
   
   parallel::mclapply(1:nrow(comparisons_condition), process_comparison, mc.cores = cores)
