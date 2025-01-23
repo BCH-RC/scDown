@@ -39,7 +39,7 @@ create_dir <- function(output_dir) {
 generate_figure <- function(prop_test.i, output_format="png",comparisons_condition, output_dir=".", annotation_column, i) {
   p <- permutation_plot(prop_test.i) +
     theme_bw(base_size = 12) +
-    labs(title = paste0(comparisons_condition[i, 1], " vs ", comparisons_condition[i, 2]),
+    labs(title = paste0(comparisons_condition[i, 2], " vs ", comparisons_condition[i, 1]),
          x = annotation_column,
          y = "log2(FD)") +
     theme(legend.text = element_text(size = 8)) +
@@ -50,7 +50,7 @@ generate_figure <- function(prop_test.i, output_format="png",comparisons_conditi
   file_extension <- switch(output_format, png = "png", pdf = "pdf", jpeg = "jpg")
   
   output_path <- paste0(output_dir, "scproportion/images/scProportiontest_",
-                        comparisons_condition[i, 1], "vs", comparisons_condition[i, 2], ".", file_extension)
+                        comparisons_condition[i, 2], "vs", comparisons_condition[i, 1], ".", file_extension)
   if (output_format == "png") {
     png(output_path, width = 2000, height = 1250, res = 350)
   } else if (output_format == "pdf") {
