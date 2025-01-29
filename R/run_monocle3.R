@@ -55,7 +55,7 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
   #checkmate::expect_choice(annotation_column, colnames(seurat_obj@meta.data),label="annotation_column",null.ok = TRUE)
   if(checkmate::test_character(annotation_column, min.len = 1, max.len = 1, any.missing = FALSE))
   {
-    Seurat::Idents(seurat_obj) <- seurat_obj[[annotation_column]]
+    Seurat::Idents(seurat_obj) <- seurat_obj[[annotation_column]][,1]
   }
   checkmate::expect_flag(transferUMAP,label="transferUMAP")
   checkmate::expect_choice(rootNode_method,c("potency","rootNodes"),label = "rootNode_method")
@@ -176,7 +176,7 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
   #   - graph auto-correlation for finding genes that vary along pseudotime/trajectory
   #       - if there are multiple conditions, regression method is used to find genes that vary along pseudotime AND differentially expressed between any two conditions
   #   - split cds object by conditions and find trajectory and pseudotime for each condition
-  process_cell_data_object <- function(i)
+  for (i in 1:length(cds_by_group))
   {
 
     cds.current <- cds_by_group[[i]]
@@ -200,7 +200,8 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
     }
 
     if (conditions_to_compare){
-      for (condition in passed_conditions){
+      runmonocle_percondition<-function(i){
+        condition <- passed_conditions[i]
         cds.condition <- cds.current[ ,cds.current[[group_column]] == condition]
         cds.condition <- monocle3::cluster_cells(cds.condition,cluster_method = "louvain")
         cds.condition <- monocle3::learn_graph(cds.condition, use_partition = FALSE)
@@ -230,15 +231,17 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
         # cell/cell type distribution
         cellTypeDistribution(cds=cds.condition, colData_name=group_column, subset=cell_type_use, cond=condition,outputDir=output_dir)
       }
+      
+      cl <- parallel::makeCluster(cores)
+      cds_subset <- foreach::foreach(i=1:length(passed_conditions), .packages=c('monocle3','magrittr')) %dopar%
+        runmonocle_percondition(i=i)
+      parallel::stopCluster(cl)
+      
       print(paste0("Trajectory and pseudotime for all conditions subsetted from cds object #",i," completed.", sep=""))
     }
     return(cds.current)
   }
-
-  cl <- parallel::makeCluster(cores)
-  cds_by_group <- foreach::foreach(i=1:length(cds_by_group), .packages=c('monocle3','magrittr')) %dopar%
-    process_cell_data_object(i=i)
-  parallel::stopCluster(cl)
+  
   return(cds_by_group)
 }
 
