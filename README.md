@@ -1,38 +1,16 @@
 ## scDown: a pipeline for scRNASeq downstream analysis
 
-### Common Variables
+### Installation
 
-These are the variables that are shared among p1, p2, and p3.1 and should always be defined before running any scripts.
 
-`seurat_object`: file name of the input Seurat object. <br>
-`species`: this can be either human or mouse. <br>
 
-Since p2 is ran inside a singulariy container while the other scripts are not, one should also modify the paths for below three
-variables following instructioins in **universal_variables.R** before running any scripts. Note that since all libraries required
-to run p2 are already installed in the container, one does not need to load a snapshot for running p2.
+### Tutorial 
 
-`snapshot`: snapshot to use. **This should be commented out for p2.** <br>
-`code_dir_name`: directory that contains this pipeline code. <br>
-`data_dir_name`: directory that contains the input Seurat object. <br>
-
-There is also a section for symphony variables and can be provided in case the inputted `seurat_object` has no cell type annotations.
-The symphony package will transfer cell type labels from a reference Seurat object to another Seurat object. Two key variables
-that must be provided if running symphony are:
-
-`transfer_label`: this is a flag specifying whether symphony will be ran. <br>
-`reference_object`: file name of the reference Seurat object. <br>
-
-### Unique Variables 
-
-CellChat: p1 provides a workflow for running cell-cell communication analysis either on a single biological condition or
-comparing between two biological conditions. To run p1 script, variables that need to be modified are in the file
-**universal_variables.R** marked as CELLCHAT-SPECIFIC VARIABLES with descriptions.
-
-Monocle: p2 provides a workflow for running pseudotime analysis using Monocle3. The analysis can be done on listed biological conditions as well as cell types. To run p2 script, variables that need to be modified are in the file **universal_variables.R** marked as MONOCLE-SPECIFIC VARIABLES with descriptions.
-
-RNA Velocity:
-- p3.1 provides a workflow for calculating RNA velocity using the velociraptor package in R. This package provides a wrapper function that accesses all basic calculations done by scVelo package in Python. The analysis can be done on timepoint or regular datasets. To run p3.1 script, variables that need to be modified are in the file **universal_variables.R** marked as RNA-VELOCITY-SPECIFIC VARIABLES with descriptions.
-- p3.2 is a more complete workflow for RNA velocity using scVelo directly in Python that builds on p3.1. It takes an output h5ad file from p3.1 as its input, and contains downstream analysis in scVelo that p3.1 does not have. To run p3.2 script, variables that need to be modified are in the file **p3.2_RNAvelocity.py** marked as VARIABLES TO DEFINE with descriptions.
+ scProportionTest:https://html-preview.github.io/?url=https://github.com/BCH-RC/scDown/blob/main/vignettes/scProportionTest.html
+ scVelo:
+ scVelo_full:
+ Monocle3:
+ CellChatV2:
 
 ## Example Commands
 
