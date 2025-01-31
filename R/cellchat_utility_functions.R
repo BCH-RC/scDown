@@ -128,6 +128,94 @@ aggregate_visu <- function(X, condition, dir_cellchat){
     })
 }
 
+#' Run CellChat Visualization at the Aggregated Level
+#' 
+#' This function takes as input a CellChat object and generates a circle plot of the aggregated 
+#' cell-cell communication network.
+#'
+#' @param X A CellChat object containing the results of the cell-cell communication analysis.
+#' @param height User defined image height.
+#' @param width User defined image width.
+#' @param res User defined image resolution.
+#' @return NULL
+#' 
+#' @noRd
+
+aggregate_circleplot <- function(X, dir_cellchat, height, width, res) {
+  
+  timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+  fname <- paste0(dir_cellchat, "/cellchat/images/aggregate/net_interaction_and_weight_", timestamp, ".png", sep="")
+  cat("Image file saved as", fname, "\n")
+  png(fname, height = height, width = width, res=res)
+  par(mfrow = c(1, 2), xpd=TRUE)
+  netVisual_circle(X@net$count, weight.scale = T, label.edge= F, title.name = "Number of interactions")
+  netVisual_circle(X@net$weight, weight.scale = T, label.edge= F, title.name = "Interaction weights/strength")
+  dev.off()
+}
+
+#' Run CellChat Visualization at the Aggregated Level
+#' 
+#' This function takes as input a CellChat object and generates a heatmap plot of the aggregated 
+#' cell-cell communication network.
+#'
+#' @param X A CellChat object containing the results of the cell-cell communication analysis.
+#' @param hp.height User defined heatmap height.
+#' @param hp.width User defined heatmap width.
+#' @param height User defined image height.
+#' @param width User defined image width.
+#' @param res User defined image resolution.
+#' @return NULL
+#' 
+#' @noRd
+
+aggregate_heatmap <- function(X, dir_cellchat, font.size = 6, hp.height, hp.width, height, width, res) {
+  
+  timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+  fname <- paste0(dir_cellchat, "/cellchat/images/aggregate/outgoing_incoming_signal_", timestamp, ".png", sep="")
+  cat("Image file saved as", fname, "\n")
+  png(fname, height = height, width = width, res = res)
+  ht1 <- netAnalysis_signalingRole_heatmap(X, pattern = "outgoing", height = hp.height, width = hp.width, font.size = font.size)
+  ht2 <- netAnalysis_signalingRole_heatmap(X, pattern = "incoming", height = hp.height, width = hp.width, font.size = font.size)
+  draw(ht1 + ht2)
+  dev.off()
+}
+
+#' Run CellChat Visualization at the Aggregated Level
+#' 
+#' This function takes as input a CellChat object and generates a circle plot per cell type of the aggregated 
+#' cell-cell communication network.
+#'
+#' @param X A CellChat object containing the results of the cell-cell communication analysis.
+#' @param image.ncol User defined number of circle plots on each row.
+#' @param vertex.label.cex User vertex label size.
+#' @param height User defined image height.
+#' @param width User defined image width.
+#' @param res User defined image resolution.
+#' @return NULL
+#' 
+#' @noRd
+
+aggregate_circleplot_percelltype <- function(X, dir_cellchat, image.ncol, vertex.label.cex, height, width, res) {
+
+  groupSize <- as.numeric(table(X@idents))
+  numofcelltypes <- length(groupSize)
+  image.nrow <- ceiling(numofcelltypes/image.ncol)
+
+  # Circle plot: interaction strength for each individual cell type
+  mat <- X@net$weight
+  timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+  fname = paste0(dir_cellchat, "/cellchat/images/aggregate/net_weight_per_celltype_", timestamp, ".png", sep="")
+  cat("Image file saved as", fname, "\n")
+  png(fname, height = height, width = width, res = 300)
+  par(mfrow = c(image.nrow, image.ncol), xpd=TRUE)
+  for (i in 1:nrow(mat)) {
+    mat2 <- matrix(0, nrow = nrow(mat), ncol = ncol(mat), dimnames = dimnames(mat))
+    mat2[i, ] <- mat[i, ]
+    netVisual_circle(mat2, weight.scale = T, edge.weight.max = max(mat), vertex.label.cex = vertex.label.cex, title.name = rownames(mat)[i])
+  }
+  dev.off()
+}
+
 #' Run CellChat Visualization at the Pathway Level
 #' 
 #' This function takes a CellChat object and a specified pathway to generate a visualization of the 
