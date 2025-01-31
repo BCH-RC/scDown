@@ -41,13 +41,45 @@ getTrajectory <- function(X, nDim=30, batch=NULL, transferUMAP=TRUE, subset=NULL
                            cell_metadata = cellInfo,
                            gene_metadata = geneInfo)
   cds <- monocle3::preprocess_cds(cds, num_dim = nDim,method = "PCA")
-  cds <- monocle3::reduce_dimension(cds)
+  cds <- monocle3::reduce_dimension(cds,umap.fast_sgd=FALSE)
 
   if(!is.null(batch)){ # correct batch effect, if any
     p1 <- monocle3::plot_cells(cds, color_cells_by=batch, label_cell_groups=FALSE) +
       ggplot2::ggtitle(paste0("UMAP before batch correction", "\n","~",batch,sep=""))
+    
+    samples <- unique(SummarizedExperiment::colData(cds)[,batch])
+    O <- lapply(samples, function(sample){
+      d<-as.data.frame(SummarizedExperiment::colData(cds))
+      cds_subset <- cds[,row.names(d[d[batch] == sample,])]
+      p2 <- monocle3::plot_cells(cds_subset, show_trajectory_graph=FALSE,color_cells_by=batch, label_cell_groups=FALSE) +
+        ggplot2::ggtitle(paste0(sample)) +
+        ggplot2::theme(legend.position="none") + 
+        ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
+      return(p2)
+    })
+    
+    png(file.path(outputDir,"images","pseudotime",paste0('UMAP_before_batchCorrect',ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond),"",paste0("_",cond)),'.png',sep="")), width = 700*sqrt(length(samples))*2, height = 875*sqrt(length(samples)), res = 300)
+    print(patchwork::wrap_plots(O,ncol = ceiling(sqrt(length(samples)))))
+    dev.off()
+    
     cds <- monocle3::align_cds(cds, alignment_group = batch)
-    cds <- monocle3::reduce_dimension(cds)
+    cds <- monocle3::reduce_dimension(cds,umap.fast_sgd=FALSE)
+    
+    samples <- unique(SummarizedExperiment::colData(cds)[,batch])
+    O <- lapply(samples, function(sample){
+      d<-as.data.frame(SummarizedExperiment::colData(cds))
+      cds_subset <- cds[,row.names(d[d[batch] == sample,])]
+      p2 <- monocle3::plot_cells(cds_subset, show_trajectory_graph=FALSE,color_cells_by=batch, label_cell_groups=FALSE) +
+        ggplot2::ggtitle(paste0(sample)) +
+        ggplot2::theme(legend.position="none") + 
+        ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
+      return(p2)
+    })
+    
+    png(file.path(outputDir,"images","pseudotime",paste0('UMAP_after_batchCorrect',ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),ifelse(is.null(cond),"",paste0("_",cond)),'.png',sep="")), width = 700*sqrt(length(samples))*2, height = 875*sqrt(length(samples)), res = 300)
+    print(patchwork::wrap_plots(O,ncol = ceiling(sqrt(length(samples)))))
+    dev.off()
+    
     p2 <- monocle3::plot_cells(cds, color_cells_by=batch, label_cell_groups=FALSE) +
       ggplot2::ggtitle(paste0("UMAP after batch correction", "\n","~",batch,sep="")) +
       ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
