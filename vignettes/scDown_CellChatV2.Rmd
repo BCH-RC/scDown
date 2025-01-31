@@ -39,7 +39,6 @@ Set up the environment for running CellChat V2 by defining key variables. Specif
 ```{r, message = FALSE}
 # Set the working directory
 output_dir <- "../scDown/tests"
-# output_dir <- "/Users/chunhui/BCH_projects/scDown_pipeline/scDown/tests"
 
 # Seurat object
 seurat_obj <- readRDS("../scDown/inst/extdata/10X43_1_spliced_unspliced.rds")
@@ -98,12 +97,30 @@ knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDo
 
 ```
 
-#### Aggregated circle plot for significant pathways
-This aggregated circle plot highlights the most significant pathways by visualizing the weighted interactions between cell types for each pathway. It helps in understanding the strength of interactions for key pathways and how they contribute to the overall signaling network.
+#### Aggregated circle plot for each cell type
+This set of aggregated circle plots visualizes the weighted incoming and outgoing interactions for each individual cell type, showing its connections with all other cell types.
 
 ```{r, echo = FALSE, eval = TRUE}
 
 knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/ALL/images/cellchat/aggregate/ALL_net_weight_per_celltype.png")
+
+```
+
+#### Aggregated plots using user defined parameters
+We also allow users to generate aggregated circle plots and heatmaps with customized parameters for improved visualization.
+
+```{r}
+# Load the CellChat object after running the CellChat analysis
+cellchat_obj <- readRDS(paste0(output_dir, "/cellchat/rds/cellchat_obj_ASD.rds"))
+
+# Generate a circle plot showing overall interactions between different cell types
+aggregate_circleplot(X = cellchat_obj, dir_cellchat = output_dir, height = 2000, width = 4000, res = 300)
+
+# Generate a heatmap displaying incoming and outgoing signals between cell types
+aggregate_heatmap(X = cellchat_obj, dir_cellchat = output_dir, font.size = 4, hp.height = 14, hp.width = 6, height = 2250, width = 2250, res = 300)
+
+# Generate a set of circle plots, each visualizing the weighted incoming and outgoing interactions of an individual cell type with all other cell types
+aggregate_circleplot_percelltype(X = cellchat_obj, dir_cellchat = output_dir, image.ncol = 4, vertex.label.cex = 0.6, height = 5000, width = 4000, res = 300)
 
 ```
 
