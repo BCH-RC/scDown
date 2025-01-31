@@ -6,11 +6,11 @@
 
 ### Tutorial 
 
- scProportionTest:https://html-preview.github.io/?url=https://github.com/BCH-RC/scDown/blob/main/vignettes/scProportionTest.html
- scVelo:
- scVelo_full:
- Monocle3:
- CellChatV2:
+- scProportionTest:https://html-preview.github.io/?url=https://github.com/BCH-RC/scDown/blob/main/vignettes/scProportionTest.html
+- scVelo:
+- scVelo_full:
+-  Monocle3:
+- CellChatV2:
 
 ## Example Commands
 
