@@ -54,9 +54,10 @@ Imports:
     dplyr (>= 1.1.1),
     igraph (>= 1.5.1),
     anndata (>= 0.7.5.6),
-    foreach (>= 1.5.2),
+    foreach (>= 1.5.2)
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    BiocManager
 VignetteBuilder: knitr
 RoxygenNote: 7.2.3
