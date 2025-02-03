@@ -11,10 +11,10 @@ Encoding: UTF-8
 LazyData: true
 Depends: R (>= 4.2.3)
 Remotes: 
-    mojaveazure/seurat-disk
-    rpolicastro/scProportionTest
-    velocyto-team/velocyto.R
-    jinworks/CellChat
+    mojaveazure/seurat-disk,
+    rpolicastro/scProportionTest,
+    velocyto-team/velocyto.R,
+    jinworks/CellChat,
     cole-trapnell-lab/monocle3
 Imports:
     reticulate (>= 1.28),
