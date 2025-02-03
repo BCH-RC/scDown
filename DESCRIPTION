@@ -11,21 +11,14 @@ Encoding: UTF-8
 LazyData: true
 Depends: R (>= 4.2.3)
 Remotes: 
-    bioc::pcaMethods,
-    bioc::velociraptor,
-    bioc::BiocGenerics,
-    bioc::Biobase,
-    bioc::ComplexHeatmap,
     hhoeflin/hdf5r,
     mojaveazure/seurat-disk,
     rpolicastro/scProportionTest,
     velocyto-team/velocyto.R,
     jinworks/CellChat,
     aet21/SCENT,
-    bioc::/monocle3
+    cole-trapnell-lab/monocle3
 Imports:
-    BiocManager (>= 1.30.25),
-    pcaMethods (>= 1.90.0),
     hdf5r (>= 1.3.8),
     CellChat (>= 2.1.0),
     scProportionTest (>= 0.0.0.9000),
