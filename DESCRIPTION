@@ -15,8 +15,15 @@ Remotes:
     rpolicastro/scProportionTest,
     velocyto-team/velocyto.R,
     jinworks/CellChat,
+    aet21/SCENT,
     cole-trapnell-lab/monocle3
 Imports:
+    CellChat (>= 2.1.0),
+    scProportionTest (>= 0.0.0.9000),
+    SeuratDisk (>= 0.0.0.9020),
+    velocyto.R (>= 0.6),
+    monocle3 (>= 1.3.4),
+    SCENT (>= 1.0.3),
     reticulate (>= 1.28),
     patchwork (>= 1.1.2),
     ComplexHeatmap,
