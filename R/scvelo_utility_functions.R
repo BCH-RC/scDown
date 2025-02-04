@@ -23,12 +23,12 @@ library(ggrepel)
 
 addSUmatrices <- function(X, loomFile){
     # Reading spliced/unspliced matrices
-    SU <- read.loom.matrices(loomFile)
+    SU <- velocyto.R::read.loom.matrices(loomFile)
 
     # Getting standardized cell barcodes by removing prefix and suffix
     colnames(SU[[1]]) <- colnames(SU[[2]]) <- gsub('^[[:print:]]+\\:|x$', '', colnames(SU[[1]]))
     new.names <- gsub('^(?:.*?_)?([A-Z0-9]+)[_-].*$', '\\1', colnames(X))
-    X <- RenameCells(X, new.names= new.names)
+    X <- Seurat::RenameCells(X, new.names= new.names)
 
     # Identifying shared barcodes
     sharedBarcodes <- intersect(colnames(SU[[1]]), colnames(X))
@@ -38,11 +38,11 @@ addSUmatrices <- function(X, loomFile){
     X <- X[sharedGenes,sharedBarcodes]
 
     # Adding spliced/unspliced matrices as assays
-    X[['spliced']] <- CreateAssayObject(SU[[1]][sharedGenes,sharedBarcodes])
-    X[['unspliced']] <- CreateAssayObject(SU[[2]][sharedGenes,sharedBarcodes])
+    X[['spliced']] <- Seurat::CreateAssayObject(SU[[1]][sharedGenes,sharedBarcodes])
+    X[['unspliced']] <- Seurat::CreateAssayObject(SU[[2]][sharedGenes,sharedBarcodes])
 
     # Reverting to the original cell barcodes 
-    X <- RenameCells(X, new.names = X$orig.bc)
+    X <- Seurat::RenameCells(X, new.names = X$orig.bc)
 
     # Returning object with new assays
     return(X)
@@ -72,7 +72,7 @@ doVelocity <- function(X, mode = 'stochastic'){
         unspliced = X@assays$unspliced@counts
     )
     # Compute the single-cell velocity
-    O <- scvelo(countMatrices, mode = mode)
+    O <- velociraptor::scvelo(countMatrices, mode = mode)
 
     # Returns a SingleCellExperiment object with the information required to generate the plots
     return(O)
@@ -98,15 +98,15 @@ doVelocity <- function(X, mode = 'stochastic'){
 #' 
 getVectorField <- function(X, scVeloOutput, reduction = 'umap', dims = 1:2, resolution = 50){
     # Getting the requested reduction
-    E <- Embeddings(X, reduction = reduction)
+    E <- Seurat::Embeddings(X, reduction = reduction)
 
     # Making a compatible object
     E <- as.matrix(E[,dims])
     dimnames(E) <- NULL
 
     # Computing vectors
-    O <- embedVelocity(E, scVeloOutput)
-    O <- gridVectors(E,O,resolution = resolution)
+    O <- velociraptor::embedVelocity(E, scVeloOutput)
+    O <- velociraptor::gridVectors(E,O,resolution = resolution)
     rownames(O) <- NULL
 
     # Returning a 4 columns data.frame to be used with geom_segment
@@ -154,7 +154,7 @@ plotVectorField <- function(X, tpVF, group=NULL, group_column=NULL, color_scale=
         names(color_scale) <- labels
         D$Color <- color_scale[D[[name_by]]]
     } else {
-        default_colors <- hue_pal()(length(unique(Idents(X))))
+        default_colors <- scales::hue_pal()(length(unique(Idents(X))))
         labels <- unique(Idents(X))
         names(default_colors) <- labels
         D$Color <- default_colors[D$cell.type]
@@ -166,7 +166,7 @@ plotVectorField <- function(X, tpVF, group=NULL, group_column=NULL, color_scale=
     }
 
     png(file=paste0("scvelo/images/velocityField_",paste(group, collapse="_"),"_gridRes",grid_res,"_arrowSize",arrow_size,"_width",vector_width,".png",sep=""), width = 1800, height = 1800, res = 300)
-    P <- ggplot(D, aes(UMAP_1, UMAP_2)) +
+    P <- ggplot2::ggplot(D, aes(UMAP_1, UMAP_2)) +
             geom_point(color = D$Color, size = 0.01) +
             theme_void() +
             theme(legend.position = 'None', 
@@ -231,7 +231,7 @@ plotPseudotime <- function(X, color_scale=c("darkblue", "yellow")){
     D <- D[order(D$Pseudotime, decreasing = TRUE), ]
 
     png('V-D0D3-pseudotime.png', width = 1800, height = 1800, res = 300)
-    P <- ggplot(D, aes(UMAP_1, UMAP_2)) +
+    P <- ggplot2::ggplot(D, aes(UMAP_1, UMAP_2)) +
         geom_point(aes(color = Pseudotime), size = 0.01) +
         scale_color_gradient(low = color_scale[1], high = color_scale[2]) +
         scale_color_discrete(na.value="gray95") +
