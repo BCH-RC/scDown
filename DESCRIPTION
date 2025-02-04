@@ -17,6 +17,7 @@ Remotes:
     velocyto-team/velocyto.R,
     jokergoo/circlize,
     jokergoo/ComplexHeatmap,
+    immunogenomics/presto,
     jinworks/CellChat,
     aet21/SCENT,
     cole-trapnell-lab/monocle3
@@ -25,6 +26,7 @@ Imports:
     NMF (>= 0.28),
     circlize (>= 0.4.16),
     ComplexHeatmap (>= 2.4.0),
+    presto (>= 1.0.0),
     CellChat (>= 2.1.0),
     scProportionTest (>= 0.0.0.9000),
     SeuratDisk (>= 0.0.0.9020),
