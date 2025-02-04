@@ -28,6 +28,7 @@ Imports:
     ComplexHeatmap (>= 2.4.0),
     presto (>= 1.0.0),
     CellChat (>= 2.1.0),
+    gtools (>= 3.9.4),
     scProportionTest (>= 0.0.0.9000),
     SeuratDisk (>= 0.0.0.9020),
     velocyto.R (>= 0.6),
