@@ -1,3 +1,7 @@
+library(CellChat)
+library(Seurat)
+library(ComplexHeatmap)
+
 #' Create Directories for Storing CellChat Results
 #'
 #' This function creates a set of subdirectories under the specified folder path 
