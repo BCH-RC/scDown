@@ -42,7 +42,7 @@ run_scproportion <- function(seurat_obj,annotation_column,group_column,comparisi
     }
     comparisons_condition <- matrix(c(comparision1, comparision2), ncol = 2, byrow = TRUE)
   } else {
-    comparisons_condition <- permutations(length(conditions), 2, conditions)
+    comparisons_condition <- gtools::permutations(length(conditions), 2, conditions)
   }
   
   create_dir(output_dir)
