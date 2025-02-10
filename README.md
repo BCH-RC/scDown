@@ -1,7 +1,7 @@
 ## scDown: a pipeline for scRNASeq downstream analysis
 
 ### Installation
-The `velociraptor` package, along with several dependencies, need to be installed via BiocManager before installing scDown, if not already available in your R library. 
+The `velociraptor` package, along with several dependencies, needs to be installed via BiocManager before installing scDown, if not already available in your R library. 
 ```r
 if (!require("BiocManager", quietly = TRUE)){
    install.packages("BiocManager")
