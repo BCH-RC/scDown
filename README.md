@@ -1,16 +1,34 @@
 ## scDown: a pipeline for scRNASeq downstream analysis
 
 ### Installation
+The `velociraptor` package, along with several dependencies, must be installed via BiocManager prior to scDown installation. 
+```r
+if (!require("BiocManager", quietly = TRUE)){
+   install.packages("BiocManager")
+}
 
+BiocManager::install(c("pcaMethods", "velociraptor"), dependencies = TRUE)
+BiocManager::install(c("Biobase", "BiocNeighbors", "BiocGenerics"))
+BiocManager::install(c('DelayedArray', 'DelayedMatrixStats',
+                       'limma', 'lme4', 'S4Vectors', 'SingleCellExperiment',
+                       'SummarizedExperiment', 'batchelor', 'HDF5Array','terra', 'ggrastr'))
+```
+
+Once all BiocManager dependencies are installed, scDown can be installed using remotes: 
+```r
+install.packages("remotes")
+remotes::install_github("BCH-RC/scDown")
+```
 
 
 ### Tutorial 
 
-- scProportionTest:https://html-preview.github.io/?url=https://github.com/BCH-RC/scDown/blob/main/vignettes/scProportionTest.html
-- scVelo:
-- scVelo_full:
--  Monocle3:
-- CellChatV2:
+- [scProportionTest](https://html-preview.github.io/?url=https://github.com/BCH-RC/scDown/blob/main/vignettes/scProportionTest.html)
+- [CellChatV2](https://html-preview.github.io/?url=https://github.com/BCH-RC/scDown/blob/main/vignettes/scDown_CellChatV2.html)
+- [Monocle3](https://html-preview.github.io/?url=https://github.com/BCH-RC/scDown/blob/main/vignettes/scDown_monocle.html)
+- [scVelo](https://html-preview.github.io/?url=https://github.com/BCH-RC/scDown/blob/main/vignettes/run_scvelo.html)
+- [scVelo_full](https://html-preview.github.io/?url=https://github.com/BCH-RC/scDown/blob/main/vignettes/run_scvelo_full.html)
+
 
 ## Example Commands
 
