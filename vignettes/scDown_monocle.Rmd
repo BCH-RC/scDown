@@ -45,7 +45,7 @@ output_dir <- "."
 
 # Seurat object
 seurat_obj_path <- system.file("extdata", "10X43_1_spliced_unspliced.rds", package="scDown")
-seurat_obj <- readRDS("../scDown/inst/extdata/10X43_1_spliced_unspliced.rds")
+seurat_obj <- readRDS(seurat_obj_path)
 
 # Define the species: either "mouse" or "human", since potency method only support these two species for identifying the root node
 species <- "mouse"
