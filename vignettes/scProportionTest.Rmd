@@ -39,7 +39,8 @@ Set up the environment for running scProportionTest by defining key variabels. S
 output_dir <- "."
 
 # Seurat object
-seurat_obj <- readRDS("../inst/extdata/DentateGyrus/10X43_1_spliced_unspliced.rds")
+seurat_obj_path <- system.file("extdata", "10X43_1_spliced_unspliced.rds", package="scDown")
+seurat_obj <- readRDS(seurat_obj_path)
 
 # Metadata cell type column
 annotation_column <- "clusters"
