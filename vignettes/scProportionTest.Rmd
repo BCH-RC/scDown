@@ -30,6 +30,10 @@ knitr::opts_chunk$set(
 )
 ```
 
+```{r,message=FALSE}
+#library(scDown)
+```
+
 # Set variables
 Set up the environment for running scProportionTest by defining key variabels. Specify the working directory (output_dir) which is optional. 
 
