@@ -6,7 +6,7 @@ output:
   rmarkdown::html_document:
     highlight: pygments
     toc: true
-    toc_float: true
+    #toc_float: true
     toc_depth: 3        # Set the depth of the outline (1 for main headers, 2 for subheaders, etc.)
     number_sections: true  # Automatically number sections
     # css: "CellChat_styles.css"   # Link to an external CSS file
