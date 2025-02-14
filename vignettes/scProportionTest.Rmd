@@ -1,15 +1,16 @@
 ---
-title: \vspace{3.5in}"A pipeline to carry out the scRNASeq downstream analysis"
+title: "scDown: A pipeline to carry out the scRNASeq downstream analysis"
 author: |
-date: "`r format(Sys.Date(), '%m/%d/%Y')`"
+    | 
+date: "`r format(Sys.Date(), '%m/%Y')`"
 output: 
   rmarkdown::html_document:
     highlight: pygments
     toc: true
     toc_depth: 3
-    number_sections: true  # Automatically number sections
+    number_sections: true  ## if you want number sections at each table header
     #theme: united  # many options for theme, this one is my favorite.
-    #bibliography: library.bib
+#bibliography: library.bib
 fig_width: 8 
 fig_height: 5 
 vignette: >
@@ -33,7 +34,6 @@ knitr::opts_chunk$set(
 ```{r,message=FALSE}
 #library(scDown)
 ```
-
 # Set variables
 Set up the environment for running scProportionTest by defining key variabels. Specify the working directory (output_dir) which is optional. 
 
