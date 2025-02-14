@@ -219,6 +219,8 @@ cellchatV2_path_visu <- function(output_dir, species, pathway_to_show) {
       cat(pathway_to_show, "is not a significant pathway in the current CellChat Analysis for condition:", condition, "\n")
     }
   }
+  
+  cat(paste0("Pathway plots are updated in the folder: ", output_dir, "/cellchat/images/pathway"))
 }
 
 
