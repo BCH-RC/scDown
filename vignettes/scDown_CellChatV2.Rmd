@@ -1,22 +1,20 @@
 ---
 title: "scDown: A pipeline to carry out the scRNASeq downstream analysis"
-subtitle: "CellChat V2 Analysis"
-date: "`r format(Sys.Date(), '%m/%d/%Y')`"
+author: |
+    | 
+date: "`r format(Sys.Date(), '%m/%Y')`"
 output: 
   rmarkdown::html_document:
     highlight: pygments
     toc: true
-    #toc_float: true
-    toc_depth: 3        # Set the depth of the outline (1 for main headers, 2 for subheaders, etc.)
-    number_sections: true  # Automatically number sections
-    # css: "CellChat_styles.css"   # Link to an external CSS file
-    #number_sections: true  ## if you want numbered sections at each table header
+    toc_depth: 3
+    number_sections: true  ## if you want number sections at each table header
     #theme: united  # many options for theme, this one is my favorite.
 #bibliography: library.bib
 fig_width: 8 
 fig_height: 5 
 vignette: >
-  %\VignetteIndexEntry{TissueEnrich}
+  %\VignetteIndexEntry{scDown_cellChatV2}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -34,15 +32,26 @@ knitr::opts_chunk$set(
 )
 ```
 
+```{r, include=FALSE,message=FALSE}
+# Set the folder path
+folder_path <- "../R/"
+r_files <- list.files(folder_path, pattern = "\\.R$", full.names = TRUE)
+lapply(r_files, source)
+
+```
+
+
+```{r,message=FALSE}
+#library(scDown)
+```
+
 # Define Universal Variables for CellChat V2
 Set up the environment for running CellChat V2 by defining key variables. Specify the working directory (output_dir) which is optional, and load a Seurat object (seurat_obj) containing single-cell RNA sequencing data is loaded. The species is set to either "human" or "mouse," as CellChat V2 supports only these two species. The metadata column (annotation_column) is defined to specify the cell type or other annotation labels, ensuring the analysis runs with the correct input data.
-```{r, message = FALSE}
-# Set the working directory
-output_dir <- "../scDown/tests"
 
+```{r, message = FALSE}
 # Seurat object
-seurat_obj <- readRDS("../scDown/inst/extdata/10X43_1_spliced_unspliced.rds")
-# seurat_obj <- readRDS("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/inst/extdata/10X43_1_spliced_unspliced.rds")
+seurat_obj_path <- "../inst/extdata/DentateGyrus/10X43_1_spliced_unspliced.rds"
+seurat_obj <- readRDS(seurat_obj_path)
 
 # Define the species: either "mouse" or "human", since CellChat and PPI database only support these two species for now
 species <- "mouse"
@@ -59,6 +68,9 @@ top_n = 10
 ## Run CellChat with all conditions and all cell types
 We run CellChat using the entire dataset, including all cells and cell types, without specifying any particular conditions or groups. However, it is also possible to run CellChat for specific treatments, or groups by defining 'group_column'. Additionally, pairwise comparisons can be performed to analyze differences between these groups. A demonstration of how to set up and run these comparisons will be provided in a later session.
 ```{r}
+# Set the working directory
+output_dir <- "../test/All"
+
 # Run CellChat V2
 run_cellchatV2(seurat_obj = seurat_obj,
                output_dir = output_dir,
@@ -75,7 +87,7 @@ This plot visualizes the overall interactions between different cell types in th
 
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/ALL/images/cellchat/aggregate/ALL_net_interaction_and_weight.png")
+knitr::include_graphics("../test/All/cellchat/images/aggregate/ALL_net_interaction_and_weight.png")
 
 ```
 
@@ -84,7 +96,7 @@ The scatter plot displays the signaling roles of different cell types in the com
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "60%", out.height = "60%"}
 
-knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/ALL/images/cellchat/aggregate/ALL_signaling_role.png")
+knitr::include_graphics("../test/All/cellchat/images/aggregate/ALL_signaling_role.png")
 
 ```
 
@@ -93,7 +105,7 @@ This heatmap shows the incoming and outgoing signals between cell types, summari
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "60%", out.height = "60%"}
 
-knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/ALL/images/cellchat/aggregate/ALL_outgoing_incoming_signal.png")
+knitr::include_graphics("../test/All/cellchat/images/aggregate/ALL_outgoing_incoming_signal.png")
 
 ```
 
@@ -102,16 +114,18 @@ This set of aggregated circle plots visualizes the weighted incoming and outgoin
 
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/ALL/images/cellchat/aggregate/ALL_net_weight_per_celltype.png")
+knitr::include_graphics("../test/All/cellchat/images/aggregate/ALL_net_weight_per_celltype.png")
 
 ```
 
 #### Aggregated plots using user defined parameters
-We also allow users to generate aggregated circle plots and heatmaps with customized parameters for improved visualization.
+We also allow users to generate aggregated circle plots and heatmaps with customized parameters for improved visualization by loading the CellChat object from the previous runs.
 
 ```{r}
-# Load the CellChat object after running the CellChat analysis
-cellchat_obj <- readRDS(paste0(output_dir, "/cellchat/rds/cellchat_obj_ASD.rds"))
+output_dir <- "../test/All"
+
+# Load the CellChat object after running the CellChat analysis with all conditions and all cell types
+cellchat_obj <- readRDS(paste0(output_dir, "/cellchat/rds/cellchat_obj_ALL.rds"))
 
 # Generate a circle plot showing overall interactions between different cell types
 aggregate_circleplot(X = cellchat_obj, dir_cellchat = output_dir, height = 2000, width = 4000, res = 300)
@@ -130,7 +144,7 @@ This heatmap shows the signaling strength for a specific pathway across various 
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "60%", out.height = "60%"}
 
-knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/ALL/images/cellchat/pathway/APP_ALL_signaling_strength_heatmap.png")
+knitr::include_graphics("../test/All/cellchat/images/pathway/APP_ALL_signaling_strength_heatmap.png")
 
 ```
 
@@ -139,7 +153,7 @@ This violin plot visualizes the distribution of gene expression levels for a spe
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "60%", out.height = "60%"}
 cat("Pathway APP:\n")
-knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/ALL/images/cellchat/pathway/LR_gene/APP_ALL_signaling_gene.png")
+knitr::include_graphics("../test/All/cellchat/images/pathway/LR_gene/APP_ALL_signaling_gene.png")
 
 ```
 
@@ -148,7 +162,7 @@ This bubble plot displays the ligand-receptor pairs involved in signaling for a 
 
 ```{r, echo = FALSE, eval = TRUE}
 cat("Pathway APP:\n")
-knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/ALL/images/cellchat/pathway/LR_gene/APP_ALL_LR_bubble_plot.png")
+knitr::include_graphics("../test/All/cellchat/images/pathway/LR_gene/APP_ALL_LR_bubble_plot.png")
 
 ```
 
@@ -156,6 +170,9 @@ knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDo
 In this step, we run CellChat with user-defined groups. The group information is specified in the "age.days." column of the metadata, which contains two distinct values: 35 and 12. By setting the group_column to "age.days.", CellChat will analyze the cell communication network separately for these two age groups, allowing for comparison between them. This approach enables the exploration of differences in cell-to-cell interactions based on age, providing insights into how communication networks vary across distinct groups.
 
 ```{r}
+# Set the working directory
+output_dir <- "../test/by_age_groups"
+
 # Group information column
 group_column <- "age.days."
 
@@ -174,10 +191,10 @@ The plots generated in this analysis represent cell-to-cell interactions for bot
 
 ```{r, echo = FALSE, eval = TRUE}
 cat("Age group: 12\n")
-knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/by_age_groups/images/cellchat/aggregate/12_net_interaction_and_weight.png")
+knitr::include_graphics("../test/by_age_groups/cellchat/images/aggregate/12_net_interaction_and_weight.png")
 
 cat("Age group: 35\n")
-knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/by_age_groups/images/cellchat/aggregate/35_net_interaction_and_weight.png")
+knitr::include_graphics("../test/by_age_groups/cellchat/images/aggregate/35_net_interaction_and_weight.png")
 
 ```
 
@@ -187,10 +204,10 @@ Heatmap
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "60%", out.height = "60%"}
 cat("Age group: 12\n")
-knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/by_age_groups/images/cellchat/pathway/APP_12_signaling_strength_heatmap.png")
+knitr::include_graphics("../test/by_age_groups/cellchat/images/pathway/APP_12_signaling_strength_heatmap.png")
 
 cat("Age group: 35\n")
-knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/by_age_groups/images/cellchat/pathway/APP_35_signaling_strength_heatmap.png")
+knitr::include_graphics("../test/by_age_groups/cellchat/images/pathway/APP_35_signaling_strength_heatmap.png")
 
 ```
 
@@ -198,10 +215,10 @@ The bubble plot of ligand-receptor pairs
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "75%", out.height = "75%"}
 cat("Age group: 12\n")
-knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/by_age_groups/images/cellchat/pathway/LR_gene/APP_12_LR_bubble_plot.png")
+knitr::include_graphics("../test/by_age_groups/cellchat/images/pathway/LR_gene/APP_12_LR_bubble_plot.png")
 
 cat("Age group: 35\n")
-knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/by_age_groups/images/cellchat/pathway/LR_gene/APP_35_LR_bubble_plot.png")
+knitr::include_graphics("../test/by_age_groups/cellchat/images/pathway/LR_gene/APP_35_LR_bubble_plot.png")
 
 ```
 
@@ -209,6 +226,9 @@ knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDo
 Our pipeline also allows for a more focused analysis by selecting specific cell types of interest. In this example, the variable celltypes_of_interest is defined to include a list of selected cell types, such as "Granule immature", "Radial Glia-like", "Granule mature", and "Microglia". By setting the annotation_selected parameter to these cell types, CellChat V2 is run specifically on this subset, performing cell-to-cell communication analysis and visualization only for the selected cell types. This feature enables users to concentrate on particular cell populations, making the analysis more targeted and relevant to specific biological questions.
 
 ```{r}
+# Set the working directory
+output_dir <- "../test/by_agegroups_celltypes"
+
 # Cell types of interest. (Optional, 'ALL' by default)
 celltypes_of_interest <- c("Granule immature", "Radial Glia-like", "Granule mature", "Neuroblast", "Microglia", "Cajal Retzius", "OPC", "Cck-Tox")
 
@@ -228,6 +248,9 @@ run_cellchatV2(seurat_obj = seurat_obj,
 Our pipeline also supports pairwise comparisons between different groups using the comparison_conditions parameter. In this example, the comparison_conditions variable is defined as a list of conditions to compare, such as comparing age groups "35" and "12". By specifying the group_cmp parameter, CellChat V2 performs the analysis and visualization specifically for these pairwise conditions, allowing for a direct comparison of cell-to-cell communication networks between the selected groups. This feature is useful for investigating how the communication patterns differ between different conditions, treatments, or time points.
 
 ```{r}
+# Set the working directory
+output_dir <- "../test/by_agegroups_celltypes_cmp"
+
 # Pairwise condition comparisons.
 comparison_groups <- list(c("35", "12"))
 
@@ -247,7 +270,7 @@ The rankNet plot compares the relative importance of different signaling pathway
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "80%"}
 
-knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/by_age_groups/images/cellchat/comparison/infoFlow/35_12_significant_pathway_rank.png")
+knitr::include_graphics("../test/by_agegroups_celltypes_cmp/cellchat/images/comparison/infoFlow/35_12_significant_pathway_rank.png")
 
 ```
 
@@ -255,9 +278,9 @@ The signaling changes scatter plot visualizes differences in cell-to-cell signal
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "50%", out.height = "50%"}
 
-knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/by_age_groups/images/cellchat/comparison/Net/35_12_signaling_change_nIPC.png")
+knitr::include_graphics("../test/by_agegroups_celltypes_cmp/cellchat/images/comparison/Net/35_12_signaling_change_nIPC.png")
 
-knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/by_age_groups/images/cellchat/comparison/Net/35_12_signaling_change_OL.png")
+knitr::include_graphics("../test/by_agegroups_celltypes_cmp/cellchat/images/comparison/Net/35_12_signaling_change_OL.png")
 
 ```
 
@@ -265,7 +288,7 @@ We also provide a side-by-side plot to visualize cell-to-cell communication stre
 
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/chunhui/BCH_projects/scDown_pipeline/scDown/scDown_CellChatV2_results/results_scDOWN_casestudy/test/by_age_groups/images/cellchat/comparison/sidebyside/35_12_ApoE_sidebyside_strength.png")
+knitr::include_graphics("../test/by_agegroups_celltypes_cmp/cellchat/images/comparison/sidebyside/35_12_ApoE_sidebyside_strength.png")
 
 ```
 
@@ -276,7 +299,7 @@ We also provide a function that allows you to specify a pathway of interest to p
 pathway_of_interest <- "GRN"
 
 # Visualize the pathway of interest
-cellchatV2_path_visu(output_dir = "../scDown/tests/", species = species, pathway_to_show = pathway_of_interest)
+cellchatV2_path_visu(output_dir = "../test/by_agegroups_celltypes_cmp/", species = species, pathway_to_show = pathway_of_interest)
 
 ```
 
