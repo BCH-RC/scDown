@@ -336,9 +336,6 @@ pathway_visu <- function(X, Y, pathway, condition, dir_cellchat, species){
 
 doCellComVisu <- function(X, Y, pathways_to_show, condition, dir_cellchat, species){
   
-  # communication at aggregated network level
-  aggregate_visu(X, condition, dir_cellchat)
-  
   # communication at signaling pathway level
   for (path in pathways_to_show) {
     pathway_visu(X, Y, path, condition, dir_cellchat, species)
