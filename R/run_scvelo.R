@@ -63,7 +63,7 @@ object_annotated <- seurat_obj
 # use cell type annotation column as identity
 if(checkmate::test_string(annotation_column, null.ok=FALSE)){
   checkmate::expect_choice(annotation_column, colnames(seurat_obj@meta.data), label = "annotation_column")
-  Seurat::Idents(object_annotated) <- object_annotated[[annotation_column]]
+  Seurat::Idents(object_annotated) <- object_annotated[[annotation_column]][,1]
 }
 
 checkmate::assert_list(groups, types = c("integer","numeric", "character"), null.ok = TRUE)
