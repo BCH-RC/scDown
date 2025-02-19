@@ -189,4 +189,3 @@ dependencies:
       - xarray==2023.8.0
       - yarl==1.9.2
       - zipp==3.16.2
-prefix: /lab-share/RC-Data-Science-e2/Public/DST_software/conda_environment/envs/scvelo
