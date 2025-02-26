@@ -279,7 +279,13 @@ pathway_visu <- function(X, Y, pathway, condition, dir_cellchat, species){
   # plot signaling gene expression distribution related to the pathway
   pairLR <- extractEnrichedLR(X, signaling = pathway, geneLR.return = FALSE) # The extractEnrichedLR() function from CellChat returns ligand-receptor (LR) pairs in upper case by default, even if the CellChat object is based on mouse data.
   LRs_uni <- unique(unlist(strsplit(split = "_", x = pairLR$interaction_name)))
-  LRs_uni <- gsub("RetinoicAcid-RA-", "", LRs_uni)
+  # Pathway name correction: for some LR names it also contains pathway name which needs to be removed 
+  # LRs_uni <- gsub("RetinoicAcid-RA-", "", LRs_uni)
+  genes1 <- LRs_uni[LRs_uni %in% rownames(Y)]
+  genes2 <- LRs_uni[!(LRs_uni %in% rownames(Y))]
+  genes22 <- sub(".?.?", "", genes2) 
+  LRs_uni <- c(genes1, genes22[genes22 %in% rownames(Y)])
+  
   if (species == "mouse") {
     genes <- rownames(X@data)
     indices <- match(LRs_uni, toupper(genes))
