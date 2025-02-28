@@ -72,7 +72,13 @@ if(!is.null(groups)){
 library(reticulate)
 
 # RNA velocity for the entire object
-reticulate::source_python("inst/python/scvelo_workflow.py")
+py_script <- system.file("python", "scvelo_workflow.py", package = "scDown")
+if (py_script == "") {
+  stop("Python script not found in the installed scDown package")
+}
+reticulate::source_python(py_script)
+#reticulate::source_python("inst/python/scvelo_workflow.py")
+  
 run_scvelo_workflow(h5ad_file,annotation_column,mode,top_gene,group_label="ALL")
 system("stty echo")
 
