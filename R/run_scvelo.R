@@ -115,10 +115,10 @@ if(!(("spliced" %in% names(object_annotated@assays) & ("unspliced" %in% names(ob
 # save to h5ad so if needed, can be used to conduct scvelo downstream analysis
 #To prevent overwriting error, only saves if the file does not exist
 if (!file.exists("scvelo/rds/obj_spliced_unspliced.h5Seurat")) {
-    SaveH5Seurat(object_annotated, filename = "scvelo/rds/obj_spliced_unspliced.h5Seurat")
+    SeuratDisk::SaveH5Seurat(object_annotated, filename = "scvelo/rds/obj_spliced_unspliced.h5Seurat")
 }
 if (!file.exists("scvelo/rds/obj_spliced_unspliced.h5ad")) {
-    Convert("scvelo/rds/obj_spliced_unspliced.h5Seurat", dest = "h5ad")
+    SeuratDisk::Convert("scvelo/rds/obj_spliced_unspliced.h5Seurat", dest = "h5ad")
 }
 
 
@@ -147,13 +147,13 @@ process_group <- function(group) {
   # Save as H5Seurat if it doesn't already exist
   h5Seurat_file <- paste0("scvelo/rds/obj_spliced_unspliced_", paste(group, collapse = "_"), ".h5Seurat")
   if (!file.exists(h5Seurat_file)) {
-    SaveH5Seurat(tpData, filename = h5Seurat_file)
+    SeuratDisk::SaveH5Seurat(tpData, filename = h5Seurat_file)
   }
   
   # Convert to h5ad if it doesn't already exist
   h5ad_file <- paste0("scvelo/rds/obj_spliced_unspliced_", paste(group, collapse = "_"), ".h5ad")
   if (!file.exists(h5ad_file)) {
-    Convert(h5Seurat_file, dest = "h5ad")
+    SeuratDisk::Convert(h5Seurat_file, dest = "h5ad")
   }
   
   # Perform RNA velocity analysis
