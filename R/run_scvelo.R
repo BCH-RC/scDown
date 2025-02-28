@@ -112,6 +112,7 @@ if(!(("spliced" %in% names(object_annotated@assays) & ("unspliced" %in% names(ob
 
 }
 
+library(SeuratDisk)
 # save to h5ad so if needed, can be used to conduct scvelo downstream analysis
 #To prevent overwriting error, only saves if the file does not exist
 if (!file.exists("scvelo/rds/obj_spliced_unspliced.h5Seurat")) {
@@ -123,7 +124,7 @@ if (!file.exists("scvelo/rds/obj_spliced_unspliced.h5ad")) {
 
 
 ### RNA velocity analysis
-
+library(ggplot2)
 # RNA velocity for the entire Seurat object
 tpV <- doVelocity(object_annotated, mode=mode)
 for (grid_resolution in grid_resolutions){
