@@ -40,5 +40,5 @@ To faciliate the scRNA-seq downstream analysis using scDown, scDown provides a f
 - `doTransferLabel(ReferenceSeuratObject, SeuratObject)` - Transfers cell type labeling from a reference Seurat object to a query Seurat object, enabling automated annotation based on known cell identities prior to downstream analysis.
 
 ## Contact
-- please create an issue under our repository by clicking the issue tab, we will try to address it.
+- Please create an issue under our repository by clicking the issue tab, we will try to address it.
 
