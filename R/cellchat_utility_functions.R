@@ -281,10 +281,10 @@ pathway_visu <- function(X, Y, pathway, condition, dir_cellchat, species){
   LRs_uni <- unique(unlist(strsplit(split = "_", x = pairLR$interaction_name)))
   # Pathway name correction: for some LR names it also contains pathway name which needs to be removed 
   # LRs_uni <- gsub("RetinoicAcid-RA-", "", LRs_uni)
-  genes1 <- LRs_uni[LRs_uni %in% rownames(Y)]
-  genes2 <- LRs_uni[!(LRs_uni %in% rownames(Y))]
+  genes1 <- LRs_uni[LRs_uni %in% toupper(rownames(Y))]
+  genes2 <- LRs_uni[!(LRs_uni %in% toupper(rownames(Y)))]
   genes22 <- sub(".?.?", "", genes2) 
-  LRs_uni <- c(genes1, genes22[genes22 %in% rownames(Y)])
+  LRs_uni <- c(genes1, genes22[genes22 %in% toupper(rownames(Y))])
   
   if (species == "mouse") {
     genes <- rownames(X@data)
