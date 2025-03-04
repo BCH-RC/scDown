@@ -21,7 +21,11 @@
 #' @return NULL
 
 run_cellchatV2 <- function(output_dir, seurat_obj, sample_column = NULL, annotation_column, annotation_selected = NULL, species, group_column = NULL, group_cmp = NULL, top_n = 10) {
-  
+
+  library(Seurat)
+  library(CellChat)
+  library(ComplexHeatmap)
+  library(checkmate)
   # Checking the cellchat inputs
   check_required_variables(seurat_obj, species, output_dir, annotation_column, group_column)
   # Check sample_column
