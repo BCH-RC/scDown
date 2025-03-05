@@ -49,7 +49,7 @@ generate_figure <- function(prop_test.i, output_format="png",comparisons_conditi
   output_format <- match.arg(output_format, choices = c("png", "pdf", "jpeg"))
   file_extension <- switch(output_format, png = "png", pdf = "pdf", jpeg = "jpg")
   
-  output_path <- paste0(output_dir, "scproportion/images/scProportiontest_",
+  output_path <- paste0(output_dir, "/scproportion/images/scProportiontest_",
                         comparisons_condition[i, 2], "vs", comparisons_condition[i, 1], ".", file_extension)
   if (output_format == "png") {
     png(output_path, width = 2000, height = 1250, res = 350)
@@ -72,7 +72,7 @@ generate_figure <- function(prop_test.i, output_format="png",comparisons_conditi
 
 stat_res <- function(prop_test.i,comparisons_condition, output_dir, i){
   res_tab <- prop_test.i@results %>% as.data.frame()
-  output_path <- paste0(output_dir, "scproportion/results/scProportiontest_",
+  output_path <- paste0(output_dir, "/scproportion/results/scProportiontest_",
                         comparisons_condition[i, 2], "vs", comparisons_condition[i, 1], ".csv")
   write.csv(res_tab, output_path, row.names = FALSE)
 }
