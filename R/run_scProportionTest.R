@@ -46,15 +46,18 @@ run_scproportion <- function(seurat_obj,annotation_column,group_column,comparisi
   }
   
   create_dir(output_dir)
-  #subdirectories <- c(file.path("scproportion", "images"),file.path("scproportion","results"))
+  subdirectories <- c(file.path("scproportion", "images"),file.path("scproportion","results"))
   
-  #for(dir.i in subdirectories){
-  #  dir.create(dir.i, showWarnings = F, recursive = T)
-  #}
+  for(dir.i in subdirectories){
+    dir.create(dir.i, showWarnings = F, recursive = T)
+  }
   #output_dir <- file.path(output_dir,"scproportion")
   prop_test <- scProportionTest::sc_utils(seurat_obj)
   
   # Function to process each comparison
+  library(scProportionTest)
+  library(ggplot2)
+  library(dplyr)
   process_comparison <- function(i) {
     if (verbose) message("Running comparison: ", comparisons_condition[i, 2], " vs ", comparisons_condition[i, 1])
     
