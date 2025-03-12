@@ -12,7 +12,7 @@ The `velociraptor` package, along with several dependencies, needs to be install
 required_pkgs <- c("pcaMethods", "velociraptor", "Biobase", "BiocNeighbors", "BiocGenerics",
                    "DelayedArray", "DelayedMatrixStats", "limma", "lme4", "S4Vectors", 
                    "SingleCellExperiment", "SummarizedExperiment", "batchelor", 
-                   "HDF5Array", "terra", "ggrastr")
+                   "HDF5Array", "terra", "ggrastr", "zellkonverter")
 
 missing_pkgs <- required_pkgs[!(required_pkgs %in% installed.packages()[, "Package"])]
 
