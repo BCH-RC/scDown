@@ -34,7 +34,7 @@
     env_exists <- env_name %in% reticulate::conda_list()$name 
     # # Check if the conda environment exists
     if (!env_exists) {  
-      system(paste0(conda_path2, "/conda env create -f environment.yml"))
+      system(paste0(conda_path2, "/conda env create -f ", env_file))
       #reticulate::conda_create(env_name, envfile = env_file, dependencies = c("python=3.10.9"))
     }
     # Use the conda environment
