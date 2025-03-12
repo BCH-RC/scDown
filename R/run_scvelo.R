@@ -57,6 +57,7 @@ for(i in subdirectories){
 }
 
 ### Input
+library(Seurat)
 checkmate::test_class(seurat_obj, "Seurat")
 object_annotated <- seurat_obj
 
