@@ -33,6 +33,7 @@
 #' @param color_scale A character vector of colors to be used in plotting, must match number of unique values in 
 #' the metadata column marked by @name_by
 #' @param name_by A string specify the name of the metadata column in the Seurat object that should be used for colors
+#' @param cores A numeric variable to set the number of cores to be used
 #'
 #' @return A list of scVelo data objects
 #'
@@ -43,7 +44,7 @@
 
 run_scvelo <- function(seurat_obj,loom_files=NULL,output_dir=".",loom_file_subset_by=NULL,loom_file_subset_column="orig.ident",
                     annotation_column=NULL,mode='stochastic',grid_resolutions=c(50),arrow_sizes=c(0.5,1),vector_widths=c(0.25,0.5),
-                    groups=NULL,group_column=NULL,color_scale=NULL,name_by=NULL){
+                    groups=NULL,group_column=NULL,color_scale=NULL,name_by=NULL,cores=8){
 
 # create subdirectories in the output directory
 setwd(output_dir)
@@ -68,11 +69,12 @@ if(checkmate::test_string(annotation_column, null.ok=FALSE)){
 }
 
 checkmate::assert_list(groups, types = c("integer","numeric", "character"), null.ok = TRUE)
+checkmate::expect_numeric(cores, min.len = 1, max.len = 1, any.missing = FALSE,label="cores")
 if(!is.null(groups)){
   checkmate::assert_string(group_column, null.ok = FALSE)
   checkmate::expect_choice(group_column, colnames(seurat_obj@meta.data), label = "group_column")
 }
-
+  
 # check if spliced and unspliced data is already in seurat_obj
 if(!(("spliced" %in% names(object_annotated@assays) & ("unspliced" %in% names(object_annotated@assays))))){
 
@@ -186,7 +188,6 @@ process_group <- function(group) {
 
 # Run in parallel
 if (length(groups) != 0) {
-  cores <- parallel::detectCores() - 1  # Use one less than the total cores
   results <- parallel::mclapply(groups, process_group, mc.cores = cores)
   
   # Print results
