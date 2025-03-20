@@ -1,0 +1,115 @@
+---
+title: "scDown: A Pipeline for scRNASeq Downstream Analysis"
+author: |
+    | 
+date: "`r format(Sys.Date(), '%m/%Y')`"
+output: 
+  rmarkdown::html_document:
+    #theme: flatly
+    highlight: pygments
+    toc: true
+    toc_depth: 3
+    number_sections: true  ## if you want number sections at each table header
+    df_print: paged
+    #theme: united  # many options for theme, this one is my favorite.
+#bibliography: library.bib
+fig_width: 8 
+fig_height: 5 
+vignette: >
+  %\VignetteIndexEntry{scDown_scProportionTest}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width=8, 
+  fig.height=5
+)
+
+```
+
+## Introduction 
+`scDown` is a robust pipeline for scRNASeq downstream analysis. This doscument provides a step-by-step guide to setting up and running `scDown` functions.
+
+### Load Required Libraries 
+
+```{r,message=FALSE,eval=FALSE}
+library(scDown)
+```
+
+### Set Variables and Enviroment
+
+Before running the pipeline, configure the following global variables. 
+
+```{r, message=FALSE,eval=FALSE}
+# Define output directory for results
+output_dir <- "."
+
+# Load Seurat object
+seurat_obj_path <- system.file("extdata", "10X43_1_spliced_unspliced.rds", package="scDown")
+seurat_obj <- readRDS(seurat_obj_path)
+
+# Metadata cell type column
+annotation_column <- "clusters"
+
+# Metadata condition column to perform the comparison
+group_column <- "age.days."
+
+# Define the species (choose: "mouse" or "human") -- potency method only support these two species for identifying the root node
+species <- "mouse"
+
+# Number of PCA dimensions for scDown::run_monocle3 preprocessing
+nDim <- 30 
+
+# Number of top pathways for scDown::run_cellchatV2 visualization
+top_n = 10
+
+# Define input .h5ad file for scDonw::run_scvelo_full
+h5ad_file <- system.file("extdata", "10X43_1.h5ad", package="scDown")
+
+# Velocity calculation mode, default 'stochastic'
+mode = 'stochastic'
+
+# Number of top differential expressed velocity genes, default 5
+top_gene = 5
+```
+
+### Convert H5AD File to Seurat Object
+If you have `.h5ad` file, convert it to Seurat object using: 
+```{r, message=FALSE,eval=FALSE}
+h5ad_file <- "path/to/h5ad.file"
+seurat_obj <- h5adToSeurat(h5ad_file, annotation_column=NULL)
+```
+
+Once the Seurat object and global Parmesans are set up, you can run scDown functions.
+
+## Run scDown:run_scproportion
+
+For more details on `scDown:run_scproportion`, please visit the following link:
+
+<a href="scProportionTest.html" target="_blank">Run scDown:run_scproportion</a>
+
+## Run scDown:run_cellchatV2
+
+For more details on `cDown:run_cellchatV2`, please visit the following link:
+
+<a href="scDown_CellChatV2.html" target="_blank">Run cDown:run_cellchatV2</a>
+
+## Run scDown:run_monocle3
+
+For more details on `scDown:run_monocle3`, please visit the following link:
+
+<a href="scDown_monocle.html" target="_blank">Run scDown:run_monocle3</a>
+
+## Run scDown:run_scvelo_full
+
+For more details on `scDown:run_scvelo_full`, please visit the following link:
+
+<a href="run_scvelo_full.html" target="_blank">Run scDown:run_scvelo_full</a>
+
