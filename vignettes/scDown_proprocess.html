@@ -1711,7 +1711,7 @@ Object</a></li>
 <li><a href="#run-scdownrun_scproportion" id="toc-run-scdownrun_scproportion"><span class="toc-section-number">2</span> Run scDown:run_scproportion</a></li>
 <li><a href="#run-scdownrun_cellchatv2" id="toc-run-scdownrun_cellchatv2"><span class="toc-section-number">3</span> Run scDown:run_cellchatV2</a></li>
 <li><a href="#run-scdownrun_monocle3" id="toc-run-scdownrun_monocle3"><span class="toc-section-number">4</span> Run scDown:run_monocle3</a></li>
-<li><a href="#run-scdownrun_scvelo_full" id="toc-run-scdownrun_scvelo_full"><span class="toc-section-number">5</span> Run scDown:run_scvelo_full</a></li>
+<li><a href="#run-scdownrun_scvelo" id="toc-run-scdownrun_scvelo"><span class="toc-section-number">5</span> Run scDown:run_scvelo</a></li>
 </ul>
 </div>
 
@@ -1738,28 +1738,7 @@ variables.</p>
 <span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>seurat_obj <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(seurat_obj_path)</span>
 <span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a></span>
 <span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co"># Metadata cell type column</span></span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>annotation_column <span class="ot">&lt;-</span> <span class="st">&quot;clusters&quot;</span></span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a></span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co"># Metadata condition column to perform the comparison</span></span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>group_column <span class="ot">&lt;-</span> <span class="st">&quot;age.days.&quot;</span></span>
-<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a></span>
-<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co"># Define the species (choose: &quot;mouse&quot; or &quot;human&quot;) -- potency method only support these two species for identifying the root node</span></span>
-<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>species <span class="ot">&lt;-</span> <span class="st">&quot;mouse&quot;</span></span>
-<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a></span>
-<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co"># Number of PCA dimensions for scDown::run_monocle3 preprocessing</span></span>
-<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>nDim <span class="ot">&lt;-</span> <span class="dv">30</span> </span>
-<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a></span>
-<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co"># Number of top pathways for scDown::run_cellchatV2 visualization</span></span>
-<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>top_n <span class="ot">=</span> <span class="dv">10</span></span>
-<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a></span>
-<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co"># Define input .h5ad file for scDonw::run_scvelo_full</span></span>
-<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a>h5ad_file <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;10X43_1.h5ad&quot;</span>, <span class="at">package=</span><span class="st">&quot;scDown&quot;</span>)</span>
-<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a></span>
-<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co"># Velocity calculation mode, default &#39;stochastic&#39;</span></span>
-<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a>mode <span class="ot">=</span> <span class="st">&#39;stochastic&#39;</span></span>
-<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a></span>
-<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co"># Number of top differential expressed velocity genes, default 5</span></span>
-<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a>top_gene <span class="ot">=</span> <span class="dv">5</span></span></code></pre></div>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>annotation_column <span class="ot">&lt;-</span> <span class="st">&quot;clusters&quot;</span></span></code></pre></div>
 </div>
 <div id="convert-h5ad-file-to-seurat-object" class="section level3" number="1.3">
 <h3><span class="header-section-number">1.3</span> Convert H5AD File to
@@ -1796,12 +1775,14 @@ the following link:</p>
 <p><a href="scDown_monocle.html" target="_blank">Run
 scDown:run_monocle3</a></p>
 </div>
-<div id="run-scdownrun_scvelo_full" class="section level2" number="5">
+<div id="run-scdownrun_scvelo" class="section level2" number="5">
 <h2><span class="header-section-number">5</span> Run
-scDown:run_scvelo_full</h2>
-<p>For more details on <code>scDown:run_scvelo_full</code>, please visit
-the following link:</p>
-<p><a href="run_scvelo_full.html" target="_blank">Run
+scDown:run_scvelo</h2>
+<p>For more details on <code>scDown:run_scvelo</code> and
+<code>scDown:run_scvelo_full</code>, please visit the following
+link:</p>
+<p><a href="run_scvelo.html" target="_blank">Run scDown:run_scvelo</a>
+and <a href="run_scvelo_full.html" target="_blank">Run
 scDown:run_scvelo_full</a></p>
 </div>
 
