@@ -1,12 +1,13 @@
 ---
-title: "scDown: A pipeline to carry out the scRNASeq downstream analysis"
+title: "scDown:run_monocle3"
 author: |
     | 
-date: "`r format(Sys.Date(), '%m/%d/%Y')`"
+date: "`r format(Sys.Date(), '%m/%Y')`"
 output: 
   rmarkdown::html_document:
     highlight: pygments
     toc: true
+    df_print: paged
     toc_depth: 3
     number_sections: true  ## if you want number sections at each table header
     #theme: united  # many options for theme, this one is my favorite.
@@ -40,21 +41,11 @@ Single-cell transcriptome sequencing (scRNA-seq) experiments allow us to discove
 We need two required information/variables to run the monocle3 function. Users need to load a Seurat object (`seurat_obj`) containing single-cell RNA sequencing data. The `species` is set to either "human" or "mouse," as monocle3 supports only these two species. The metadata column (`annotation_column`) is defined to specify the cell type or other annotation labels, ensuring the analysis runs with the correct input data (by default it takes annotations from Idents). The users can also specify the working directory for the output files and plots (By default it is current directory). There are also a lot of other optional variables that the users can pass which we are going to talk about in the different workflows below.  
 
 ```{r, message = FALSE,eval=FALSE}
-# Set the working directory
-output_dir <- "."
-
-# Seurat object
-seurat_obj_path <- system.file("extdata", "10X43_1_spliced_unspliced.rds", package="scDown")
-seurat_obj <- readRDS(seurat_obj_path)
-
 # Define the species: either "mouse" or "human", since potency method only support these two species for identifying the root node
 species <- "mouse"
 
 # PCA Dimensions to preprocess the data
 nDim <- 30 
-
-# Metadata cell type column
-annotation_column <- "clusters"
 
 ```
 
@@ -63,7 +54,6 @@ annotation_column <- "clusters"
 Users can load their scRNASeq data which they would like to run the trajectory analysis. To run the trajectory analysis, the users have to provide the scRNASeq data and species. By default, we would run the trajectory analysis on the whole dataset, identify the root nodes using potency method, and run trajectory analysis using monocle3.
 
 ```{r, message = FALSE,eval=FALSE}
-library(scDown)
 run_monocle3(seurat_obj = seurat_obj,
              species = species,
              nDim = nDim,
