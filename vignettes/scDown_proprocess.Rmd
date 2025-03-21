@@ -58,26 +58,6 @@ seurat_obj <- readRDS(seurat_obj_path)
 # Metadata cell type column
 annotation_column <- "clusters"
 
-# Metadata condition column to perform the comparison
-group_column <- "age.days."
-
-# Define the species (choose: "mouse" or "human") -- potency method only support these two species for identifying the root node
-species <- "mouse"
-
-# Number of PCA dimensions for scDown::run_monocle3 preprocessing
-nDim <- 30 
-
-# Number of top pathways for scDown::run_cellchatV2 visualization
-top_n = 10
-
-# Define input .h5ad file for scDonw::run_scvelo_full
-h5ad_file <- system.file("extdata", "10X43_1.h5ad", package="scDown")
-
-# Velocity calculation mode, default 'stochastic'
-mode = 'stochastic'
-
-# Number of top differential expressed velocity genes, default 5
-top_gene = 5
 ```
 
 ### Convert H5AD File to Seurat Object
