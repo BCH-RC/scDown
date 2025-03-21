@@ -44,9 +44,6 @@ lapply(r_files, source)
 Set up the environment for running CellChat V2 by defining key variables. Specify the working directory (output_dir) which is optional, and load a Seurat object (seurat_obj) containing single-cell RNA sequencing data is loaded. The species is set to either "human" or "mouse," as CellChat V2 supports only these two species. The metadata column (annotation_column) is defined to specify the cell type or other annotation labels, ensuring the analysis runs with the correct input data.
 
 ```{r, message = FALSE}
-# Define the species: either "mouse" or "human", since CellChat and PPI database only support these two species for now
-species <- "mouse"
-
 # Number of most significant pathways to visualize
 top_n = 10
 
@@ -57,11 +54,11 @@ top_n = 10
 We run CellChat using the entire dataset, including all cells and cell types, without specifying any particular conditions or groups. However, it is also possible to run CellChat for specific treatments, or groups by defining 'group_column'. Additionally, pairwise comparisons can be performed to analyze differences between these groups. A demonstration of how to set up and run these comparisons will be provided in a later session.
 ```{r}
 # Set the working directory
-output_dir <- "../test/All"
+output_dir_cellchat <- paste0(output_dir, "/cell_comm/All")
 
 # Run CellChat V2
 run_cellchatV2(seurat_obj = seurat_obj,
-               output_dir = output_dir,
+               output_dir = output_dir_cellchat,
                annotation_column = annotation_column,
                species = species)
 
@@ -75,7 +72,7 @@ This plot visualizes the overall interactions between different cell types in th
 
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("../test/All/cellchat/images/aggregate/ALL_net_interaction_and_weight.png")
+knitr::include_graphics("../cell_comm/All/cellchat/images/aggregate/ALL_net_interaction_and_weight.png")
 
 ```
 
@@ -84,7 +81,7 @@ The scatter plot displays the signaling roles of different cell types in the com
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "60%", out.height = "60%"}
 
-knitr::include_graphics("../test/All/cellchat/images/aggregate/ALL_signaling_role.png")
+knitr::include_graphics("../cell_comm/All/cellchat/images/aggregate/ALL_signaling_role.png")
 
 ```
 
@@ -93,7 +90,7 @@ This heatmap shows the incoming and outgoing signals between cell types, summari
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "60%", out.height = "60%"}
 
-knitr::include_graphics("../test/All/cellchat/images/aggregate/ALL_outgoing_incoming_signal.png")
+knitr::include_graphics("../cell_comm/All/cellchat/images/aggregate/ALL_outgoing_incoming_signal.png")
 
 ```
 
@@ -102,7 +99,7 @@ This set of aggregated circle plots visualizes the weighted incoming and outgoin
 
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("../test/All/cellchat/images/aggregate/ALL_net_weight_per_celltype.png")
+knitr::include_graphics("../cell_comm/All/cellchat/images/aggregate/ALL_net_weight_per_celltype.png")
 
 ```
 
@@ -110,19 +107,19 @@ knitr::include_graphics("../test/All/cellchat/images/aggregate/ALL_net_weight_pe
 We also allow users to generate aggregated circle plots and heatmaps with customized parameters for improved visualization by loading the CellChat object from the previous runs.
 
 ```{r}
-output_dir <- "../test/All"
+output_dir_cellchat <- paste0(output_dir, "/cell_comm/All")
 
 # Load the CellChat object after running the CellChat analysis with all conditions and all cell types
-cellchat_obj <- readRDS(paste0(output_dir, "/cellchat/rds/cellchat_obj_ALL.rds"))
+cellchat_obj <- readRDS(paste0(output_dir_cellchat, "/cellchat/rds/cellchat_obj_ALL.rds"))
 
 # Generate a circle plot showing overall interactions between different cell types
-aggregate_circleplot(X = cellchat_obj, dir_cellchat = output_dir, height = 2000, width = 4000, res = 300)
+aggregate_circleplot(X = cellchat_obj, dir_cellchat = output_dir_cellchat, height = 2000, width = 4000, res = 300)
 
 # Generate a heatmap displaying incoming and outgoing signals between cell types
-aggregate_heatmap(X = cellchat_obj, dir_cellchat = output_dir, font.size = 4, hp.height = 14, hp.width = 6, height = 2250, width = 2250, res = 300)
+aggregate_heatmap(X = cellchat_obj, dir_cellchat = output_dir_cellchat, font.size = 4, hp.height = 14, hp.width = 6, height = 2250, width = 2250, res = 300)
 
 # Generate a set of circle plots, each visualizing the weighted incoming and outgoing interactions of an individual cell type with all other cell types
-aggregate_circleplot_percelltype(X = cellchat_obj, dir_cellchat = output_dir, image.ncol = 4, vertex.label.cex = 0.6, height = 5000, width = 4000, res = 300)
+aggregate_circleplot_percelltype(X = cellchat_obj, dir_cellchat = output_dir_cellchat, image.ncol = 4, vertex.label.cex = 0.6, height = 5000, width = 4000, res = 300)
 
 ```
 
@@ -132,7 +129,7 @@ This heatmap shows the signaling strength for a specific pathway across various 
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "60%", out.height = "60%"}
 
-knitr::include_graphics("../test/All/cellchat/images/pathway/APP_ALL_signaling_strength_heatmap.png")
+knitr::include_graphics("../cell_comm/All/cellchat/images/pathway/APP_ALL_signaling_strength_heatmap.png")
 
 ```
 
@@ -141,7 +138,7 @@ This violin plot visualizes the distribution of gene expression levels for a spe
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "60%", out.height = "60%"}
 cat("Pathway APP:\n")
-knitr::include_graphics("../test/All/cellchat/images/pathway/LR_gene/APP_ALL_signaling_gene.png")
+knitr::include_graphics("../cell_comm/All/cellchat/images/pathway/LR_gene/APP_ALL_signaling_gene.png")
 
 ```
 
@@ -150,7 +147,7 @@ This bubble plot displays the ligand-receptor pairs involved in signaling for a 
 
 ```{r, echo = FALSE, eval = TRUE}
 cat("Pathway APP:\n")
-knitr::include_graphics("../test/All/cellchat/images/pathway/LR_gene/APP_ALL_LR_bubble_plot.png")
+knitr::include_graphics("../cell_comm/All/cellchat/images/pathway/LR_gene/APP_ALL_LR_bubble_plot.png")
 
 ```
 
@@ -159,14 +156,14 @@ In this step, we run CellChat with user-defined groups. The group information is
 
 ```{r}
 # Set the working directory
-output_dir <- "../test/by_age_groups"
+output_dir_cellchat <- paste0(output_dir, "/cell_comm/by_age_groups")
 
 # Group information column
 group_column <- "age.days."
 
 # Run CellChat V2
 run_cellchatV2(seurat_obj = seurat_obj,
-               output_dir = output_dir,
+               output_dir = output_dir_cellchat,
                annotation_column = annotation_column,
                species = species,
                group_column = group_column)
@@ -179,10 +176,10 @@ The plots generated in this analysis represent cell-to-cell interactions for bot
 
 ```{r, echo = FALSE, eval = TRUE}
 cat("Age group: 12\n")
-knitr::include_graphics("../test/by_age_groups/cellchat/images/aggregate/12_net_interaction_and_weight.png")
+knitr::include_graphics("../cell_comm/by_age_groups/cellchat/images/aggregate/12_net_interaction_and_weight.png")
 
 cat("Age group: 35\n")
-knitr::include_graphics("../test/by_age_groups/cellchat/images/aggregate/35_net_interaction_and_weight.png")
+knitr::include_graphics("../cell_comm/by_age_groups/cellchat/images/aggregate/35_net_interaction_and_weight.png")
 
 ```
 
@@ -192,10 +189,10 @@ Heatmap
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "60%", out.height = "60%"}
 cat("Age group: 12\n")
-knitr::include_graphics("../test/by_age_groups/cellchat/images/pathway/APP_12_signaling_strength_heatmap.png")
+knitr::include_graphics("../cell_comm/by_age_groups/cellchat/images/pathway/APP_12_signaling_strength_heatmap.png")
 
 cat("Age group: 35\n")
-knitr::include_graphics("../test/by_age_groups/cellchat/images/pathway/APP_35_signaling_strength_heatmap.png")
+knitr::include_graphics("../cell_comm/by_age_groups/cellchat/images/pathway/APP_35_signaling_strength_heatmap.png")
 
 ```
 
@@ -203,10 +200,10 @@ The bubble plot of ligand-receptor pairs
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "75%", out.height = "75%"}
 cat("Age group: 12\n")
-knitr::include_graphics("../test/by_age_groups/cellchat/images/pathway/LR_gene/APP_12_LR_bubble_plot.png")
+knitr::include_graphics("../cell_comm/by_age_groups/cellchat/images/pathway/LR_gene/APP_12_LR_bubble_plot.png")
 
 cat("Age group: 35\n")
-knitr::include_graphics("../test/by_age_groups/cellchat/images/pathway/LR_gene/APP_35_LR_bubble_plot.png")
+knitr::include_graphics("../cell_comm/by_age_groups/cellchat/images/pathway/LR_gene/APP_35_LR_bubble_plot.png")
 
 ```
 
@@ -215,14 +212,14 @@ Our pipeline also allows for a more focused analysis by selecting specific cell 
 
 ```{r}
 # Set the working directory
-output_dir <- "../test/by_agegroups_celltypes"
+output_dir_cellchat <- paste0(output_dir, "/cell_comm/by_agegroups_celltypes")
 
 # Cell types of interest. (Optional, 'ALL' by default)
 celltypes_of_interest <- c("Granule immature", "Radial Glia-like", "Granule mature", "Neuroblast", "Microglia", "Cajal Retzius", "OPC", "Cck-Tox")
 
 # Run CellChat V2
 run_cellchatV2(seurat_obj = seurat_obj,
-               output_dir = output_dir,
+               output_dir = output_dir_cellchat,
                annotation_column = annotation_column,
                annotation_selected = celltypes_of_interest,
                species = species,
@@ -237,14 +234,14 @@ Our pipeline also supports pairwise comparisons between different groups using t
 
 ```{r}
 # Set the working directory
-output_dir <- "../test/by_agegroups_celltypes_cmp"
+output_dir_cellchat <- paste0(output_dir, "/cell_comm/by_agegroups_celltypes_cmp")
 
 # Pairwise condition comparisons.
 comparison_groups <- list(c("35", "12"))
 
 # Run CellChat V2
 run_cellchatV2(seurat_obj = seurat_obj,
-               output_dir = output_dir,
+               output_dir = output_dir_cellchat,
                annotation_column = annotation_column,
                species = species,
                group_column = group_column, 
@@ -258,7 +255,7 @@ The rankNet plot compares the relative importance of different signaling pathway
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "80%"}
 
-knitr::include_graphics("../test/by_agegroups_celltypes_cmp/cellchat/images/comparison/infoFlow/35_12_significant_pathway_rank.png")
+knitr::include_graphics("../cell_comm/by_agegroups_celltypes_cmp/cellchat/images/comparison/infoFlow/35_12_significant_pathway_rank.png")
 
 ```
 
@@ -266,9 +263,9 @@ The signaling changes scatter plot visualizes differences in cell-to-cell signal
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "50%", out.height = "50%"}
 
-knitr::include_graphics("../test/by_agegroups_celltypes_cmp/cellchat/images/comparison/Net/35_12_signaling_change_nIPC.png")
+knitr::include_graphics("../cell_comm/by_agegroups_celltypes_cmp/cellchat/images/comparison/Net/35_12_signaling_change_nIPC.png")
 
-knitr::include_graphics("../test/by_agegroups_celltypes_cmp/cellchat/images/comparison/Net/35_12_signaling_change_OL.png")
+knitr::include_graphics("../cell_comm/by_agegroups_celltypes_cmp/cellchat/images/comparison/Net/35_12_signaling_change_OL.png")
 
 ```
 
@@ -276,7 +273,7 @@ We also provide a side-by-side plot to visualize cell-to-cell communication stre
 
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("../test/by_agegroups_celltypes_cmp/cellchat/images/comparison/sidebyside/35_12_ApoE_sidebyside_strength.png")
+knitr::include_graphics("../cell_comm/by_agegroups_celltypes_cmp/cellchat/images/comparison/sidebyside/35_12_ApoE_sidebyside_strength.png")
 
 ```
 
@@ -287,7 +284,7 @@ We also provide a function that allows you to specify a pathway of interest to p
 pathway_of_interest <- "GRN"
 
 # Visualize the pathway of interest
-cellchatV2_path_visu(output_dir = "../test/by_agegroups_celltypes_cmp/", species = species, pathway_to_show = pathway_of_interest)
+cellchatV2_path_visu(output_dir_cellchat = paste0(output_dir, "/cell_comm/by_agegroups_celltypes_cmp/"), species = species, pathway_to_show = pathway_of_interest)
 
 ```
 
