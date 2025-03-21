@@ -87,9 +87,9 @@ For more details on `scDown:run_monocle3`, please visit the following link:
 
 <a href="scDown_monocle.html" target="_blank">Run scDown:run_monocle3</a>
 
-## Run scDown:run_scvelo_full
+## Run scDown:run_scvelo
 
-For more details on `scDown:run_scvelo_full`, please visit the following link:
+For more details on `scDown:run_scvelo` and `scDown:run_scvelo_full`, please visit the following link:
 
+<a href="run_scvelo.html" target="_blank">Run scDown:run_scvelo</a> and 
 <a href="run_scvelo_full.html" target="_blank">Run scDown:run_scvelo_full</a>
-
