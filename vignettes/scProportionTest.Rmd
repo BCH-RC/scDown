@@ -33,12 +33,8 @@ knitr::opts_chunk$set(
 
 ```
 
-```{r,message=FALSE,eval=FALSE}
-library(scDown)
-```
-
 # Run scProportionTest
-Run the test for all the pairwise comparison in group column for all the cell types in annotation column. The figures and statistical results with be saved in the ${output_dir} 
+Run the test for all the pairwise comparison in group column for all the cell types in annotation column. The figures and statistical results with be saved in the `output_dir` 
 
 ```{r,include=FALSE,message=F,eval=FALSE}
 start_time <- Sys.time()
@@ -46,6 +42,8 @@ start_time <- Sys.time()
 
 
 ```{r,eval=FALSE}
+# Metadata condition column to perform the comparison
+group_column <- "age.days."
 run_scproportion(seurat_obj = seurat_obj,
                output_dir = output_dir,
                annotation_column = annotation_column,
@@ -69,7 +67,7 @@ knitr::include_graphics(c("/Users/maryam/Desktop/scDown-main/scproportion/images
 
 scProportion performs a Monte-carlo permutation test to quantify the cell proportion differences between each condition. As shown in the left panel, there is higher cell proportion for samples in 35 days in OL and Cck-Tox cells in compare to samples in age 12 days. On the reverse side, higher cell proportion in age 12 days sample for Neuroblast and Radial Glia-like  cell types in compare to age 35 samples.
 
-To speed up the analysis for large data sets with multiple comparison we apply parallel computation for run_scPropotion() function. The total running time for the sample data is ~ 12.2 seconds. 
+To speed up the analysis for large data sets with multiple comparison we apply parallel computation for `scDown::run_scPropotion()` function. The total running time for the sample data is ~ 12.2 seconds. 
 
 
 The analysis was performed on a machine with the following specifications:
