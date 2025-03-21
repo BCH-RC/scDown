@@ -423,7 +423,7 @@ display: none;
 <h1 class="title toc-ignore">scDown: A pipeline to carry out the
 scRNASeq downstream analysis</h1>
 <h4 class="author"><div class="line-block"></div></h4>
-<h4 class="date">02/2025</h4>
+<h4 class="date">03/2025</h4>
 
 </div>
 
@@ -451,7 +451,6 @@ groups.</a></li>
 </ul>
 </div>
 
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co">#library(scDown)</span></span></code></pre></div>
 <div id="define-universal-variables-for-cellchat-v2" class="section level1" number="1">
 <h1><span class="header-section-number">1</span> Define Universal
 Variables for CellChat V2</h1>
@@ -463,18 +462,11 @@ sequencing data is loaded. The species is set to either “human” or
 column (annotation_column) is defined to specify the cell type or other
 annotation labels, ensuring the analysis runs with the correct input
 data.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Seurat object</span></span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>seurat_obj_path <span class="ot">&lt;-</span> <span class="st">&quot;../inst/extdata/DentateGyrus/10X43_1_spliced_unspliced.rds&quot;</span></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>seurat_obj <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(seurat_obj_path)</span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co"># Define the species: either &quot;mouse&quot; or &quot;human&quot;, since CellChat and PPI database only support these two species for now</span></span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>species <span class="ot">&lt;-</span> <span class="st">&quot;mouse&quot;</span></span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co"># Metadata cell type column</span></span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>annotation_column <span class="ot">&lt;-</span> <span class="st">&quot;clusters&quot;</span></span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a></span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co"># Number of most significant pathways to visualize</span></span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>top_n <span class="ot">=</span> <span class="dv">10</span></span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Define the species: either &quot;mouse&quot; or &quot;human&quot;, since CellChat and PPI database only support these two species for now</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>species <span class="ot">&lt;-</span> <span class="st">&quot;mouse&quot;</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co"># Number of most significant pathways to visualize</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>top_n <span class="ot">=</span> <span class="dv">10</span></span></code></pre></div>
 </div>
 <div id="run-cellchat" class="section level1" number="2">
 <h1><span class="header-section-number">2</span> Run CellChat</h1>
@@ -488,14 +480,14 @@ groups by defining ‘group_column’. Additionally, pairwise comparisons
 can be performed to analyze differences between these groups. A
 demonstration of how to set up and run these comparisons will be
 provided in a later session.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Set the working directory</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>output_dir <span class="ot">&lt;-</span> <span class="st">&quot;../test/All&quot;</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co"># Run CellChat V2</span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="fu">run_cellchatV2</span>(<span class="at">seurat_obj =</span> seurat_obj,</span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>               <span class="at">output_dir =</span> output_dir,</span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>               <span class="at">annotation_column =</span> annotation_column,</span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>               <span class="at">species =</span> species)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Set the working directory</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>output_dir <span class="ot">&lt;-</span> <span class="st">&quot;../test/All&quot;</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co"># Run CellChat V2</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="fu">run_cellchatV2</span>(<span class="at">seurat_obj =</span> seurat_obj,</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>               <span class="at">output_dir =</span> output_dir,</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>               <span class="at">annotation_column =</span> annotation_column,</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>               <span class="at">species =</span> species)</span></code></pre></div>
 <p><strong>Running Time</strong>: ~2 minutes</p>
 <div id="aggregated-views" class="section level3" number="2.1.1">
 <h3><span class="header-section-number">2.1.1</span> Aggregated
@@ -543,19 +535,19 @@ using user defined parameters</h4>
 <p>We also allow users to generate aggregated circle plots and heatmaps
 with customized parameters for improved visualization by loading the
 CellChat object from the previous runs.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>output_dir <span class="ot">&lt;-</span> <span class="st">&quot;../test/All&quot;</span></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co"># Load the CellChat object after running the CellChat analysis with all conditions and all cell types</span></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>cellchat_obj <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="fu">paste0</span>(output_dir, <span class="st">&quot;/cellchat/rds/cellchat_obj_ALL.rds&quot;</span>))</span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a></span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co"># Generate a circle plot showing overall interactions between different cell types</span></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="fu">aggregate_circleplot</span>(<span class="at">X =</span> cellchat_obj, <span class="at">dir_cellchat =</span> output_dir, <span class="at">height =</span> <span class="dv">2000</span>, <span class="at">width =</span> <span class="dv">4000</span>, <span class="at">res =</span> <span class="dv">300</span>)</span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a></span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co"># Generate a heatmap displaying incoming and outgoing signals between cell types</span></span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="fu">aggregate_heatmap</span>(<span class="at">X =</span> cellchat_obj, <span class="at">dir_cellchat =</span> output_dir, <span class="at">font.size =</span> <span class="dv">4</span>, <span class="at">hp.height =</span> <span class="dv">14</span>, <span class="at">hp.width =</span> <span class="dv">6</span>, <span class="at">height =</span> <span class="dv">2250</span>, <span class="at">width =</span> <span class="dv">2250</span>, <span class="at">res =</span> <span class="dv">300</span>)</span>
-<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a></span>
-<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co"># Generate a set of circle plots, each visualizing the weighted incoming and outgoing interactions of an individual cell type with all other cell types</span></span>
-<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="fu">aggregate_circleplot_percelltype</span>(<span class="at">X =</span> cellchat_obj, <span class="at">dir_cellchat =</span> output_dir, <span class="at">image.ncol =</span> <span class="dv">4</span>, <span class="at">vertex.label.cex =</span> <span class="fl">0.6</span>, <span class="at">height =</span> <span class="dv">5000</span>, <span class="at">width =</span> <span class="dv">4000</span>, <span class="at">res =</span> <span class="dv">300</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>output_dir <span class="ot">&lt;-</span> <span class="st">&quot;../test/All&quot;</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co"># Load the CellChat object after running the CellChat analysis with all conditions and all cell types</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>cellchat_obj <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="fu">paste0</span>(output_dir, <span class="st">&quot;/cellchat/rds/cellchat_obj_ALL.rds&quot;</span>))</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co"># Generate a circle plot showing overall interactions between different cell types</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="fu">aggregate_circleplot</span>(<span class="at">X =</span> cellchat_obj, <span class="at">dir_cellchat =</span> output_dir, <span class="at">height =</span> <span class="dv">2000</span>, <span class="at">width =</span> <span class="dv">4000</span>, <span class="at">res =</span> <span class="dv">300</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co"># Generate a heatmap displaying incoming and outgoing signals between cell types</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="fu">aggregate_heatmap</span>(<span class="at">X =</span> cellchat_obj, <span class="at">dir_cellchat =</span> output_dir, <span class="at">font.size =</span> <span class="dv">4</span>, <span class="at">hp.height =</span> <span class="dv">14</span>, <span class="at">hp.width =</span> <span class="dv">6</span>, <span class="at">height =</span> <span class="dv">2250</span>, <span class="at">width =</span> <span class="dv">2250</span>, <span class="at">res =</span> <span class="dv">300</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co"># Generate a set of circle plots, each visualizing the weighted incoming and outgoing interactions of an individual cell type with all other cell types</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="fu">aggregate_circleplot_percelltype</span>(<span class="at">X =</span> cellchat_obj, <span class="at">dir_cellchat =</span> output_dir, <span class="at">image.ncol =</span> <span class="dv">4</span>, <span class="at">vertex.label.cex =</span> <span class="fl">0.6</span>, <span class="at">height =</span> <span class="dv">5000</span>, <span class="at">width =</span> <span class="dv">4000</span>, <span class="at">res =</span> <span class="dv">300</span>)</span></code></pre></div>
 </div>
 </div>
 <div id="pathways-views" class="section level3" number="2.1.2">
@@ -609,18 +601,18 @@ comparison between them. This approach enables the exploration of
 differences in cell-to-cell interactions based on age, providing
 insights into how communication networks vary across distinct
 groups.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Set the working directory</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>output_dir <span class="ot">&lt;-</span> <span class="st">&quot;../test/by_age_groups&quot;</span></span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co"># Group information column</span></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>group_column <span class="ot">&lt;-</span> <span class="st">&quot;age.days.&quot;</span></span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a></span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co"># Run CellChat V2</span></span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="fu">run_cellchatV2</span>(<span class="at">seurat_obj =</span> seurat_obj,</span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>               <span class="at">output_dir =</span> output_dir,</span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>               <span class="at">annotation_column =</span> annotation_column,</span>
-<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>               <span class="at">species =</span> species,</span>
-<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>               <span class="at">group_column =</span> group_column)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Set the working directory</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>output_dir <span class="ot">&lt;-</span> <span class="st">&quot;../test/by_age_groups&quot;</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co"># Group information column</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>group_column <span class="ot">&lt;-</span> <span class="st">&quot;age.days.&quot;</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co"># Run CellChat V2</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="fu">run_cellchatV2</span>(<span class="at">seurat_obj =</span> seurat_obj,</span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>               <span class="at">output_dir =</span> output_dir,</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>               <span class="at">annotation_column =</span> annotation_column,</span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>               <span class="at">species =</span> species,</span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>               <span class="at">group_column =</span> group_column)</span></code></pre></div>
 <p><strong>Running Time</strong>: ~4 minutes</p>
 <p>The plots generated in this analysis represent cell-to-cell
 interactions for both age groups (35 and 12). For instance, the circle
@@ -660,19 +652,19 @@ cell-to-cell communication analysis and visualization only for the
 selected cell types. This feature enables users to concentrate on
 particular cell populations, making the analysis more targeted and
 relevant to specific biological questions.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="co"># Set the working directory</span></span>
-<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>output_dir <span class="ot">&lt;-</span> <span class="st">&quot;../test/by_agegroups_celltypes&quot;</span></span>
-<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a></span>
-<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="co"># Cell types of interest. (Optional, &#39;ALL&#39; by default)</span></span>
-<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a>celltypes_of_interest <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Granule immature&quot;</span>, <span class="st">&quot;Radial Glia-like&quot;</span>, <span class="st">&quot;Granule mature&quot;</span>, <span class="st">&quot;Neuroblast&quot;</span>, <span class="st">&quot;Microglia&quot;</span>, <span class="st">&quot;Cajal Retzius&quot;</span>, <span class="st">&quot;OPC&quot;</span>, <span class="st">&quot;Cck-Tox&quot;</span>)</span>
-<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a></span>
-<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="co"># Run CellChat V2</span></span>
-<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="fu">run_cellchatV2</span>(<span class="at">seurat_obj =</span> seurat_obj,</span>
-<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a>               <span class="at">output_dir =</span> output_dir,</span>
-<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a>               <span class="at">annotation_column =</span> annotation_column,</span>
-<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a>               <span class="at">annotation_selected =</span> celltypes_of_interest,</span>
-<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a>               <span class="at">species =</span> species,</span>
-<span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a>               <span class="at">group_column =</span> group_column)</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="co"># Set the working directory</span></span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>output_dir <span class="ot">&lt;-</span> <span class="st">&quot;../test/by_agegroups_celltypes&quot;</span></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="co"># Cell types of interest. (Optional, &#39;ALL&#39; by default)</span></span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>celltypes_of_interest <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Granule immature&quot;</span>, <span class="st">&quot;Radial Glia-like&quot;</span>, <span class="st">&quot;Granule mature&quot;</span>, <span class="st">&quot;Neuroblast&quot;</span>, <span class="st">&quot;Microglia&quot;</span>, <span class="st">&quot;Cajal Retzius&quot;</span>, <span class="st">&quot;OPC&quot;</span>, <span class="st">&quot;Cck-Tox&quot;</span>)</span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="co"># Run CellChat V2</span></span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="fu">run_cellchatV2</span>(<span class="at">seurat_obj =</span> seurat_obj,</span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a>               <span class="at">output_dir =</span> output_dir,</span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a>               <span class="at">annotation_column =</span> annotation_column,</span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a>               <span class="at">annotation_selected =</span> celltypes_of_interest,</span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a>               <span class="at">species =</span> species,</span>
+<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a>               <span class="at">group_column =</span> group_column)</span></code></pre></div>
 <p><strong>Running Time</strong>: ~3 minutes</p>
 </div>
 <div id="run-cellchat-with-user-defined-groups-and-perform-pairwise-comparisons-between-the-selected-groups." class="section level2" number="2.4">
@@ -689,19 +681,19 @@ comparison of cell-to-cell communication networks between the selected
 groups. This feature is useful for investigating how the communication
 patterns differ between different conditions, treatments, or time
 points.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="co"># Set the working directory</span></span>
-<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>output_dir <span class="ot">&lt;-</span> <span class="st">&quot;../test/by_agegroups_celltypes_cmp&quot;</span></span>
-<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a></span>
-<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co"># Pairwise condition comparisons.</span></span>
-<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a>comparison_groups <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="st">&quot;35&quot;</span>, <span class="st">&quot;12&quot;</span>))</span>
-<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a></span>
-<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co"># Run CellChat V2</span></span>
-<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="fu">run_cellchatV2</span>(<span class="at">seurat_obj =</span> seurat_obj,</span>
-<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a>               <span class="at">output_dir =</span> output_dir,</span>
-<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a>               <span class="at">annotation_column =</span> annotation_column,</span>
-<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a>               <span class="at">species =</span> species,</span>
-<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a>               <span class="at">group_column =</span> group_column, </span>
-<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a>               <span class="at">group_cmp =</span> comparison_groups)</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="co"># Set the working directory</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>output_dir <span class="ot">&lt;-</span> <span class="st">&quot;../test/by_agegroups_celltypes_cmp&quot;</span></span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="co"># Pairwise condition comparisons.</span></span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a>comparison_groups <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="st">&quot;35&quot;</span>, <span class="st">&quot;12&quot;</span>))</span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="co"># Run CellChat V2</span></span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="fu">run_cellchatV2</span>(<span class="at">seurat_obj =</span> seurat_obj,</span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a>               <span class="at">output_dir =</span> output_dir,</span>
+<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a>               <span class="at">annotation_column =</span> annotation_column,</span>
+<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a>               <span class="at">species =</span> species,</span>
+<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a>               <span class="at">group_column =</span> group_column, </span>
+<span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a>               <span class="at">group_cmp =</span> comparison_groups)</span></code></pre></div>
 <p><strong>Running Time</strong>: ~4 minutes</p>
 <p>The rankNet plot compares the relative importance of different
 signaling pathways between groups, such as age group 35 vs. 12. When
@@ -749,11 +741,11 @@ plots. This is useful if there are a specific set of pathways you’re
 interested in that are not among the top_n most significant pathways
 already visualized. (Note: You must complete the run_cellchatV2 process
 before running the cellchatV2_path_visu function.)</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="co"># Pathway of interest</span></span>
-<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>pathway_of_interest <span class="ot">&lt;-</span> <span class="st">&quot;GRN&quot;</span></span>
-<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a></span>
-<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="co"># Visualize the pathway of interest</span></span>
-<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="fu">cellchatV2_path_visu</span>(<span class="at">output_dir =</span> <span class="st">&quot;../test/by_agegroups_celltypes_cmp/&quot;</span>, <span class="at">species =</span> species, <span class="at">pathway_to_show =</span> pathway_of_interest)</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="co"># Pathway of interest</span></span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>pathway_of_interest <span class="ot">&lt;-</span> <span class="st">&quot;GRN&quot;</span></span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co"># Visualize the pathway of interest</span></span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="fu">cellchatV2_path_visu</span>(<span class="at">output_dir =</span> <span class="st">&quot;../test/by_agegroups_celltypes_cmp/&quot;</span>, <span class="at">species =</span> species, <span class="at">pathway_to_show =</span> pathway_of_interest)</span></code></pre></div>
 </div>
 </div>
 <div id="summary" class="section level1" number="3">

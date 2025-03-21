@@ -40,24 +40,12 @@ lapply(r_files, source)
 
 ```
 
-
-```{r,message=FALSE}
-#library(scDown)
-```
-
 # Define Universal Variables for CellChat V2
 Set up the environment for running CellChat V2 by defining key variables. Specify the working directory (output_dir) which is optional, and load a Seurat object (seurat_obj) containing single-cell RNA sequencing data is loaded. The species is set to either "human" or "mouse," as CellChat V2 supports only these two species. The metadata column (annotation_column) is defined to specify the cell type or other annotation labels, ensuring the analysis runs with the correct input data.
 
 ```{r, message = FALSE}
-# Seurat object
-seurat_obj_path <- "../inst/extdata/DentateGyrus/10X43_1_spliced_unspliced.rds"
-seurat_obj <- readRDS(seurat_obj_path)
-
 # Define the species: either "mouse" or "human", since CellChat and PPI database only support these two species for now
 species <- "mouse"
-
-# Metadata cell type column
-annotation_column <- "clusters"
 
 # Number of most significant pathways to visualize
 top_n = 10
