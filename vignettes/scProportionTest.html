@@ -1706,17 +1706,18 @@ display: none;
 </ul>
 </div>
 
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(scDown)</span></code></pre></div>
 <div id="run-scproportiontest" class="section level1" number="1">
 <h1><span class="header-section-number">1</span> Run
 scProportionTest</h1>
 <p>Run the test for all the pairwise comparison in group column for all
 the cell types in annotation column. The figures and statistical results
-with be saved in the ${output_dir}</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">run_scproportion</span>(<span class="at">seurat_obj =</span> seurat_obj,</span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>               <span class="at">output_dir =</span> output_dir,</span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>               <span class="at">annotation_column =</span> annotation_column,</span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>               <span class="at">group_column =</span> group_column)</span></code></pre></div>
+with be saved in the <code>output_dir</code></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Metadata condition column to perform the comparison</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>group_column <span class="ot">&lt;-</span> <span class="st">&quot;age.days.&quot;</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">run_scproportion</span>(<span class="at">seurat_obj =</span> seurat_obj,</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>               <span class="at">output_dir =</span> output_dir,</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>               <span class="at">annotation_column =</span> annotation_column,</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>               <span class="at">group_column =</span> group_column)</span></code></pre></div>
 <div id="test-results-figures" class="section level3" number="1.0.1">
 <h3><span class="header-section-number">1.0.1</span> Test results
 figures</h3>
@@ -1730,8 +1731,9 @@ Cck-Tox cells in compare to samples in age 12 days. On the reverse side,
 higher cell proportion in age 12 days sample for Neuroblast and Radial
 Glia-like cell types in compare to age 35 samples.</p>
 <p>To speed up the analysis for large data sets with multiple comparison
-we apply parallel computation for run_scPropotion() function. The total
-running time for the sample data is ~ 12.2 seconds.</p>
+we apply parallel computation for <code>scDown::run_scPropotion()</code>
+function. The total running time for the sample data is ~ 12.2
+seconds.</p>
 <p>The analysis was performed on a machine with the following
 specifications:</p>
 <ul>
