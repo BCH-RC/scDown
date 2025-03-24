@@ -129,6 +129,8 @@ if (!file.exists("scvelo/rds/obj_spliced_unspliced.h5ad")) {
 ### RNA velocity analysis
 library(ggplot2)
 # RNA velocity for the entire Seurat object
+if(Sys.info()["machine"] != "aarch64") {
+
 tpV <- doVelocity(object_annotated, mode=mode)
 for (grid_resolution in grid_resolutions){
     tpVF <- getVectorField(object_annotated, tpV, reduction = 'umap', resolution = grid_resolution)
@@ -143,6 +145,10 @@ for (grid_resolution in grid_resolutions){
 
 print("RNA velocity done for the inputted, complete Seurat object.")
 
+} else{
+	print("use run_scvelo_full() function to complete RNA velocity")
+}
+  
 # RNA velocity for specified conditions or time points, if any
 # Function to process each condition
 process_group <- function(group) {
@@ -187,6 +193,8 @@ process_group <- function(group) {
 }
 
 # Run in parallel
+if(Sys.info()["machine"] != "aarch64") {
+
 if (length(groups) != 0) {
   results <- parallel::mclapply(groups, process_group, mc.cores = cores)
   
@@ -194,7 +202,7 @@ if (length(groups) != 0) {
   message("RNA velocity completed for all groups.")
   message(unlist(results))
 }
-
+}
 
 sessionInfo()
 
