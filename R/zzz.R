@@ -6,9 +6,9 @@
   # Check if Python is available without initializing
   reticulate::py_available(initialize = FALSE)
 
-  # Detect if running inside Singularity (check if /opt/miniconda exists)
-  singularity_scvelo_path <- "/opt/miniconda/envs/scvelo/bin/python"
-  if (file.exists(singularity_scvelo_path)) {
+  # Detect if running inside Docker or Singularity (check if /opt/miniconda exists)
+  docker_singularity_scvelo_path <- "/opt/miniconda/envs/scvelo/bin/python"
+  if (file.exists(docker_singularity_scvelo_path)) {
     # Force Singularity users to use the correct environment
     Sys.setenv(RETICULATE_PYTHON = "/opt/miniconda/envs/scvelo/bin/python")
     Sys.setenv(R_MINICONDA_PATH = "/opt/miniconda")
@@ -29,8 +29,13 @@
     conda_path2=gsub("/conda$","",conda_path)
 
     env_name <- "scvelo"
-    env_file <- "inst/env/environment.yml"
-
+    
+    if(Sys.info()["machine"] != "aarch64") {
+      env_file <- "inst/env/environment.yml"        # conda env for Linux, Windows or Intel-based Mac
+    } else{
+      env_file <- "inst/arm64_env/environment.yml"  # conda env for Apple-silicon Mac M1/M2/M3
+    }
+    
     env_exists <- env_name %in% reticulate::conda_list()$name 
     # # Check if the conda environment exists
     if (!env_exists) {  
