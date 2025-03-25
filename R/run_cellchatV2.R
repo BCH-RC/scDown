@@ -20,12 +20,15 @@
 #' 
 #' @return NULL
 
-run_cellchatV2 <- function(output_dir, seurat_obj, sample_column = NULL, annotation_column, annotation_selected = NULL, species, group_column = NULL, group_cmp = NULL, top_n = 10) {
+run_cellchatV2 <- function(output_dir, seurat_obj, sample_column = NULL, annotation_column, annotation_selected = NULL, species, group_column = NULL, group_cmp = NULL, top_n = 10, num_cores = 4) {
 
   library(Seurat)
   library(CellChat)
   library(ComplexHeatmap)
   library(checkmate)
+  library(foreach)
+  library(doParallel)
+
   # Checking the cellchat inputs
   check_required_variables(seurat_obj, species, output_dir, annotation_column, group_column)
   # Check sample_column
@@ -67,9 +70,13 @@ run_cellchatV2 <- function(output_dir, seurat_obj, sample_column = NULL, annotat
     saveRDS(seurat_obj_condition, file = paste0(output_dir, "/cellchat/rds/seurat_obj_ALL.rds"))
     
   } else {
-    conditions <- unique(seurat_obj@meta.data[, group_column])
+    conditions <- unique(as.vector(seurat_obj@meta.data[, group_column]))
     metadata_cond <- FetchData(object = seurat_obj, vars = group_column)
-    for (condition in conditions) {
+
+    cl <- makeCluster(num_cores)
+    registerDoParallel(cl)
+    # for (condition in conditions) {
+    foreach(condition = conditions, .packages = c("Seurat", "CellChat"), .export = c("doCellCom", "subsetCellChatMod", "netAnalysis_computeCentrality")) %dopar% {
       seurat_obj_condition <- seurat_obj[, which(x = (metadata_cond == condition))]
       cellchat_object_condition <- doCellCom(seurat_obj_condition, species)
       seurat_obj_condition <- seurat_obj[, which(metadata_cond == condition)]
@@ -84,6 +91,9 @@ run_cellchatV2 <- function(output_dir, seurat_obj, sample_column = NULL, annotat
       saveRDS(cellchat_object_condition, file = paste0(output_dir, "/cellchat/rds/cellchat_obj_", condition, ".rds"))
       saveRDS(seurat_obj_condition, file = paste0(output_dir, "/cellchat/rds/seurat_obj_", condition, ".rds"))
     }
+    # Stop the parallel cluster
+    stopCluster(cl)
+
   }
   
   # CellChat visualization at the aggregated level
@@ -175,7 +185,6 @@ run_cellchatV2 <- function(output_dir, seurat_obj, sample_column = NULL, annotat
       cellchat_obj_cond2 <- readRDS(paste0(output_dir, "/cellchat/rds/cellchat_obj_", cond_2, ".rds"))
       
       run_cellchatV2_cmp(dir_cellchat = output_dir, seurat_obj_cond1 = seurat_obj_cond1, cellchat_obj_cond1 = cellchat_obj_cond1, seurat_obj_cond2 = seurat_obj_cond2, cellchat_obj_cond2 = cellchat_obj_cond2, condition_col = group_column, condition_1 = cond_1, condition_2 = cond_2, top_n = top_n)
-      
     }
   }
 }
