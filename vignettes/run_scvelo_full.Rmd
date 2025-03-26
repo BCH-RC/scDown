@@ -32,11 +32,10 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-#library(scDown)
 ```
 
-# Define Universal Variables for scVelo Part II
-Set up the environment for running scVelo Part II by defining key variables. 
+# Define Variables specific for scVelo Part II
+Defining key variables specific for running scVelo Part II. 
 
 Loading a .h5ad object containing spliced and unspliced RNA data is required. The cell type annotation column `annotation_column` is defined to specify the cell type or other annotation labels, ensuring the analysis runs with the correct group.
 
@@ -46,13 +45,8 @@ The `mode` to conduct scvelo velocity calculation can be either 'stochastic (def
 
 
 ```{r, message = FALSE}
-# Set the working directory
-output_dir="/lab-share/RC-Data-Science-e2/Public/Qianyi/test_pipeline/scdown/scDown/tests"
-
 # input h5ad file path and name
 h5ad_file="inst/extdata/DentateGyrus/10X43_1.h5ad"
-# specify which metadata column of the h5ad object contains cell type annotation 
-annotation_column <- "clusters"
 
 # Mode to conduct scvelo velocity calculation, default 'stochastic'
 mode = 'stochastic'

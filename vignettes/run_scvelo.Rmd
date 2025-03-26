@@ -32,11 +32,10 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-#library(scDown)
 ```
 
-# Define Universal Variables for scVelo Part I
-Set up the environment for running scVelo Part I by defining key variables. 
+# Define Variables specific for scVelo Part I
+Apart from global universal variables applied to all functions in scDown, defining additional variables specific for running scVelo Part I. 
 
 Loading a Seurat object (seurat_obj) containing single-cell RNA-seq data is required. The cell type annotation column (annotation_column) is defined to specify the cell type or other annotation labels, ensuring the analysis runs with the correct group.
 
@@ -52,21 +51,12 @@ The working directory `output_dir` by default is the current directory and can b
 
 
 ```{r, message = FALSE}
-# Set the working directory
-output_dir="/lab-share/RC-Data-Science-e2/Public/Qianyi/test_pipeline/scdown/scDown/"
-setwd(output_dir)
-
-# Seurat object
-seurat_obj <- readRDS("inst/extdata/DentateGyrus/10X43_1_spliced_unspliced.rds")
-# specify which Metadata column of the Seurat object should be used as cell type annotation
-annotation_column <- "clusters"
-
 # file names for input .loom files containing spliced and unspliced counts of scRNA-seq data
 # e.g., loom_files=c("/path/to/directory/WT.loom", "/path/to/directory/KO.loom") 
 loom_files=NULL
 # specify the metadata column in the Seurat object that matches with the file names of input loom_files
 loom_file_subset_column="orig.ident"
-# this will automatically be extracted from file names of input loom_files 
+# optional, this can automatically be extracted from file names of input loom_files 
 loom_file_subset_by=NULL
 
 # mode for scVelo velocity calculation
@@ -131,7 +121,7 @@ If specific groups of conditions or time points are provided, we subset the Seur
 
 ```{r}
 # subset a group of conditions or time points used to calculate RNA velocity
-groups=list(12,35)
+groups=list("12","35")
 # specify which metadata column of the Seurat object should be used for the group subset 
 group_column="age.days."
 
