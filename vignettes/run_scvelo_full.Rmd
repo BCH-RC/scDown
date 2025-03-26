@@ -35,7 +35,7 @@ knitr::opts_chunk$set(
 ```
 
 # Define Variables specific for scVelo Part II
-Defining key variables specific for running scVelo Part II. 
+Restart R after `run_scvelo()`. Defining key variables specific for running scVelo Part II. 
 
 Loading a .h5ad object containing spliced and unspliced RNA data is required. The cell type annotation column `annotation_column` is defined to specify the cell type or other annotation labels, ensuring the analysis runs with the correct group.
 
@@ -45,7 +45,7 @@ The `mode` to conduct scvelo velocity calculation can be either 'stochastic (def
 
 
 ```{r, message = FALSE}
-# input h5ad file path and name
+# input h5ad file path and name. Default "scvelo/rds/obj_spliced_unspliced.h5ad", which is output from run_scvelo()
 h5ad_file="inst/extdata/DentateGyrus/10X43_1.h5ad"
 
 # Mode to conduct scvelo velocity calculation, default 'stochastic'
