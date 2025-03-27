@@ -1,13 +1,8 @@
 ## scDown: a pipeline for scRNASeq downstream analysis
 
 ## Table of Contents
-- [Installation](### Installation)
-  - [Installation using Docker](#### Installation using Docker)
-    - [Docker for Linux, Windows or Intel-based Mac](##### Run the docker image of scDown for Linux, Windows, or Intel-based Mac x86_64 (amd64 platform))
-    - [Docker for Apple Silicon Mac](##### Run the docker image of scDown for Linux, Windows, or Intel-based Mac x86_64 (amd64 platform))
-  - [Installation using Singularity](#### Installation using Docker)
-  - [Manual Installation](#### Manual Installation)
-- [Tutorial](### Tutorial )
+- [Installation](#installation)
+- [Tutorial](#tutorial)
 
 ### Installation
 #### Installation using Docker
