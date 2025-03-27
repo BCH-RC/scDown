@@ -1,6 +1,56 @@
 ## scDown: a pipeline for scRNASeq downstream analysis
 
 ### Installation
+#### Installation using Docker
+##### Pre-requisites
+Docker desktop
+Note: On Mac and Windows, the memory limit in the "Resources" section of Docker Desktop settings may need to be increased manually for some functions like pseudotime analysis, if you get a Docker exit code 137.
+
+##### Docker images of scDown
+We built [the docker images for scDown] (https://hub.docker.com/repository/docker/rcbioinfo/scdown/general) supporting different system architectures:
+| Docker images | Platform | Supported Systems |
+|----------|----------|----------|
+| rcbioinfo/scdown::amd64 | linux/amd64 | Linux, Windows, Intel-based Mac (x86_64) |
+| rcbioinfo/scdown::arm64 | linux/arm64 | Apple Silicon Mac (M1/M2/M3) |
+If you're using Linux, Windows (via WSL2 or Docker Desktop), or an Intel-baed Mac (x86_64), use the amd64 image.
+If you're using a Mac with an Apple M1/M2/M3 chip, use the arm64 image
+
+##### Run the docker image of scDown for Linux, Windows, or Intel-based Mac x86_64 (amd64 platform)
+```r
+# To run docker image of scDown for amd64 (Linux, Windows, or Intel-based Mac x86_64)
+cd /path/to/your/working/directory
+docker run -it --platform linux/amd64 --rm -v /path/to/your/input/data/directory:/input_dir /path/to/your/working/directory:/workspace -w /workspace  --pid=rcbioinfo/scdown::amd64 R
+library(scDown)
+```
+
+##### Run the docker image for Apple Silicon Mac M1/M2/M3 (arm64 platform)
+```r
+# To run docker image of scDown for arm64 (Apple Silicon Mac M1/M2/M3)
+cd /path/to/your/working/directory
+docker run -it --platform linux/arm64 --rm -v /path/to/your/input/data/directory:/input_dir /path/to/your/working/directory:/workspace -w /workspace  --pid=rcbioinfo/scdown::arm64 R
+library(scDown)
+```
+
+#### Installation using Singularity 
+##### Pull Docker image into Singularity
+```r
+# To pull docker image of scDown to be singularity image on HPC server
+cd /path/to/singularity/image/
+singularity pull docker://rcbioinfo/scdown::amd64
+```
+
+##### Run the Singularity image of scDown on HPC server
+```r
+# To run singularity image of scDown on HPC server
+export TMPDIR="/path/to/tmp/directory/that/is/big/enough"
+export SINGULARITY_CACHEDIR="/path/to/tmp/directory/that/is/big/enough"
+export APPTAINER_CACHEDIR="/path/to/tmp/directory/that/is/big/enough"
+cd /path/to/your/working/directory
+singularity exec -B /path/to/your/input/data/directory:/input_dir /path/to/singularity/image/scdown_amd64.sif R
+library(scDown)
+```
+
+#### Manual Installation (not recommended)
 The **scDown** package can be installed using `remotes`: 
 ```r
 install.packages("remotes")
