@@ -1,5 +1,14 @@
 ## scDown: a pipeline for scRNASeq downstream analysis
 
+## Table of Contents
+- [Installation](### Installation)
+  - [Installation using Docker](#### Installation using Docker)
+    - [Docker for Linux, Windows or Intel-based Mac](##### Run the docker image of scDown for Linux, Windows, or Intel-based Mac x86_64 (amd64 platform))
+    - [Docker for Apple Silicon Mac](##### Run the docker image of scDown for Linux, Windows, or Intel-based Mac x86_64 (amd64 platform))
+  - [Installation using Singularity](#### Installation using Docker)
+  - [Manual Installation](#### Manual Installation)
+- [Tutorial](### Tutorial )
+
 ### Installation
 #### Installation using Docker
 ##### Pre-requisites
@@ -7,11 +16,12 @@ Docker desktop
 Note: On Mac and Windows, the memory limit in the "Resources" section of Docker Desktop settings may need to be increased manually for some functions like pseudotime analysis, if you get a Docker exit code 137.
 
 ##### Docker images of scDown
-We built [the docker images for scDown] (https://hub.docker.com/repository/docker/rcbioinfo/scdown/general) supporting different system architectures:
+We built [the docker images for scDown](https://hub.docker.com/repository/docker/rcbioinfo/scdown/general) supporting different system architectures:
 | Docker images | Platform | Supported Systems |
 |----------|----------|----------|
 | rcbioinfo/scdown::amd64 | linux/amd64 | Linux, Windows, Intel-based Mac (x86_64) |
 | rcbioinfo/scdown::arm64 | linux/arm64 | Apple Silicon Mac (M1/M2/M3) |
+
 If you're using Linux, Windows (via WSL2 or Docker Desktop), or an Intel-baed Mac (x86_64), use the amd64 image.
 If you're using a Mac with an Apple M1/M2/M3 chip, use the arm64 image
 
@@ -50,7 +60,7 @@ singularity exec -B /path/to/your/input/data/directory:/input_dir /path/to/singu
 library(scDown)
 ```
 
-#### Manual Installation (not recommended)
+#### Manual Installation 
 The **scDown** package can be installed using `remotes`: 
 ```r
 install.packages("remotes")
