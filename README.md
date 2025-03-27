@@ -1,6 +1,6 @@
 ## scDown: a pipeline for scRNASeq downstream analysis
 
-## Table of Contents
+### Table of Contents
 - [Installation](#installation)
 - [Tutorial](#tutorial)
 
