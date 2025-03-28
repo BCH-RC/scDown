@@ -9,7 +9,7 @@ output:
     highlight: pygments
     toc: true
     toc_depth: 3
-    number_sections: true  ## if you want number sections at each table header
+    number_sections: false  ## if you want number sections at each table header
     df_print: paged
     #theme: united  # many options for theme, this one is my favorite.
 #bibliography: library.bib
@@ -34,22 +34,32 @@ knitr::opts_chunk$set(
 
 ```
 
-## Introduction 
-`scDown` is a robust pipeline for scRNASeq downstream analysis. This doscument provides a step-by-step guide to setting up and running `scDown` functions.
+#### Introduction 
+`scDown` is a modular and user-friendly pipeline for downstream analysis of single-cell RNA sequencing (scRNA-seq) data. It streamlines complex analysis into simple, reproducible workflows. This vignette provides a step-by-step guide for setting up your environment and running key `scDown` functions.
 
-### Load Required Libraries 
+Key Modules:
+
+  1. scDown::run_scproportion: Compare cell-type proportions across conditions.
+  
+  2. scDown::run_cellchatV2: Infer and visualize cell-cell communication networks.
+  
+  3. scDown::run_monocle3: Perform Pseudotime trajectory inference.
+  
+  4. scDown::run_scvelo: Conduct RNA velocity analysis.
+
+#### Load Required Libraries 
 
 ```{r,message=FALSE,eval=FALSE}
 library(scDown)
 ```
 
-### Set Variables and Enviroment
+#### Set Variables and Enviroment
 
-Before running the pipeline, configure the following global variables. 
+Before running the pipeline, configure the following global variables, set the output directory to save the output results, and load Seurat object of single-cell RNA-seq data. The metadata column (annotation_column) is defined to specify the cell type or other annotation labels, ensuring the analysis runs with the correct input data.
 
 ```{r, message=FALSE,eval=FALSE}
 # Define output directory for results
-output_dir <- "."
+output_dir <- "/path/to/save/results"
 
 # Load Seurat object
 seurat_obj_path <- system.file("extdata", "10X43_1_spliced_unspliced.rds", package="scDown")
@@ -58,9 +68,12 @@ seurat_obj <- readRDS(seurat_obj_path)
 # Metadata cell type column
 annotation_column <- "clusters"
 
+# Define the species: either "mouse" or "human"
+species <- "mouse"
+
 ```
 
-### Convert H5AD File to Seurat Object
+#### Convert H5AD File to Seurat Object
 If you have `.h5ad` file, convert it to Seurat object using: 
 ```{r, message=FALSE,eval=FALSE}
 h5ad_file <- "path/to/h5ad.file"
@@ -69,27 +82,26 @@ seurat_obj <- h5adToSeurat(h5ad_file, annotation_column=NULL)
 
 Once the Seurat object and global Parmesans are set up, you can run scDown functions.
 
-## Run scDown:run_scproportion
+#### Run scDown:run_scproportion
+Compare relative cell-type proportions across two biological conditions. 
 
-For more details on `scDown:run_scproportion`, please visit the following link:
+➡️ <a href="scProportionTest.html" target="_blank">Read the tutorial</a>
 
-<a href="scProportionTest.html" target="_blank">Run scDown:run_scproportion</a>
+#### Run scDown:run_cellchatV2
+Explore cell–cell communication across cell types, tissues, or disease states.
 
-## Run scDown:run_cellchatV2
+➡️ <a href="scDown_CellChatV2.html" target="_blank">View full documentation</a>
 
-For more details on `cDown:run_cellchatV2`, please visit the following link:
+#### Run scDown:run_monocle3
+Perform pseudotime trajectory analysis and identify key regulators of cell state transitions.
 
-<a href="scDown_CellChatV2.html" target="_blank">Run cDown:run_cellchatV2</a>
+➡️ <a href="scDown_monocle.html" target="_blank">Explore the pseudotime workflow</a>
 
-## Run scDown:run_monocle3
+#### Run scDown:run_scvelo
+Predict future cell states and lineage relationships using RNA velocity and PAGA.
 
-For more details on `scDown:run_monocle3`, please visit the following link:
+➡️ <a href="run_scvelo.html" target="_blank">Learn more</a>
 
-<a href="scDown_monocle.html" target="_blank">Run scDown:run_monocle3</a>
+➡️ <a href="run_scvelo_full.html" target="_blank">Run full pipeline</a>
 
-## Run scDown:run_scvelo
 
-For more details on `scDown:run_scvelo` and `scDown:run_scvelo_full`, please visit the following link:
-
-<a href="run_scvelo.html" target="_blank">Run scDown:run_scvelo</a> and 
-<a href="run_scvelo_full.html" target="_blank">Run scDown:run_scvelo_full</a>
