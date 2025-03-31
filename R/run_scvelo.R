@@ -146,7 +146,7 @@ for (grid_resolution in grid_resolutions){
 print("RNA velocity done for the inputted, complete Seurat object.")
 
 } else{
-	print("use run_scvelo_full() function to complete RNA velocity")
+	print("Converting to h5ad... Use run_scvelo_full() function to complete RNA velocity")
 }
   
 # RNA velocity for specified conditions or time points, if any
@@ -165,7 +165,8 @@ process_group <- function(group) {
   if (!file.exists(h5ad_file)) {
     SeuratDisk::Convert(h5Seurat_file, dest = "h5ad")
   }
-  
+
+  if(Sys.info()["machine"] != "aarch64") {
   # Perform RNA velocity analysis
   tpV <- doVelocity(tpData, mode = mode)
   
@@ -190,18 +191,16 @@ process_group <- function(group) {
   
   # Return status
   return(paste0("RNA velocity done for group ", paste(group, collapse = "_")))
+  }
 }
 
 # Run in parallel
-if(Sys.info()["machine"] != "aarch64") {
-
 if (length(groups) != 0) {
   results <- parallel::mclapply(groups, process_group, mc.cores = cores)
   
   # Print results
   message("RNA velocity completed for all groups.")
   message(unlist(results))
-}
 }
 
 sessionInfo()
