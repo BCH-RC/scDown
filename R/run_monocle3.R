@@ -52,6 +52,7 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
     }
   }
 
+  library(dplyr)
   #checkmate::expect_choice(annotation_column, colnames(seurat_obj@meta.data),label="annotation_column",null.ok = TRUE)
   if(checkmate::test_character(annotation_column, min.len = 1, max.len = 1, any.missing = FALSE))
   {
