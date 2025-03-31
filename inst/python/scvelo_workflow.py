@@ -71,7 +71,7 @@ def differential_velocity_genes(adata, annotation_column, top_gene=5, group_labe
     top_gene = int(top_gene)
     for item in adata.obs[annotation_column].unique():
         kwargs = dict(color=annotation_column, figsize=(2, 2), dpi=500, show=False)
-        scv.pl.scatter(adata, df[item][:top_gene], ylabel=item, frameon=False, linewidth=1.5, save=f'scvelo/images/{group_label}_{item}_genePhase', fontsize=8, **kwargs)
+        scv.pl.scatter(adata, df[str(item)][:top_gene], ylabel=item, frameon=False, linewidth=1.5, save=f'scvelo/images/{group_label}_{item}_genePhase', fontsize=8, **kwargs)
         # convert from pandas series to list
         # Note: need to set colorbar=False below to bypass an error caused by matplotlib, in the generated figures darker colors indicate higher expression/velocity
         genes_to_plot = df[item][:top_gene].tolist()
