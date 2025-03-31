@@ -118,8 +118,11 @@ if(!(("spliced" %in% names(object_annotated@assays) & ("unspliced" %in% names(ob
 library(SeuratDisk)
 # save to h5ad so if needed, can be used to conduct scvelo downstream analysis
 #To prevent overwriting error, only saves if the file does not exist
+seurat_obj<-object_annotated
+seurat_obj[[annotation_column]] <- as.character(seurat_obj[[annotation_column]][,1])
+Idents(seurat_obj)<-seurat_obj[[annotation_column]][,1]
 if (!file.exists("scvelo/rds/obj_spliced_unspliced.h5Seurat")) {
-    SeuratDisk::SaveH5Seurat(object_annotated, filename = "scvelo/rds/obj_spliced_unspliced.h5Seurat")
+    SeuratDisk::SaveH5Seurat(seurat_obj, filename = "scvelo/rds/obj_spliced_unspliced.h5Seurat")
 }
 if (!file.exists("scvelo/rds/obj_spliced_unspliced.h5ad")) {
     SeuratDisk::Convert("scvelo/rds/obj_spliced_unspliced.h5Seurat", dest = "h5ad")
@@ -155,9 +158,12 @@ process_group <- function(group) {
   tpData <- object_annotated[ , object_annotated[[group_column]][[group_column]] %in% group]
   
   # Save as H5Seurat if it doesn't already exist
+  seurat_obj<-tpData
+  seurat_obj[[annotation_column]] <- as.character(seurat_obj[[annotation_column]][,1])
+  Idents(seurat_obj)<-seurat_obj[[annotation_column]][,1]
   h5Seurat_file <- paste0("scvelo/rds/obj_spliced_unspliced_", paste(group, collapse = "_"), ".h5Seurat")
   if (!file.exists(h5Seurat_file)) {
-    SeuratDisk::SaveH5Seurat(tpData, filename = h5Seurat_file)
+    SeuratDisk::SaveH5Seurat(seurat_obj, filename = h5Seurat_file)
   }
   
   # Convert to h5ad if it doesn't already exist
