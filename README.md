@@ -9,12 +9,8 @@
 
 ### Installation
 #### Installation using Docker
-##### Pre-requisites
-Docker desktop
-Note: On Mac and Windows, the memory limit in the "Resources" section of Docker Desktop settings may need to be increased manually for some functions like pseudotime analysis, if you get a Docker exit code 137.
-
 ##### Docker images of scDown
-We built [the docker images for scDown](https://hub.docker.com/repository/docker/rcbioinfo/scdown/general):
+We built the [docker image for scDown](https://hub.docker.com/repository/docker/rcbioinfo/scdown/general):
 | Docker images | Platform | Supported Systems |
 |----------|----------|----------|
 | rcbioinfo/scdown::amd64 | linux/amd64 | Linux, Windows, Intel-based Mac (x86_64) |
