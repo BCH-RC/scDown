@@ -2,8 +2,8 @@
 
 ### Table of Contents
 - [Installation](#installation)
-  - [Installation using Docker](#installation using docker)
-  - [Installation using Singularity](#installation using singularity)
+  - [Installation using Docker](#installation-using-docker)
+  - [Installation using Singularity](#installation-using-singularity)
 - [Tutorial](#tutorial)
 
 
