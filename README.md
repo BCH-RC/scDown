@@ -5,8 +5,8 @@
   - [Installation using Docker](#installation-using-docker)
   - [Installation using Singularity](#installation-using-singularity)
 - [Tutorial](#tutorial)
-  - [1. Preprocess Tutorial](#1.-preprocess-tutorial)
-  - [2. Functions Tutorial](#2.-functions-tutorial)
+  - [1. Preprocess Tutorial](#1-preprocess-tutorial)
+  - [2. Functions Tutorial](#2-functions-tutorial)
 
 ### Installation
 #### Installation using Docker
