@@ -11,7 +11,7 @@
 
 
 
-<title>scDown: A Pipeline for scRNASeq Downstream Analysis</title>
+<title>scDown: A Pipeline for scRNA-seq Downstream Analysis</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -1500,7 +1500,7 @@ overflow: visible;
 </style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -1511,7 +1511,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -1691,10 +1691,10 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">scDown: A Pipeline for scRNASeq Downstream
+<h1 class="title toc-ignore">scDown: A Pipeline for scRNA-seq Downstream
 Analysis</h1>
 <h4 class="author"><div class="line-block"></div></h4>
-<h4 class="date">03/2025</h4>
+<h4 class="date">04/2025</h4>
 
 </div>
 
@@ -1712,14 +1712,17 @@ and running key <code>scDown</code> functions.</p>
 conditions.</p></li>
 <li><p>scDown::run_cellchatV2: Infer and visualize cell-cell
 communication networks.</p></li>
-<li><p>scDown::run_monocle3: Perform Pseudotime trajectory
+<li><p>scDown::run_monocle3: Perform pseudotime trajectory
 inference.</p></li>
-<li><p>scDown::run_scvelo: Conduct RNA velocity analysis.</p></li>
+<li><p>scDown::run_scvelo: Incorporate spliced and unspliced counts and
+conduct RNA velocity analysis.</p></li>
+<li><p>scDown::run_scvelo_full: Estimate RNA velocity with enhanced
+visualizations and PAGA trajectory inference.</p></li>
 </ol>
 </div>
 <div id="load-required-libraries" class="section level4">
 <h4>Load Required Libraries</h4>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(scDown)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scDown)</span></code></pre></div>
 </div>
 <div id="set-variables-and-enviroment" class="section level4">
 <h4>Set Variables and Enviroment</h4>
@@ -1729,56 +1732,46 @@ Seurat object of single-cell RNA-seq data. The metadata column
 (annotation_column) is defined to specify the cell type or other
 annotation labels, ensuring the analysis runs with the correct input
 data.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Define output directory for results</span></span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>output_dir <span class="ot">&lt;-</span> <span class="st">&quot;/path/to/save/results&quot;</span></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co"># Load Seurat object</span></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>seurat_obj_path <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;10X43_1_spliced_unspliced.rds&quot;</span>, <span class="at">package=</span><span class="st">&quot;scDown&quot;</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>seurat_obj <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(seurat_obj_path)</span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co"># Metadata cell type column</span></span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>annotation_column <span class="ot">&lt;-</span> <span class="st">&quot;clusters&quot;</span></span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a></span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co"># Define the species: either &quot;mouse&quot; or &quot;human&quot;</span></span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>species <span class="ot">&lt;-</span> <span class="st">&quot;mouse&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define output directory for results</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>output_dir <span class="ot">&lt;-</span> <span class="st">&quot;/path/to/save/results&quot;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Load Seurat object</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>seurat_obj_path <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;10X43_1_spliced_unspliced.rds&quot;</span>, <span class="at">package=</span><span class="st">&quot;scDown&quot;</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>seurat_obj <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(seurat_obj_path)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Metadata cell type column</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>annotation_column <span class="ot">&lt;-</span> <span class="st">&quot;clusters&quot;</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the species: either &quot;mouse&quot; or &quot;human&quot;</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>species <span class="ot">&lt;-</span> <span class="st">&quot;mouse&quot;</span></span></code></pre></div>
 </div>
 <div id="convert-h5ad-file-to-seurat-object" class="section level4">
 <h4>Convert H5AD File to Seurat Object</h4>
 <p>If you have <code>.h5ad</code> file, convert it to Seurat object
 using:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>h5ad_file <span class="ot">&lt;-</span> <span class="st">&quot;path/to/h5ad.file&quot;</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>seurat_obj <span class="ot">&lt;-</span> <span class="fu">h5adToSeurat</span>(h5ad_file, <span class="at">annotation_column=</span><span class="cn">NULL</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>h5ad_file <span class="ot">&lt;-</span> <span class="st">&quot;path/to/h5ad.file&quot;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>seurat_obj <span class="ot">&lt;-</span> <span class="fu">h5adToSeurat</span>(h5ad_file, <span class="at">annotation_column=</span><span class="cn">NULL</span>)</span></code></pre></div>
 <p>Once the Seurat object and global Parmesans are set up, you can run
-scDown functions.</p>
-</div>
-<div id="run-scdownrun_scproportion" class="section level4">
-<h4>Run scDown:run_scproportion</h4>
-<p>Compare relative cell-type proportions across two biological
+the following key functions in scDown:</p>
+<p>➡️
+<a href="scProportionTest.html" target="_blank">scDown::run_scproportion</a>
+Compare relative cell-type proportions across two biological
 conditions.</p>
-<p>➡️ <a href="scProportionTest.html" target="_blank">Read the
-tutorial</a></p>
-</div>
-<div id="run-scdownrun_cellchatv2" class="section level4">
-<h4>Run scDown:run_cellchatV2</h4>
-<p>Explore cell–cell communication across cell types, tissues, or
-disease states.</p>
-<p>➡️ <a href="scDown_CellChatV2.html" target="_blank">View full
-documentation</a></p>
-</div>
-<div id="run-scdownrun_monocle3" class="section level4">
-<h4>Run scDown:run_monocle3</h4>
-<p>Perform pseudotime trajectory analysis and identify key regulators of
+<p>➡️
+<a href="scDown_CellChatV2.html" target="_blank">scDown::run_cellchatV2</a>
+Explore cell–cell communication across cell types, tissues, or disease
+states.</p>
+<p>➡️
+<a href="scDown_monocle.html" target="_blank">scDown::run_monocle3</a>
+Perform pseudotime trajectory analysis and identify key regulators of
 cell state transitions.</p>
-<p>➡️ <a href="scDown_monocle.html" target="_blank">Explore the
-pseudotime workflow</a></p>
-</div>
-<div id="run-scdownrun_scvelo" class="section level4">
-<h4>Run scDown:run_scvelo</h4>
-<p>Predict future cell states and lineage relationships using RNA
-velocity and PAGA.</p>
-<p>➡️ <a href="run_scvelo.html" target="_blank">Learn more</a></p>
-<p>➡️ <a href="run_scvelo_full.html" target="_blank">Run full
-pipeline</a></p>
+<p>➡️ <a href="run_scvelo.html" target="_blank">scDown::run_scvelo</a>
+Incorporate spliced and unspliced counts and conduct RNA velocity
+analysis.</p>
+<p>➡️
+<a href="run_scvelo_full.html" target="_blank">scDown::run_scvelo_full</a>
+Estimate RNA velocity with enhanced visualizations and PAGA trajectory
+inference.</p>
 </div>
 
 

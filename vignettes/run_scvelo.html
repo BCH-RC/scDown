@@ -10,9 +10,9 @@
 
 
 
-<meta name="date" content="2025-03-26" />
+<meta name="date" content="2025-04-02" />
 
-<title>scDown: A pipeline to carry out the scRNASeq downstream analysis</title>
+<title>scDown::run_scvelo</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -421,11 +421,10 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">scDown: A pipeline to carry out the
-scRNASeq downstream analysis</h1>
-<h3 class="subtitle">scVelo Part I: Read .loom files and run scVelo
-using the R wrapper velociraptor</h3>
-<h4 class="date">03/26/2025</h4>
+<h1 class="title toc-ignore">scDown::run_scvelo</h1>
+<h3 class="subtitle">scVelo Part I: Read loom using Velocyto.R and run
+scVelo using the R wrapper velociraptor</h3>
+<h4 class="date">04/02/2025</h4>
 
 </div>
 
@@ -448,8 +447,8 @@ groups</a></li>
 <h1><span class="header-section-number">1</span> Define Variables
 specific for scVelo Part I</h1>
 <p>Apart from global universal variables applied to all functions in
-scDown, defining additional key variables specific for running scVelo
-Part I.</p>
+scDown, defining additional variables specific for running scVelo Part
+I.</p>
 <p>Loading a Seurat object (seurat_obj) containing single-cell RNA-seq
 data is required. The cell type annotation column (annotation_column) is
 defined to specify the cell type or other annotation labels, ensuring

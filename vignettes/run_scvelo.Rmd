@@ -1,6 +1,6 @@
 ---
-title: "scDown: A pipeline to carry out the scRNASeq downstream analysis"
-subtitle: "scVelo Part I: Read .loom files and run scVelo using the R wrapper velociraptor"
+title: "scDown::run_scvelo"
+subtitle: "scVelo Part I: Read loom using Velocyto.R and run scVelo using the R wrapper velociraptor"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 output: 
   rmarkdown::html_document:
