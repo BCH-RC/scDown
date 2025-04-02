@@ -47,8 +47,8 @@ library(scDown)
 ### Tutorial 
 
 #### 1. Preprocess Tutorial
-The **scDown** package defines universal variables that apply to all key functions in the following preprocess vignette:
-- [Preprocess](https://html-preview.github.io/?url=https://github.com/BCH-RC/scDown/refs/heads/main/vignettes/scDown_preProcess.html) - Set the universal variables for all key functions in scDown and convert h5ad to Seurat rds.
+First, we define universal variables that apply to all key functions in the following preprocess vignette:
+- [Preprocess](https://html-preview.github.io/?url=https://github.com/BCH-RC/scDown/refs/heads/main/vignettes/scDown_preProcess.html) - Set the universal variables for all key functions in scDown, and convert h5ad to Seurat rds if needed.
 
 #### 2. Functions Tutorial
 The **scDown** package provides a single function for each purpose, integrating all necessary steps into one streamlined command, making the analysis more efficient and user-friendly. Below are the **key functions in scDown**, with links to their vignettes for detailed usage instructions and example outputs:
