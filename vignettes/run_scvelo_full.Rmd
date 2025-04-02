@@ -1,5 +1,5 @@
 ---
-title: "scDown::run_scvelo_full"
+title: "scDown::run_scvelo_full - Estimate RNA velocity with enhanced visualizations and PAGA trajectory inference"
 subtitle: "scVelo Part II: Read h5ad and run scVelo using original scVelo"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 output: 
@@ -34,7 +34,7 @@ knitr::opts_chunk$set(
 ```{r setup}
 ```
 
-# Define Variables specific for scVelo Part II
+# Define Variables specific for `scDown::run_scvelo_full`
 Restart R after `run_scvelo()`. Defining key variables specific for running scVelo Part II. 
 
 Loading a .h5ad object containing spliced and unspliced RNA data is required. The cell type annotation column `annotation_column` is defined to specify the cell type or other annotation labels, ensuring the analysis runs with the correct group.

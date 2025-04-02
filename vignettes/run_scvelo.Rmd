@@ -1,5 +1,5 @@
 ---
-title: "scDown::run_scvelo"
+title: "scDown::run_scvelo - Incorporate spliced and unspliced counts and conduct RNA velocity analysis"
 subtitle: "scVelo Part I: Read loom using Velocyto.R and run scVelo using the R wrapper velociraptor"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 output: 
@@ -34,7 +34,7 @@ knitr::opts_chunk$set(
 ```{r setup}
 ```
 
-# Define Variables specific for scVelo Part I
+# Define Variables specific for `scDown::run_scvelo`
 Apart from global universal variables applied to all functions in scDown, defining additional variables specific for running scVelo Part I. 
 
 Loading a Seurat object (seurat_obj) containing single-cell RNA-seq data is required. The cell type annotation column (annotation_column) is defined to specify the cell type or other annotation labels, ensuring the analysis runs with the correct group.
