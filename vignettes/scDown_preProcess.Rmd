@@ -1,5 +1,5 @@
 ---
-title: "scDown: A Pipeline for scRNASeq Downstream Analysis"
+title: "scDown: A Pipeline for scRNA-seq Downstream Analysis"
 author: |
     | 
 date: "`r format(Sys.Date(), '%m/%Y')`"
@@ -43,9 +43,12 @@ Key Modules:
   
   2. scDown::run_cellchatV2: Infer and visualize cell-cell communication networks.
   
-  3. scDown::run_monocle3: Perform Pseudotime trajectory inference.
+  3. scDown::run_monocle3: Perform pseudotime trajectory inference.
   
-  4. scDown::run_scvelo: Conduct RNA velocity analysis.
+  4. scDown::run_scvelo: Incorporate spliced and unspliced counts and conduct RNA velocity analysis.
+
+  5. scDown::run_scvelo_full: Estimate RNA velocity with enhanced visualizations and PAGA trajectory inference.
+
 
 #### Load Required Libraries 
 
@@ -80,28 +83,21 @@ h5ad_file <- "path/to/h5ad.file"
 seurat_obj <- h5adToSeurat(h5ad_file, annotation_column=NULL)
 ```
 
-Once the Seurat object and global Parmesans are set up, you can run scDown functions.
+Once the Seurat object and global Parmesans are set up, you can run the following key functions in scDown:
 
-#### Run scDown:run_scproportion
+➡️ <a href="scProportionTest.html" target="_blank">scDown::run_scproportion</a>
 Compare relative cell-type proportions across two biological conditions. 
 
-➡️ <a href="scProportionTest.html" target="_blank">Read the tutorial</a>
-
-#### Run scDown:run_cellchatV2
+➡️ <a href="scDown_CellChatV2.html" target="_blank">scDown::run_cellchatV2</a>
 Explore cell–cell communication across cell types, tissues, or disease states.
 
-➡️ <a href="scDown_CellChatV2.html" target="_blank">View full documentation</a>
-
-#### Run scDown:run_monocle3
+➡️ <a href="scDown_monocle.html" target="_blank">scDown::run_monocle3</a>
 Perform pseudotime trajectory analysis and identify key regulators of cell state transitions.
 
-➡️ <a href="scDown_monocle.html" target="_blank">Explore the pseudotime workflow</a>
+➡️ <a href="run_scvelo.html" target="_blank">scDown::run_scvelo</a>
+Incorporate spliced and unspliced counts and conduct RNA velocity analysis.
 
-#### Run scDown:run_scvelo
-Predict future cell states and lineage relationships using RNA velocity and PAGA.
-
-➡️ <a href="run_scvelo.html" target="_blank">Learn more</a>
-
-➡️ <a href="run_scvelo_full.html" target="_blank">Run full pipeline</a>
+➡️ <a href="run_scvelo_full.html" target="_blank">scDown::run_scvelo_full</a>
+Estimate RNA velocity with enhanced visualizations and PAGA trajectory inference.
 
 

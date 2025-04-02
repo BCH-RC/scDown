@@ -1,6 +1,6 @@
 ---
-title: "scDown: A pipeline to carry out the scRNASeq downstream analysis"
-subtitle: "scVelo Part II: Read .h5ad file and run scVelo using original scVelo"
+title: "scDown::run_scvelo_full"
+subtitle: "scVelo Part II: Read h5ad and run scVelo using original scVelo"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 output: 
   rmarkdown::html_document:
