@@ -2,7 +2,7 @@
 title: "scDown::run_monocle3 - Construction of the pseudotime trajectories to model the progression of cellular differentiation"
 author: |
     | 
-date: "`r format(Sys.Date(), '%m/%Y')`"
+#date: "`r format(Sys.Date(), '%m/%Y')`"
 output: 
   rmarkdown::html_document:
     highlight: pygments
