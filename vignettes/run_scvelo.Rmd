@@ -85,8 +85,10 @@ start_time <- proc.time()
 
 # Run scVelo Part I
 run_scvelo(seurat_obj = seurat_obj,
+           loom_files = loom_files,   
+           loom_file_subset_column = "orig.ident",       
            output_dir = output_dir,
-           annotation_column = annotation_column)
+           annotation_column = annotation_column )
 
 end_time <- proc.time()
 elapsed_time <- end_time - start_time
@@ -122,13 +124,18 @@ If specific groups of conditions or time points are provided, we subset the Seur
 groups=list("12","35")
 # specify which metadata column of the Seurat object should be used for the group subset 
 group_column="age.days."
+# specify the number of cores to run each group separately in parallel
+cores = 2
 
 # Run scVelo Part I
 run_scvelo(seurat_obj = seurat_obj,
+           loom_files = loom_files,   
+           loom_file_subset_column = "orig.ident",  
            output_dir = output_dir,
            annotation_column = annotation_column,
-           groups=groups,
-           group_column=group_column)
+           groups = groups,
+           group_column = group_column,
+           cores = cores )
 
 ```
 
