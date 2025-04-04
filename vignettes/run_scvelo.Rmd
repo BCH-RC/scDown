@@ -1,7 +1,5 @@
 ---
 title: "scDown::run_scvelo - Incorporate spliced and unspliced counts and conduct RNA velocity analysis"
-subtitle: "scVelo Part I: Read loom using Velocyto.R and run scVelo using the R wrapper velociraptor"
-date: "`r format(Sys.Date(), '%m/%d/%Y')`"
 output: 
   rmarkdown::html_document:
     highlight: pygments
@@ -35,7 +33,7 @@ knitr::opts_chunk$set(
 ```
 
 # Define Variables specific for `scDown::run_scvelo`
-Apart from global universal variables applied to all functions in scDown, defining additional variables specific for running scVelo Part I. 
+Apart from global universal variables applied to all functions in scDown, defining additional variables specific for running `scDown::run_scvelo`. 
 
 Loading a Seurat object (seurat_obj) containing single-cell RNA-seq data is required. The cell type annotation column (annotation_column) is defined to specify the cell type or other annotation labels, ensuring the analysis runs with the correct group.
 
@@ -76,7 +74,7 @@ name_by=NULL
 
 ```
 
-# Run scVelo Part I
+# Run `scDown::run_scvelo`: Read loom using Velocyto.R and run scVelo using the R wrapper velociraptor
 The spliced and unspliced matrices from .loom files are added as new assays to seurat_obj, which is converted to .5had file. The .5had file with spliced and unspliced matrices will be used as input for scVelo Part II run_scvelo_full(). 
 
 ## Run scVelo for entire data
@@ -154,11 +152,11 @@ knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignette
 
 # Summary
 
-This document outlines a pipeline for incorporating spliced and unspliced RNA matrices from .loom files into Seurat object, and analyzing RNA velocity using velciraptor, a R wrapper for scVelo. The pipeline begins by defining key variables, such as the working directory, Seurat object, species, and metadata for cell type annotations and preparing for input .h5ad file for the run_scvelo_full() pipeline. It runs scVelo on the entire dataset to compute RNA velocity across all cells and generates generates visualizations for Velocity vector field on UMAPs.
+This document outlines a pipeline for incorporating spliced and unspliced RNA matrices from .loom files into Seurat object, and analyzing RNA velocity using velciraptor, a R wrapper for scVelo. The pipeline begins by defining key variables, such as the working directory, Seurat object, species, and metadata for cell type annotations and generate h5ad file as an input for the function `scDown::run_scvelo_full`. It runs scVelo on the entire dataset to compute RNA velocity across all cells and generates generates visualizations for Velocity vector field on UMAPs.
 
 Additionally, the pipeline supports focused analysis by selecting specific time points  (e.g., age groups 12 and 35) or comparing user-defined groups. For each group of conditions or time points, the Seurat object is subsetted and velocity is computed. 
 
-This pipeline provides a comprehensive tool for incorporating spliced and unspliced matrices from .loom and computing RNA velocity.
+This pipeline provides a comprehensive tool for incorporating spliced and unspliced matrices from loom file into the Seurat object and computing RNA velocity.
 
 The vignette was performed on a machine with the following specifications:
 
