@@ -1,8 +1,8 @@
 ---
-title: "scDown: A pipeline to carry out the scRNASeq downstream analysis"
+title: "scDown::run_cellchatV2 - Explore cell–cell communication across cell types, tissues, or disease states"
 author: |
     | 
-date: "`r format(Sys.Date(), '%m/%Y')`"
+# date: "`r format(Sys.Date(), '%m/%Y')`"
 output: 
   rmarkdown::html_document:
     highlight: pygments
