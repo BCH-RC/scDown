@@ -1,5 +1,5 @@
 ---
-title: "scDown:run_scproportion"
+title: "scDown::run_scproportion - Compare relative cell-type proportions across biological conditions"
 author: |
     | 
 #date: "`r format(Sys.Date(), '%m/%Y')`"
@@ -9,7 +9,7 @@ output:
     toc: true
     toc_depth: 3
     df_print: paged
-    number_sections: false  ## if you want number sections at each table header
+    number_sections: true  ## if you want number sections at each table header
     #theme: united  # many options for theme, this one is my favorite.
 #bibliography: library.bib
 fig_width: 8 
@@ -33,7 +33,7 @@ knitr::opts_chunk$set(
 
 ```
 
-####  Run scProportionTest
+##  Run scProportionTest
 Run the test for all the pairwise comparison in group column for all the cell types in annotation column. The figures and statistical results with be saved in the `output_dir` 
 
 ```{r,include=FALSE,message=F,eval=FALSE}
@@ -57,7 +57,7 @@ duration <- round(end_time - start_time,digits = 1)
 print(duration)
 ```
 
-#### Test results figures 
+## Test Results Figures 
 After running the scProportion test, the figures for each comparison will be generated.
 
 
