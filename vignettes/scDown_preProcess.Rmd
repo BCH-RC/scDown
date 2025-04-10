@@ -9,7 +9,7 @@ output:
     highlight: pygments
     toc: true
     toc_depth: 3
-    number_sections: false  ## if you want number sections at each table header
+    number_sections: true  ## if you want number sections at each table header
     df_print: paged
     #theme: united  # many options for theme, this one is my favorite.
 #bibliography: library.bib
@@ -34,29 +34,29 @@ knitr::opts_chunk$set(
 
 ```
 
-#### Introduction 
+# Introduction 
 `scDown` is a modular and user-friendly pipeline for downstream analysis of single-cell RNA sequencing (scRNA-seq) data. It streamlines complex analysis into simple, reproducible workflows. This vignette provides a step-by-step guide for setting up your environment and running key `scDown` functions.
 
 Key Modules:
 
-  1. scDown::run_scproportion: Compare cell-type proportions across conditions.
-  
-  2. scDown::run_cellchatV2: Infer and visualize cell-cell communication networks.
-  
-  3. scDown::run_monocle3: Perform pseudotime trajectory inference.
-  
-  4. scDown::run_scvelo: Incorporate spliced and unspliced counts and conduct RNA velocity analysis.
+  1. scDown::doTransferLabel: Transfer annotations from a reference scRNA-seq dataset using symphony.
 
-  5. scDown::run_scvelo_full: Estimate RNA velocity with enhanced visualizations and PAGA trajectory inference.
+  2. scDown::run_scproportion: Compare cell-type proportions across conditions.
+  
+  3. scDown::run_cellchatV2: Infer and visualize cell-cell communication networks.
+  
+  4. scDown::run_monocle3: Perform pseudotime trajectory inference.
+  
+  5. scDown::run_scvelo: Incorporate spliced and unspliced counts and conduct RNA velocity analysis.
+
+  6. scDown::run_scvelo_full: Estimate RNA velocity with enhanced visualizations and PAGA trajectory inference.
 
 
-#### Load Required Libraries 
+# Load Required Libraries and Set Variables
 
 ```{r,message=FALSE,eval=FALSE}
 library(scDown)
 ```
-
-#### Set Variables and Enviroment
 
 Before running the pipeline, configure the following global variables, set the output directory to save the output results, and load Seurat object of single-cell RNA-seq data. The metadata column (annotation_column) is defined to specify the cell type or other annotation labels, ensuring the analysis runs with the correct input data.
 
@@ -76,13 +76,13 @@ species <- "mouse"
 
 ```
 
-#### Convert H5AD File to Seurat Object
 If you have `.h5ad` file, convert it to Seurat object using: 
 ```{r, message=FALSE,eval=FALSE}
 h5ad_file <- "path/to/h5ad.file"
 seurat_obj <- h5adToSeurat(h5ad_file, annotation_column=NULL)
 ```
 
+# Run scDown Functions
 Once the Seurat object and global Parmesans are set up, you can run the following key functions in scDown:
 
 ➡️ <a href="scProportionTest.html" target="_blank">scDown::run_scproportion</a>
