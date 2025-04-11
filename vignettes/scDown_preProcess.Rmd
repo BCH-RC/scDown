@@ -39,17 +39,15 @@ knitr::opts_chunk$set(
 
 Key Modules:
 
-  1. scDown::doTransferLabel: Transfer annotations from a reference scRNA-seq dataset using symphony.
+  1. scDown::run_scproportion: Compare cell-type proportions across conditions.
+  
+  2. scDown::run_cellchatV2: Infer and visualize cell-cell communication networks.
+  
+  3. scDown::run_monocle3: Perform pseudotime trajectory inference.
+  
+  4. scDown::run_scvelo: Incorporate spliced and unspliced counts and conduct RNA velocity analysis.
 
-  2. scDown::run_scproportion: Compare cell-type proportions across conditions.
-  
-  3. scDown::run_cellchatV2: Infer and visualize cell-cell communication networks.
-  
-  4. scDown::run_monocle3: Perform pseudotime trajectory inference.
-  
-  5. scDown::run_scvelo: Incorporate spliced and unspliced counts and conduct RNA velocity analysis.
-
-  6. scDown::run_scvelo_full: Estimate RNA velocity with enhanced visualizations and PAGA trajectory inference.
+  5. scDown::run_scvelo_full: Estimate RNA velocity with enhanced visualizations and PAGA trajectory inference.
 
 
 # Load Required Libraries and Set Variables
@@ -58,7 +56,7 @@ Key Modules:
 library(scDown)
 ```
 
-Before running the pipeline, configure the following global variables, set the output directory to save the output results, and load Seurat object of single-cell RNA-seq data. The metadata column (annotation_column) is defined to specify the cell type or other annotation labels, ensuring the analysis runs with the correct input data.
+Before running the pipeline, configure the following global variables, set the output directory to save the output results, and load Seurat object of scRNA-seq data. The metadata column (annotation_column) is defined to specify the cell type or other annotation labels, ensuring the analysis runs with the correct input data.
 
 ```{r, message=FALSE,eval=FALSE}
 # Define output directory for results
@@ -81,6 +79,22 @@ If you have `.h5ad` file, convert it to Seurat object using:
 h5ad_file <- "path/to/h5ad.file"
 seurat_obj <- h5adToSeurat(h5ad_file, annotation_column=NULL)
 ```
+
+To perform cell type-specific analysis, the Seurat object's metadata should include annotated cell types. If your scRNA-seq dataset is unannotated, you can use `doTransferLabel` function to transfer cell types labels from a reference Seurat object. This function utilizes a k-nearest neighbor (k-NN) classifier within the reference UMAP space to assign labels to query cells. You need a reference Seurat object containing annotated cell types (i.e., `Idents(reference)` should correspond to cell types); and a query Seurat object for which cell tyoe annotations are to be inferred. The optional variables are a variable in the reference metadata to harmonize on (e.g., batch, condition) and the option to transfer UMAP coordinates from reference to query.
+
+```{r, message=FALSE,eval=FALSE}
+# Load your reference Seurat object
+reference_seurat_obj_file <- "path/to/reference-Seurat-Object.rds"
+reference_seurat_obj <- readRDS(reference_seurat_obj_file)
+# Transfer cell type labels to your unannotated Seurat object
+seurat_obj_annotated <- doTransferLabel(
+  reference_seurat_obj, 
+  seurat_obj, 
+  varToHarmonize = NULL, # optionally provide a variable to harmonize
+  transferCoordinates = FALSE # set to TRUE to transfer UMAP coordinates
+)
+```
+The return `seurat_obj_annotated` will contain the predicted cell type labels from each cell and the confidence score of the label assignment and the updated UMAP coordinates (if  `transferCoordinates = TRUE`). This annotated Seurat object can now be used as input for scDown functions.
 
 # Run scDown Functions
 Once the Seurat object and global Parmesans are set up, you can run the following key functions in scDown:
