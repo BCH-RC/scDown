@@ -1702,7 +1702,11 @@ Analysis</h1>
 <ul>
 <li><a href="#introduction" id="toc-introduction"><span class="toc-section-number">1</span> Introduction</a></li>
 <li><a href="#load-required-libraries-and-set-variables" id="toc-load-required-libraries-and-set-variables"><span class="toc-section-number">2</span> Load Required Libraries and Set
-Variables</a></li>
+Variables</a>
+<ul>
+<li><a href="#annotated-seurat-object" id="toc-annotated-seurat-object"><span class="toc-section-number">2.1</span> Annotated Seurat Object</a></li>
+<li><a href="#unannotated-seurat-object" id="toc-unannotated-seurat-object"><span class="toc-section-number">2.2</span> Unannotated Seurat Object</a></li>
+</ul></li>
 <li><a href="#run-scdown-functions" id="toc-run-scdown-functions"><span class="toc-section-number">3</span> Run scDown Functions</a></li>
 </ul>
 </div>
@@ -1716,6 +1720,8 @@ vignette provides a step-by-step guide for setting up your environment
 and running key <code>scDown</code> functions.</p>
 <p>Key Modules:</p>
 <ol style="list-style-type: decimal">
+<li><p>scDown::doTransferLabel: Transfers cell type labeling from a
+reference Seurat object to a query Seurat object.</p></li>
 <li><p>scDown::run_scproportion: Compare cell-type proportions across
 conditions.</p></li>
 <li><p>scDown::run_cellchatV2: Infer and visualize cell-cell
@@ -1732,6 +1738,9 @@ visualizations and PAGA trajectory inference.</p></li>
 <h1><span class="header-section-number">2</span> Load Required Libraries
 and Set Variables</h1>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(scDown)</span></code></pre></div>
+<div id="annotated-seurat-object" class="section level2" number="2.1">
+<h2><span class="header-section-number">2.1</span> Annotated Seurat
+Object</h2>
 <p>Before running the pipeline, configure the following global
 variables, set the output directory to save the output results, and load
 Seurat object of scRNA-seq data. The metadata column (annotation_column)
@@ -1753,6 +1762,12 @@ the analysis runs with the correct input data.</p>
 using:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>h5ad_file <span class="ot">&lt;-</span> <span class="st">&quot;path/to/h5ad.file&quot;</span></span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>seurat_obj <span class="ot">&lt;-</span> <span class="fu">h5adToSeurat</span>(h5ad_file, <span class="at">annotation_column=</span><span class="cn">NULL</span>)</span></code></pre></div>
+<p>If your Seurat object has cell type annotation you can skip next step
+and go to part 3 <code>Run scDown Functions</code></p>
+</div>
+<div id="unannotated-seurat-object" class="section level2" number="2.2">
+<h2><span class="header-section-number">2.2</span> Unannotated Seurat
+Object</h2>
 <p>To perform cell type-specific analysis, the Seurat object’s metadata
 should include annotated cell types. If your scRNA-seq dataset is
 unannotated, you can use <code>doTransferLabel</code> function to
@@ -1765,21 +1780,23 @@ query Seurat object for which cell tyoe annotations are to be inferred.
 The optional variables are a variable in the reference metadata to
 harmonize on (e.g., batch, condition) and the option to transfer UMAP
 coordinates from reference to query.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Load your reference Seurat object</span></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>reference_seurat_obj_file <span class="ot">&lt;-</span> <span class="st">&quot;path/to/reference-Seurat-Object.rds&quot;</span></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>reference_seurat_obj <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(reference_seurat_obj_file)</span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co"># Transfer cell type labels to your unannotated Seurat object</span></span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>seurat_obj_annotated <span class="ot">&lt;-</span> <span class="fu">doTransferLabel</span>(</span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  reference_seurat_obj, </span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  seurat_obj, </span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>  <span class="at">varToHarmonize =</span> <span class="cn">NULL</span>, <span class="co"># optionally provide a variable to harmonize</span></span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>  <span class="at">transferCoordinates =</span> <span class="cn">FALSE</span> <span class="co"># set to TRUE to transfer UMAP coordinates</span></span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>)</span></code></pre></div>
-<p>The return <code>seurat_obj_annotated</code> will contain the
-predicted cell type labels from each cell and the confidence score of
-the label assignment and the updated UMAP coordinates (if
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Load your reference unannotated Seurat objects</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>reference_seurat_obj <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;path/to/reference-Seurat-object.rds&quot;</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>unannotated_seurat_obj <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;path/to/unannotated-Seurat-object.rds&quot;</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co"># Transfer cell type labels to your unannotated Seurat object</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>seurat_obj <span class="ot">&lt;-</span> <span class="fu">doTransferLabel</span>(</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  reference_seurat_obj, </span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>  unannotated_seurat_obj, </span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>  <span class="at">varToHarmonize =</span> <span class="cn">NULL</span>, <span class="co"># optionally provide a variable to harmonize</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>  <span class="at">transferCoordinates =</span> <span class="cn">FALSE</span> <span class="co"># set to TRUE to transfer UMAP coordinates</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>)</span></code></pre></div>
+<p>The return <code>seurat_obj</code> will contain the predicted cell
+type labels from each cell and the confidence score of the label
+assignment and the updated UMAP coordinates (if
 <code>transferCoordinates = TRUE</code>). This annotated Seurat object
 can now be used as input for scDown functions.</p>
+</div>
 </div>
 <div id="run-scdown-functions" class="section level1" number="3">
 <h1><span class="header-section-number">3</span> Run scDown
