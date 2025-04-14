@@ -33,14 +33,9 @@ knitr::opts_chunk$set(
 
 # Define variables specific for run_monocle3
 
-```{r, message = FALSE}
+```{r, message = FALSE,eval=FALSE}
 # PCA Dimensions to preprocess the data
-library(scDown)
-nDim <- 30
-seurat_obj <- readRDS(file=system.file("extdata", "10X43_1_spliced_unspliced.rds", package="scDown"))
-species <- "mouse"
-annotation_column<-"clusters"
-output_dir <- "."
+nDim <- 30 
 
 ```
 
@@ -50,7 +45,7 @@ output_dir <- "."
 
 Users can load their scRNASeq data which they would like to run the trajectory analysis. To run the trajectory analysis, the users have to provide the scRNASeq data and species. By default, we would run the trajectory analysis on the whole dataset, identify the root nodes using potency method, and run trajectory analysis using monocle3.
 
-```{r, message = FALSE}
+```{r, message = FALSE,eval=FALSE}
 run_monocle3(seurat_obj = seurat_obj,
              species = species,
              nDim = nDim,
@@ -76,7 +71,7 @@ The first step of construction of the single cell trajectories is the pre-proces
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
 
-knitr::include_graphics("./monocle/images/pseudotime/umap_celltypes_transferUMAP_TRUE.png")
+knitr::include_graphics("../scdown/monocle3/images/umap_celltypes_transferUMAP_TRUE.png")
 
 ```
 
@@ -84,7 +79,7 @@ Next, the cells are grouped into broad cell clusters represented in the data. Mo
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
 
-knitr::include_graphics("./monocle/images/pseudotime/umap_partitions_transferUMAP_TRUE.png")
+knitr::include_graphics("../scdown/monocle3/images/umap_partitions_transferUMAP_TRUE.png")
 
 ```
 
@@ -93,7 +88,7 @@ Next, the trajectories in the single-cell data is learned by fitting a principal
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
 
-knitr::include_graphics("./monocle/images/pseudotime/umap_trajectory_transferUMAP_TRUE.png")
+knitr::include_graphics("../scdown/monocle3/images/umap_trajectory_transferUMAP_TRUE.png")
 
 ```
 
@@ -101,7 +96,7 @@ In our workflow, we have three methods to identify the root node in the single c
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
 
-knitr::include_graphics("./monocle/images/pseudotime/umap_pseudotime_potency.png")
+knitr::include_graphics("../scdown/monocle3/images/umap_pseudotime_potency.png")
 
 ```
 
@@ -112,7 +107,7 @@ The pipeline also identifies the genes that vary between groups of cells across 
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
 
-knitr::include_graphics("./monocle/images/DEG/significant_by_trajectory_gene_featurePlot.png")
+knitr::include_graphics("../scdown/monocle3/images/significant_by_trajectory_gene_featurePlot.png")
 
 ```
 
@@ -120,18 +115,24 @@ We also visualized the expression levels of top trajectory-variable genes across
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
 
-knitr::include_graphics("./monocle/images/DEG/significant_by_trajectory_genesInPseudotime.png")
+knitr::include_graphics("../scdown/monocle3/images/significant_by_trajectory_genesInPseudotime.png")
 
 ```
 
-The set of the trajectory-variable genes is further grouped into modules using Louvain community analysis. The clustering information is exported in a csv file (`monocleDEG_by_trajectory_moduleInformation.csv`).
+The set of the trajectory-variable genes is further grouped into modules using Louvain community analysis. The clustering information is exported in a csv file (`monocleDEG_by_trajectory_moduleInformation.csv`). The module heatmap below shows the expression levels of each module across the cell types.
+
+```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
+
+knitr::include_graphics("../scdown/monocle3/images/significant_by_trajectory_moduleHeatmap.png")
+
+```
 
 ### Visualization of cell distribution across the pseudotime
 The function will also generate plots that shows the distribution of the cells across the pseudotime. Below the density plot shows the distribution of cells across the pseudotime for the complete dataset separated by the timepoints.
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "60%", out.height = "70%"}
 
-knitr::include_graphics("./monocle/images/cellDistribution/cell_distribution_density.png")
+knitr::include_graphics("../scdown/monocle3/images/cell_distribution_density-NoCond.png")
 
 ```
 
@@ -139,7 +140,7 @@ Below the histogram shows the distribution of cells across the pseudotime for th
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "60%", out.height = "80%"}
 
-knitr::include_graphics("./monocle/images/cellDistribution/celltype_distribution_histogram.png")
+knitr::include_graphics("../scdown/monocle3/images/celltype_distribution_histogram-NoCond.png")
 
 ```
 
@@ -151,11 +152,10 @@ In this part, we will show how the pipeline can be used to analyze the trajector
 ### Construction and visualization of single-cell trajectories per group
 The users need to provide the conditions and condition metadata in the `run_monocle3` function to carry out the trajectory analysis across different conditions. This workflow also need the `deg_method` (By default, `deg_method = "quasipoisson"`) to carry out the regression analysis to identify those trajectory variable genes that differ between the conditions. In our test data, we selected the age of the mouse in days (12 and 35 days) as the conditions. 
 
-```{r, message = FALSE}
+```{r, message = FALSE,eval=FALSE}
 conditions <- c("12","35") # a string specifying a column in seurat_object@meta.data that contains the condition names, or NULL when no condition is filled.
 condition_metadata <- "age.days."
-deg_method <- "quasipoisson"
-output_dir <- "./monocle/"
+deg_method = "quasipoisson"
 
 library(scDown)
 run_monocle3(seurat_obj=seurat_obj,
@@ -165,7 +165,7 @@ run_monocle3(seurat_obj=seurat_obj,
              graph_test=TRUE,
              conditions = conditions,
              group_column=condition_metadata,
-             deg_method = deg_method,
+             deg_method = "quasipoisson",
              output_dir = output_dir)
 
 ```
@@ -184,7 +184,7 @@ The UMAP plot shows the different cell types in the data at timepoint 12.
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
 
-knitr::include_graphics("./monocle/monocle/images/pseudotime/umap_celltypes_transferUMAP_TRUETRUE_12.png")
+knitr::include_graphics("../scdown/monocle3/images/umap_celltypes_transferUMAP_TRUETRUE_12.png")
 
 ```
 
@@ -192,7 +192,7 @@ Below we show the UMAP plot that ordered the cells based on the root node select
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
 
-knitr::include_graphics("./monocle/monocle/images/pseudotime/umap_pseudotime_potency_12.png")
+knitr::include_graphics("../scdown/monocle3/images/umap_pseudotime_potency_12.png")
 
 ```
 
@@ -201,7 +201,7 @@ When conditions are supplied, the function will also generate plots that shows t
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "60%", out.height = "70%"}
 
-knitr::include_graphics("./monocle/monocle/images/cellDistribution/cell_distribution_density.png")
+knitr::include_graphics("../scdown/monocle3/images/cell_distribution_density.png")
 
 ```
 
@@ -209,7 +209,7 @@ Below the histogram shows the distribution of cells across the pseudotime for th
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "60%", out.height = "80%"}
 
-knitr::include_graphics("./monocle/monocle/images/cellDistribution/celltype_distribution_histogram.png")
+knitr::include_graphics("../scdown/monocle3/images/celltype_distribution_histogram.png")
 
 ```
 
@@ -221,7 +221,7 @@ When conditions are supplied, the pipeline also identifies the significant diffe
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
 
-knitr::include_graphics("./monocle/monocle/images/DEG/significant_by_age.days.+trajectory_12_35_featurePlot.png")
+knitr::include_graphics("../scdown/monocle3/images/significant_by_age.days.+trajectory_12_35_featurePlot.png")
 
 ```
 
@@ -229,7 +229,7 @@ We also visualized the expression levels of top trajectory-variable genes across
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
 
-knitr::include_graphics("./monocle/monocle/images/DEG/significant_by_age.days.+trajectory_12_35_genesInPseudotime.png")
+knitr::include_graphics("../scdown/monocle3/images/significant_by_age.days.+trajectory_12_35_genesInPseudotime.png")
 
 ```
 
@@ -237,18 +237,17 @@ knitr::include_graphics("./monocle/monocle/images/DEG/significant_by_age.days.+t
 ### Regression analysis between various groups in the scRNASeq data
 The pipeline can also be used to identify the significant differential expression genes between conditions using a generalized linear model using "quasipoisson" distribution by default. The users can use four different models ("quasipoisson", "negbinomial","poisson" or "binomial") by supplying it in `deg_model` variable. This is an optional feature which can be turned on by supplying the metadata in the `metadata_deg_model`.
 
-```{r, message = FALSE}
+```{r, message = FALSE,eval=FALSE}
 conditions <- c("12","35") # a string specifying a column in seurat_object@meta.data that contains the condition names, or NULL when no condition is filled.
 condition_metadata <- "age.days."
-deg_method <- "quasipoisson"
-output_dir <- "./monocle/"
+deg_method = "quasipoisson"
 
 library(scDown)
 run_monocle3(seurat_obj=seurat_obj,
              species=species,
              nDim = nDim,
              annotation_column = annotation_column,
-             deg_method = deg_method,
+             deg_method = "quasipoisson",
              metadata_deg_model=condition_metadata,
              output_dir = output_dir)
 
@@ -259,14 +258,14 @@ All the significant differential expressed genes were exported in a csv file (`m
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
 
-knitr::include_graphics("./monocle/monocle/images/DEG/significant_by_age.days._featurePlot.png")
+knitr::include_graphics("../scdown/monocle3/images/significant_by_age.days._featurePlot.png")
 
 ```
 
 We also visualized the expression levels of top differential expressed genes in violin plot.
 ```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
 
-knitr::include_graphics("./monocle/monocle/images/DEG/significant_by_age.days._violinPlot.png")
+knitr::include_graphics("../scdown/monocle3/images/significant_by_age.days._violinPlot.png")
 
 ```
 
@@ -275,20 +274,18 @@ knitr::include_graphics("./monocle/monocle/images/DEG/significant_by_age.days._v
 
 In this workflow, the users can also provide list of combinations of cell types between which they would like to analyze using the trajectory analysis workflow.
 
-```{r, message = FALSE}
-conditions <- c("12","35") # a string specifying a column in seurat_object@meta.data that contains the condition names, or NULL when no condition is filled.
-condition_metadata <- "age.days."
-deg_method <- "quasipoisson"
-output_dir <- "./monocle/"
+```{r, message = FALSE,eval=FALSE}
+library(scDown)
 
 cell_types_monocle<-list(c("Granule immature","Granule mature"))
+library(scDown)
 run_monocle3(seurat_obj=seurat_obj,
              species=species,
              nDim = nDim,
              annotation_column = annotation_column, 
              conditions = conditions,
              group_column=condition_metadata,
-             deg_method = deg_method,
+             deg_method = "quasipoisson",
              celltype_groups = cell_types_monocle,
              graph_test=TRUE,
              output_dir = output_dir)
@@ -310,7 +307,7 @@ As mentioned previously, the trajectory in the cell type groups is learned by fi
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
 
-knitr::include_graphics("./monocle/monocle/images/pseudotime/umap_trajectory_transferUMAP_TRUE_Granule immature_Granule mature.png")
+knitr::include_graphics("../scdown/monocle3/images/umap_trajectory_transferUMAP_TRUE_Granule immature_Granule mature.png")
 
 ```
 
@@ -318,7 +315,7 @@ In our workflow, we used the potency method to find the root node (`rootNode_met
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
 
-knitr::include_graphics("./monocle/monocle/images/pseudotime/umap_pseudotime_potency_Granule immature_Granule mature.png")
+knitr::include_graphics("../scdown/monocle3/images/umap_pseudotime_potency_Granule immature_Granule mature.png")
 
 ```
 
@@ -327,7 +324,7 @@ After that, the pipeline identifies the genes that vary between cell types acros
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
 
-knitr::include_graphics("./monocle/monocle/images/DEG/significant_by_trajectory_gene_featurePlot_Granule immature_Granule mature.png")
+knitr::include_graphics("../scdown/monocle3/images/significant_by_trajectory_gene_featurePlot_Granule immature_Granule mature.png")
 
 ```
 
@@ -335,7 +332,7 @@ We also visualized the expression levels of top trajectory-variable genes across
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
 
-knitr::include_graphics("./monocle/monocle/images/DEG/significant_by_trajectory_genesInPseudotime_Granule immature_Granule mature.png")
+knitr::include_graphics("../scdown/monocle3/images/significant_by_trajectory_genesInPseudotime_Granule immature_Granule mature.png")
 
 ```
 
@@ -343,7 +340,7 @@ The set of the trajectory-variable genes is further grouped into modules using L
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "80%", out.height = "70%"}
 
-knitr::include_graphics("./monocle/monocle/images/DEG/significant_by_trajectory_moduleHeatmap_Granule immature_Granule mature.png")
+knitr::include_graphics("../scdown/monocle3/images/significant_by_trajectory_moduleHeatmap_Granule immature_Granule mature.png")
 
 ```
 
@@ -352,7 +349,7 @@ The function generate plots that shows the distribution of the cells across the 
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "60%", out.height = "70%"}
 
-knitr::include_graphics("./monocle/monocle/images/cellDistribution/celltype_distribution_density_Granule immature_Granule mature.png")
+knitr::include_graphics("../scdown/monocle3/images/celltype_distribution_density_Granule immature_Granule mature.png")
 
 ```
 
@@ -360,7 +357,7 @@ Below the histogram shows the distribution of cells across the pseudotime for th
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "60%", out.height = "80%"}
 
-knitr::include_graphics("./monocle/monocle/images/cellDistribution/celltype_distribution_histogram_Granule immature_Granule mature.png")
+knitr::include_graphics("../scdown/monocle3/images/celltype_distribution_histogram_Granule immature_Granule mature.png")
 
 ```
 
