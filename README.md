@@ -4,7 +4,7 @@
 - [1 Installation](#1-installation)
   - [1.1 Installation using Docker](#11-installation-using-docker)
   - [1.2 Installation using Singularity](#12-installation-using-singularity)
-- [2 Tutorial](#tutorial)
+- [2 Tutorial](#2-tutorial)
   - [2.1 Preprocess Tutorial](#21-preprocess-tutorial)
   - [2.2 Functions Tutorial](#22-functions-tutorial)
 
