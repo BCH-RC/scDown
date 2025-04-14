@@ -1,6 +1,9 @@
 #' R/zzz.R 
 #' 
-#' install required python dependencies for scvelo_workflow.py
+#' install required python dependencies for scvelo_workflow.py for run_scvelo_full function
+#'
+#' @noRd
+
 .onLoad <- function(libname, pkgname) {
 
   # Check if Python is available without initializing

@@ -20,6 +20,8 @@ library(ggrepel)
 #' @param X Seurat object to which spliced and unspliced matrices will be added
 #' @param loomFile path to the Loom file containing spliced and unspliced matrices
 #' @return Seurat object with spliced and unspliced matrices added as new assays
+#'
+#' @noRd
 
 addSUmatrices <- function(X, loomFile){
     # Reading spliced/unspliced matrices
@@ -61,6 +63,8 @@ addSUmatrices <- function(X, loomFile){
 #' @param mode Character mode specifying the type of velocity computation to use. Available modes are "steady_state" 
 #'(original), "deterministic", "stochastic" (fastest:recommended), "dynamical".
 #' @return A SingleCellExperiment object with the information required to generate the plots.
+#'
+#' @noRd
 
 doVelocity <- function(X, mode = 'stochastic'){
     # Available Modes: "steady_state" (original), "deterministic", "stochastic" (fastest:recommended), "dynamical"
@@ -96,6 +100,9 @@ doVelocity <- function(X, mode = 'stochastic'){
 #' @param resolution Numeric value specifying the resolution of the grid to use. Default is 50.
 #' @return A 4-column data.frame containing the x and y coordinates of the start and end points of the velocity arrows.
 #' 
+#'
+#' @noRd
+
 getVectorField <- function(X, scVeloOutput, reduction = 'umap', dims = 1:2, resolution = 50){
     # Getting the requested reduction
     E <- Seurat::Embeddings(X, reduction = reduction)
@@ -133,6 +140,8 @@ getVectorField <- function(X, scVeloOutput, reduction = 'umap', dims = 1:2, reso
 #' @param grid_res numeric value specifying the resolution of the grid, purely for figure naming purpose.
 #' @param arrow_size a float or integer specifying the velocity vector arrow head size.
 #' @param vector_width a float or integer specifying the velocity vector line width.
+#'
+#' @noRd
 
 plotVectorField <- function(X, tpVF, group=NULL, group_column=NULL, color_scale=NULL, name_by=NULL, grid_res=NULL, arrow_size=0.5, vector_width=0.5){
     
@@ -201,6 +210,9 @@ plotVectorField <- function(X, tpVF, group=NULL, group_column=NULL, color_scale=
 #' @param scVeloOutput scVeloOutput object returned by doVelocity function.
 #' @return A Seurat object with two additional columns containing the computed pseudotime values and the velocity confidence values.
 #' 
+#'
+#' @noRd
+
 getVelocityPseudotime <- function(X, scVeloOutput){
     # Transfering computed pseudotime values to the Seurat object
     X$velocity_pseudotime <- scVeloOutput$velocity_pseudotime
@@ -219,6 +231,8 @@ getVelocityPseudotime <- function(X, scVeloOutput){
 #'
 #' @param X a Seurat object outputted by getVelocityPseudotime() function.
 #' @param color_scale two colors to use to define color gradient when plotting pseudotime.
+#'
+#' @noRd
 
 plotPseudotime <- function(X, color_scale=c("darkblue", "yellow")){
     
