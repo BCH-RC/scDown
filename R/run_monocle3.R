@@ -177,6 +177,7 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
   #   - graph auto-correlation for finding genes that vary along pseudotime/trajectory
   #       - if there are multiple conditions, regression method is used to find genes that vary along pseudotime AND differentially expressed between any two conditions
   #   - split cds object by conditions and find trajectory and pseudotime for each condition
+  print(length(cds_by_group))
   for (i in 1:length(cds_by_group))
   {
 
@@ -240,9 +241,8 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
       
       print(paste0("Trajectory and pseudotime for all conditions subsetted from cds object #",i," completed.", sep=""))
     }
-    return(cds.current)
+    #return(cds.current)
   }
-  
   return(cds_by_group)
 }
 
