@@ -1,6 +1,6 @@
 #' R/zzz.R 
 #' 
-#' install required python dependencies for scvelo_workflow.py for `run_scvelo_full` function
+#' install required python dependencies for scvelo_workflow.py for run_scvelo_full function
 #'
 #' @noRd
 
