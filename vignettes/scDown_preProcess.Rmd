@@ -82,7 +82,7 @@ If you have `.h5ad` file, convert it to Seurat object using:
 h5ad_file <- "path/to/h5ad.file"
 seurat_obj <- h5adToSeurat(h5ad_file, annotation_column=NULL)
 ```
-If your Seurat object has cell type annotation you can skip next step and go to part 3 `Run scDown Functions`
+If your Seurat object has cell type annotation you can skip next step (2.2) and go to part 3 `Run scDown Functions`
 
 ## Unannotated Seurat Object
 To perform cell type-specific analysis, the Seurat object's metadata should include annotated cell types. If your scRNA-seq dataset is unannotated, you can use `doTransferLabel` function to transfer cell types labels from a reference Seurat object. This function utilizes a k-nearest neighbor (k-NN) classifier within the reference UMAP space to assign labels to query cells. You need a reference Seurat object containing annotated cell types (i.e., `Idents(reference)` should correspond to cell types); and a query Seurat object for which cell tyoe annotations are to be inferred. The optional variables are a variable in the reference metadata to harmonize on (e.g., batch, condition) and the option to transfer UMAP coordinates from reference to query.
