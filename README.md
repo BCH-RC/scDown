@@ -2,11 +2,11 @@
 
 ### Table of Contents
 - [1 Installation](#1-installation)
-  - [1.1 Installation using Docker](#1.1-installation-using-docker)
-  - [1.2 Installation using Singularity](#1.2-installation-using-singularity)
+  - [1.1 Installation using Docker](#11-installation-using-docker)
+  - [1.2 Installation using Singularity](#12-installation-using-singularity)
 - [2 Tutorial](#tutorial)
-  - [2.1 Preprocess Tutorial](#2.1-preprocess-tutorial)
-  - [2.2 Functions Tutorial](#2.2-functions-tutorial)
+  - [2.1 Preprocess Tutorial](#21-preprocess-tutorial)
+  - [2.2 Functions Tutorial](#22-functions-tutorial)
 
 ### 1 Installation
 #### 1.1 Installation using Docker
@@ -49,8 +49,8 @@ library(scDown)
 #### 2.1 Preprocess Tutorial
 First, we define universal variables that apply to all key functions in the following preprocess vignette:
 - [Preprocess](https://html-preview.github.io/?url=https://github.com/BCH-RC/scDown/refs/heads/main/vignettes/scDown_preProcess.html) - Set the universal variables for all key functions in scDown, and convert h5ad to Seurat rds or annotate cell type using reference scRNA-seq data if needed.
-  - [`h5adToSeurat`](https://html-preview.github.io/?url=https://github.com/BCH-RC/scDown/refs/heads/main/vignettes/scDown_preProcess.html#annotated-seurat-object) - Convert h5ad to Seurat rds as input for **scDown** functions.
-  - [`doTransferLabel`](https://html-preview.github.io/?url=https://github.com/BCH-RC/scDown/refs/heads/main/vignettes/scDown_preProcess.html#unannotated-seurat-object) - Transfers cell type annotation from a reference Seurat object to a query Seurat object, enabling automated annotation based on known cell types prior to downstream analysis.
+  - [`h5adToSeurat`](https://html-preview.github.io/?url=https://github.com/BCH-RC/scDown/refs/heads/main/vignettes/scDown_preProcess.html#annotated-seurat-object) - Convert h5ad to Seurat rds as input for key functions in **scDown**.
+  - [`doTransferLabel`](https://html-preview.github.io/?url=https://github.com/BCH-RC/scDown/refs/heads/main/vignettes/scDown_preProcess.html#unannotated-seurat-object) - Transfers cell type annotation from a reference Seurat object to a query unannotated Seurat object, enabling automated annotation based on known cell types in reference scRNA-seq data.
 
 #### 2.2 Functions Tutorial
 The **scDown** package provides a single function for each purpose, integrating all necessary steps into one streamlined command, making the analysis more efficient and user-friendly. Below are the **key functions in scDown**, with links to their vignettes for detailed usage instructions and example outputs:
@@ -61,9 +61,6 @@ The **scDown** package provides a single function for each purpose, integrating 
 - [`run_scvelo_full`](https://html-preview.github.io/?url=https://github.com/BCH-RC/scDown/blob/main/vignettes/run_scvelo_full.html) - Calls the original scVelo for RNA velocity analysis from .h5ad files, providing enhanced visualizations and PAGA trajectory inference.
   
 The latter 4 key functions in scDown can be applied to either entire data or selected conditions of interest. 
-
-To faciliate the scRNA-seq downstream analysis using scDown, scDown provides a function for cell type annotation when reference data with cell type annotation is available, which can be run beforehand if needed: 
-
 
 ## Contact
 - Please create an issue under our repository by clicking the issue tab, we will try to address it.
