@@ -10,7 +10,7 @@
 
 ### 1 Installation
 #### 1.0 System requirement
-We **strongly recommend using an HPC (High-Performance Computing) Linux server** for running most functions of scDown, especially for large datasets. HPC Linux server typically provides greater memory and more CPU cores, which significantly improve efficiency and performance. While small datasets (<10,000 cells) can be processed on a Mac, limited memory may result in slower performance. The only exception is the `run_scproportiontest` function, which can be run efficiently on a Mac, regardless of dataset size.
+We strongly recommend using an HPC (High-Performance Computing) Linux server for running most functions of scDown, especially for large datasets. HPC Linux server typically provides greater memory and more CPU cores, which significantly improve efficiency and performance. While small datasets (<10,000 cells) can be processed on a Mac, limited memory may result in slower performance. The only exception is the `run_scproportiontest` function, which can be run efficiently on a Mac, regardless of dataset size.
 
 #### 1.1 Installation using Docker
 ##### Docker images of scDown
