@@ -64,7 +64,7 @@ run_cellchatV2(seurat_obj = seurat_obj,
 
 ```
 
-**Running Time**: ~2 minutes
+**Running Time**: ~7 minutes
 
 ### Aggregated views
 #### Aggregated circle plot
@@ -170,7 +170,7 @@ run_cellchatV2(seurat_obj = seurat_obj,
 
 ```
 
-**Running Time**: ~4 minutes
+**Running Time**: ~9 minutes
 
 The plots generated in this analysis represent cell-to-cell interactions for both age groups (35 and 12). For instance, the circle view shows the signaling strength across the two age groups, providing a comparative analysis of how the cell communication network differs between them. 
 
@@ -226,7 +226,7 @@ run_cellchatV2(seurat_obj = seurat_obj,
                group_column = group_column)
 
 ```
-**Running Time**: ~3 minutes
+**Running Time**: ~7.5 minutes
 
 
 ## Run CellChat with user-defined groups and perform pairwise comparisons between the selected groups.
@@ -249,7 +249,7 @@ run_cellchatV2(seurat_obj = seurat_obj,
 
 ```
 
-**Running Time**: ~4 minutes
+**Running Time**: ~9 minutes
 
 The rankNet plot compares the relative importance of different signaling pathways between groups, such as age group 35 vs. 12. When stacked = TRUE (left panel), the x-axis shows "Relative information flow", which represents the proportional contribution of each pathway to the total communication between cell types. This normalization allows for a comparison of how each pathway ranks relative to others within the group. When stacked = FALSE (right panel), the x-axis shows "Information flow", which indicates the absolute communication strength for each pathway without normalization. This provides the raw magnitude of signaling for each pathway. The rankNet plot, therefore, helps to identify which pathways are most influential in mediating communication between the groups, allowing for insights into age-related differences in cell-to-cell signaling.
 
@@ -296,8 +296,8 @@ Additionally, the pipeline supports focused analysis by selecting specific cell 
 
 The analysis was performed on a machine with the following specifications:
 
-- **Operating System**: Darwin
-  - **Product Name**: macOS
-  - **Product Version**: 14.7.1
-- **CPU**: Apple M2 Pro
-- **Memory**: 16 GB
+- **Operating System**: Rocky Linux 8.9 (Green Obsidian)
+  - **Product Name**: RHEL
+  - **Product Version**: 8.9
+- **CPU**: Intel(R) Xeon(R) Platinum 8268 CPU @ 2.90GHz
+- **Memory**: 10 GB

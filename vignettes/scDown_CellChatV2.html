@@ -484,7 +484,7 @@ provided in a later session.</p>
 <span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>               <span class="at">output_dir =</span> output_dir_cellchat,</span>
 <span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>               <span class="at">annotation_column =</span> annotation_column,</span>
 <span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>               <span class="at">species =</span> species)</span></code></pre></div>
-<p><strong>Running Time</strong>: ~2 minutes</p>
+<p><strong>Running Time</strong>: ~7 minutes</p>
 <div id="aggregated-views" class="section level3" number="2.1.1">
 <h3><span class="header-section-number">2.1.1</span> Aggregated
 views</h3>
@@ -609,7 +609,7 @@ groups.</p>
 <span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>               <span class="at">annotation_column =</span> annotation_column,</span>
 <span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>               <span class="at">species =</span> species,</span>
 <span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>               <span class="at">group_column =</span> group_column)</span></code></pre></div>
-<p><strong>Running Time</strong>: ~4 minutes</p>
+<p><strong>Running Time</strong>: ~9 minutes</p>
 <p>The plots generated in this analysis represent cell-to-cell
 interactions for both age groups (35 and 12). For instance, the circle
 view shows the signaling strength across the two age groups, providing a
@@ -661,7 +661,7 @@ relevant to specific biological questions.</p>
 <span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a>               <span class="at">annotation_selected =</span> celltypes_of_interest,</span>
 <span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a>               <span class="at">species =</span> species,</span>
 <span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a>               <span class="at">group_column =</span> group_column)</span></code></pre></div>
-<p><strong>Running Time</strong>: ~3 minutes</p>
+<p><strong>Running Time</strong>: ~7.5 minutes</p>
 </div>
 <div id="run-cellchat-with-user-defined-groups-and-perform-pairwise-comparisons-between-the-selected-groups." class="section level2" number="2.4">
 <h2><span class="header-section-number">2.4</span> Run CellChat with
@@ -690,7 +690,7 @@ points.</p>
 <span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a>               <span class="at">species =</span> species,</span>
 <span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a>               <span class="at">group_column =</span> group_column, </span>
 <span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a>               <span class="at">group_cmp =</span> comparison_groups)</span></code></pre></div>
-<p><strong>Running Time</strong>: ~4 minutes</p>
+<p><strong>Running Time</strong>: ~9 minutes</p>
 <p>The rankNet plot compares the relative importance of different
 signaling pathways between groups, such as age group 35 vs. 12. When
 stacked = TRUE (left panel), the x-axis shows “Relative information
@@ -766,13 +766,14 @@ cell communication networks.</p>
 <p>The analysis was performed on a machine with the following
 specifications:</p>
 <ul>
-<li><strong>Operating System</strong>: Darwin
+<li><strong>Operating System</strong>: Rocky Linux 8.9 (Green Obsidian)
 <ul>
-<li><strong>Product Name</strong>: macOS</li>
-<li><strong>Product Version</strong>: 14.7.1</li>
+<li><strong>Product Name</strong>: RHEL</li>
+<li><strong>Product Version</strong>: 8.9</li>
 </ul></li>
-<li><strong>CPU</strong>: Apple M2 Pro</li>
-<li><strong>Memory</strong>: 16 GB</li>
+<li><strong>CPU</strong>: Intel(R) Xeon(R) Platinum 8268 CPU @
+2.90GHz</li>
+<li><strong>Memory</strong>: 10 GB</li>
 </ul>
 </div>
 
