@@ -68,13 +68,14 @@ knitr::include_graphics(c("scproportion/images/scProportiontest_12vs35.png","scp
 
 scProportion performs a Monte-carlo permutation test to quantify the cell proportion differences between each condition. As shown in the left panel, there is higher cell proportion for samples in 35 days in OL and Cck-Tox cells in compare to samples in age 12 days. On the reverse side, higher cell proportion in age 12 days sample for Neuroblast and Radial Glia-like  cell types in compare to age 35 samples.
 
-To speed up the analysis for large data sets with multiple comparison we apply parallel computation for `scDown::run_scPropotion()` function. The total running time for the sample data is ~ 12.2 seconds. 
+To speed up the analysis for large data sets with multiple comparison we apply parallel computation for `scDown::run_scPropotion()` function. The total running time for the sample data is ~ 14 seconds. 
 
 
 The analysis was performed on a machine with the following specifications:
 
-- **Operating System**: Darwin
-- **Product Name and Version**: macOS 23H222
-- **Product Version**: 14.7.1
-- **CPU**: Quad-Core Intel Core i7
-- **Memory**: 16 GB
+- **Operating System**: Rocky Linux 8.9 (Green Obsidian)
+- **Product Name and Version**: RHEL
+- **Product Version**: 8.9
+- **CPU**: Intel(R) Xeon(R) Platinum 8358 CPU @ 2.60GHz
+- **Memory**: 10 GB
+
