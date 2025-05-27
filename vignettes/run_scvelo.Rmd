@@ -109,19 +109,19 @@ print(elapsed_time)
 
 ```
 ```{r}
-# elapsed_time: 2 min
+# elapsed_time: 1 min
 ```
 This plot visualizes the vector field on UMAP embeddings using different arrow head sizes and widths. 
 
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/R_wrapper/velocityField__gridRes50_arrowSize0.5_width0.5.png")
+knitr::include_graphics("../scdown/scvelo/velocityField__gridRes50_arrowSize0.5_width0.5.png")
 
 ```
 
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/R_wrapper/velocityField__gridRes50_arrowSize1_width0.5.png")
+knitr::include_graphics("../scdown/scvelo/velocityField__gridRes50_arrowSize1_width0.5.png")
 
 ```
 
@@ -157,14 +157,14 @@ This plot visualizes the vector field on UMAP embeddings for each time point gro
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/R_wrapper/velocityField_12_gridRes50_arrowSize0.5_width0.5.png")
+knitr::include_graphics("../scdown/scvelo/velocityField_12_gridRes50_arrowSize0.5_width0.5.png")
 
 ```
 ```{r}
 # time point: day 35 
 ```
 ```{r, echo = FALSE, eval = TRUE}
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/R_wrapper/velocityField_35_gridRes50_arrowSize0.5_width0.5.png")
+knitr::include_graphics("../scdown/scvelo/velocityField_35_gridRes50_arrowSize0.5_width0.5.png")
 
 ```
 
@@ -178,8 +178,8 @@ This pipeline provides a comprehensive tool for incorporating spliced and unspli
 
 The vignette was performed on a machine with the following specifications:
 
-- **Operating System**: Sequoia
-  - **Product Name**: macOS
-  - **Product Version**: 15.0
-- **CPU**: Apple M1 Pro
-- **Memory**: 16 GB
+- **Operating System**: Rocky Linux 8.9 (Green Obsidian)
+  - **Product Name**: RHEL
+  - **Product Version**: 8.9
+- **CPU**: Intel(R) Xeon(R) Platinum 8358 CPU @ 2.60GHz
+- **Memory**: 10 GB

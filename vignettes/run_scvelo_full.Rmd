@@ -86,28 +86,28 @@ This step takes in an AnnData object in h5ad and performs all basic velocity cal
 This plot visualizes the % spliced Vs. unspliced RNA for each cell type. 
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_proportions.png")
+knitr::include_graphics("../scdown/scvelo_full/ALL_proportions.png")
 
 ```
 
 This plot visualizes the velocity stream on UMAP embeddings. 
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_embedding_stream.png")
+knitr::include_graphics("../scdown/scvelo_full/ALL_embedding_stream.png")
 
 ```
 
 This plot visualizes the vector grid on UMAP embeddings. 
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_embedding_grid.png")
+knitr::include_graphics("../scdown/scvelo_full/ALL_embedding_grid.png")
 
 ```
 
 This plot visualizes the vector arrow on UMAP embeddings. 
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_embedding_arrow.png")
+knitr::include_graphics("../scdown/scvelo_full/ALL_embedding_arrow.png")
 
 ```
 
@@ -122,7 +122,7 @@ This plot visualizes the phase portrait for top 5 highly ranked differential vel
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_Astrocytes_genePhase.png")
+knitr::include_graphics("../scdown/scvelo_full/ALL_Astrocytes_genePhase.png")
 
 ```
 ```{r}
@@ -130,7 +130,7 @@ knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignette
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_Cajal Retzius_genePhase.png")
+knitr::include_graphics("../scdown/scvelo_full/ALL_Cajal Retzius_genePhase.png")
 
 ```
 ```{r}
@@ -138,7 +138,7 @@ knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignette
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_Cck-Tox_genePhase.png")
+knitr::include_graphics("../scdown/scvelo_full/ALL_Cck-Tox_genePhase.png")
 
 ```
 
@@ -147,7 +147,7 @@ knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignette
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_Endothelial_genePhase.png")
+knitr::include_graphics("../scdown/scvelo_full/ALL_Endothelial_genePhase.png")
 
 ```
 
@@ -156,7 +156,7 @@ knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignette
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_GABA_genePhase.png")
+knitr::include_graphics("../scdown/scvelo_full/ALL_GABA_genePhase.png")
 
 ```
 ```{r}
@@ -164,7 +164,7 @@ knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignette
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_Granule immature_genePhase.png")
+knitr::include_graphics("../scdown/scvelo_full/ALL_Granule immature_genePhase.png")
 
 ```
 ```{r}
@@ -172,7 +172,7 @@ knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignette
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_Granule mature_genePhase.png")
+knitr::include_graphics("../scdown/scvelo_full/ALL_Granule mature_genePhase.png")
 
 ```
 ```{r}
@@ -180,7 +180,7 @@ knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignette
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_Microglia_genePhase.png")
+knitr::include_graphics("../scdown/scvelo_full/ALL_Microglia_genePhase.png")
 
 ```
 ```{r}
@@ -188,7 +188,7 @@ knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignette
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_Mossy_genePhase.png")
+knitr::include_graphics("../scdown/scvelo_full/ALL_Mossy_genePhase.png")
 
 ```
 ```{r}
@@ -196,7 +196,7 @@ knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignette
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_Neuroblast_genePhase.png")
+knitr::include_graphics("../scdown/scvelo_full/ALL_Neuroblast_genePhase.png")
 
 ```
 ```{r}
@@ -204,7 +204,7 @@ knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignette
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_nIPC_genePhase.png")
+knitr::include_graphics("../scdown/scvelo_full/ALL_nIPC_genePhase.png")
 
 ```
 ```{r}
@@ -212,7 +212,7 @@ knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignette
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_OL_genePhase.png")
+knitr::include_graphics("../scdown/scvelo_full/ALL_OL_genePhase.png")
 
 ```
 ```{r}
@@ -220,7 +220,7 @@ knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignette
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_Neuroblast_genePhase.png")
+knitr::include_graphics("../scdown/scvelo_full/ALL_Neuroblast_genePhase.png")
 
 ```
 
@@ -232,7 +232,7 @@ This plot visualizes the directed graphs of predicted lineages.
 
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/ALL_paga_graph.png")
+knitr::include_graphics("../scdown/scvelo_full/ALL_paga_graph.png")
 
 ```
 
@@ -260,7 +260,7 @@ This plot visualizes the velocity stream on UMAP embeddings.
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/12_embedding_stream.png")
+knitr::include_graphics("../scdown/scvelo_full/12_embedding_stream.png")
 
 ```
 ```{r}
@@ -268,7 +268,7 @@ knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignette
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/35_embedding_stream.png")
+knitr::include_graphics("../scdown/scvelo_full/35_embedding_stream.png")
 
 ```
 
@@ -278,7 +278,7 @@ This plot visualizes the directed PAGA graphs of predicted lineages.
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/12_paga_graph.png")
+knitr::include_graphics("../scdown/scvelo_full/12_paga_graph.png")
 
 ```
 ```{r}
@@ -286,7 +286,7 @@ knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignette
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("/Users/qianyima/Documents/Manuscript/12.6.2024_vignettes/plot/scvelo_full/35_paga_graph.png")
+knitr::include_graphics("../scdown/scvelo_full/35_paga_graph.png")
 
 ```
 
@@ -303,8 +303,8 @@ This python-based workflow offers a robust framework for analyzing transcription
 
 The vignette was performed on a machine with the following specifications:
 
-- **Operating System**: Sequoia
-  - **Product Name**: macOS
-  - **Product Version**: 15.0
-- **CPU**: Apple M1 Pro
-- **Memory**: 16 GB
+- **Operating System**: Rocky Linux 8.9 (Green Obsidian)
+  - **Product Name**: RHEL
+  - **Product Version**: 8.9
+- **CPU**: Intel(R) Xeon(R) Platinum 8358 CPU @ 2.60GHz
+- **Memory**: 10 GB
