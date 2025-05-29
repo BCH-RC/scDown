@@ -1,4 +1,4 @@
-## scDown: a pipeline for scRNASeq downstream analysis version 1
+## scDown: a pipeline for scRNASeq downstream analysis (version 1)
 
 ### Table of Contents
 - [1 Installation](#1-installation)
