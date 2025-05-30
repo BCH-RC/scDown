@@ -9,7 +9,7 @@
   - [2.1 Preprocess Tutorial](#21-preprocess-tutorial)
   - [2.2 Functions Tutorial](#22-functions-tutorial)
 - [3 Citation](#3-citation)
-- [4 Contact](#3-contact)  
+- [4 Contact](#4-contact)  
 
 ### 1 Installation
 #### 1.1 System requirement
@@ -77,5 +77,5 @@ The latter 4 key functions in scDown can be applied to either entire data or sel
 ### 3 Citation
 Sun, L.; Ma, Q.; Cai, C.; Labaf, M.; Jain, A.; Dias, C.; Rockowitz, S.; Sliz, P. scDown: A Pipeline for Single-Cell RNA-Seq Downstream Analysis. Int. J. Mol. Sci. 2025, 26, 5297. https://doi.org/10.3390/ijms26115297
 ### 4 Contact
-- Please create an issue under our repository by clicking the issue tab, we will try to address it.
+Please create an issue under our repository by clicking the issue tab, we will try to address it.
 
