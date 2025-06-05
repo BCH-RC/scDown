@@ -20,14 +20,14 @@ We strongly recommend using an HPC (High-Performance Computing) Linux server for
 We built the [docker images for scDown](https://hub.docker.com/repository/docker/rcbioinfo/scdown/general) supporting different system architectures:
 | Docker images | Platform | Supported Systems |
 |----------|----------|----------|
-| rcbioinfo/scdown::amd64 | linux/amd64 | Linux, Windows, Intel-based Mac (x86_64) |
-| rcbioinfo/scdown::arm64 | linux/arm64 | Apple Silicon Mac (M1/M2/M3) |
+| rcbioinfo/scdown:amd64 | linux/amd64 | Linux, Windows, Intel-based Mac (x86_64) |
+| rcbioinfo/scdown:arm64 | linux/arm64 | Apple Silicon Mac (M1/M2/M3) |
 
 ##### Run the docker image of scDown on HPC server (amd64 platform)
 ```r
 # To run docker image of scDown for amd64 (Linux)
 cd /path/to/your/working/directory
-docker run -it --platform linux/amd64 --rm -v /path/to/your/input/data/directory:/input_dir /path/to/your/working/directory:/workspace -w /workspace  --pid=rcbioinfo/scdown::amd64 R
+docker run -it --platform linux/amd64 --rm -v /path/to/your/input/data/directory:/input_dir -v /path/to/your/working/directory:/workspace -w /workspace  rcbioinfo/scdown:amd64 R
 library(scDown)
 ```
 
@@ -36,7 +36,7 @@ library(scDown)
 ```r
 # To pull docker image of scDown to be singularity image on HPC server
 cd /path/to/singularity/image/
-singularity pull docker://rcbioinfo/scdown::amd64
+singularity pull docker://rcbioinfo/scdown:amd64
 ```
 
 ##### Run the Singularity image of scDown on HPC server
@@ -46,7 +46,7 @@ export TMPDIR="/path/to/tmp/directory/that/is/big/enough"
 export SINGULARITY_CACHEDIR="/path/to/tmp/directory/that/is/big/enough"
 export APPTAINER_CACHEDIR="/path/to/tmp/directory/that/is/big/enough"
 cd /path/to/your/working/directory
-singularity exec -B /path/to/your/input/data/directory:/input_dir /path/to/singularity/image/scdown_amd64.sif R
+singularity exec -B /path/to/your/input/data/directory:/input_dir /path/to/singularity/image/scdown_amd64.sif R --vanilla
 library(scDown)
 ```
 
