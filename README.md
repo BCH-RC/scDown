@@ -17,7 +17,7 @@ We strongly recommend using an HPC (High-Performance Computing) Linux server for
 
 #### 1.2 Installation using Docker
 ##### Docker images of scDown
-We built the [docker images for scDown](https://hub.docker.com/repository/docker/rcbioinfo/scdown/general) supporting different system architectures:
+We built the [docker images for scDown](https://hub.docker.com/r/rcbioinfo/scdown/tags) supporting different system architectures:
 | Docker images | Platform | Supported Systems |
 |----------|----------|----------|
 | rcbioinfo/scdown:amd64 | linux/amd64 | Linux, Windows, Intel-based Mac (x86_64) |
