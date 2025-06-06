@@ -65,14 +65,20 @@ Before running the pipeline, configure the following global variables, set the o
 # Define output directory for results
 output_dir <- "/path/to/save/results"
 
-# Load Seurat object
+# Small test data embedded in scDown library
 seurat_obj_path <- system.file("extdata", "10X43_1_spliced_unspliced.rds", package="scDown")
+# for your own data, specify the path and file name using: 
+# seurat_obj_path <- "/input_dir/filename.rds"
+# note: the path /input_dir defined in singularity exec -B /path/to/your/input/data/directory:/input_dir /path/to/singularity/image/scdown_amd64.sif R 
+
+# Load Seurat object
 seurat_obj <- readRDS(seurat_obj_path)
 
 # Metadata cell type column
 annotation_column <- "clusters"
 
-# Define the species: either "mouse" or "human"
+# Define the species is needed for run_cellchatV2 function
+# default CellChatV2 database includes "mouse" and "human" databases
 species <- "mouse"
 
 ```

@@ -1500,7 +1500,7 @@ overflow: visible;
 </style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -1511,7 +1511,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -1694,7 +1694,7 @@ display: none;
 <h1 class="title toc-ignore">scDown: A Pipeline for scRNA-seq Downstream
 Analysis</h1>
 <h4 class="author"><div class="line-block"></div></h4>
-<h4 class="date">04/2025</h4>
+<h4 class="date">06/2025</h4>
 
 </div>
 
@@ -1737,7 +1737,7 @@ visualizations and PAGA trajectory inference.</p></li>
 <div id="load-required-libraries-and-set-variables" class="section level1" number="2">
 <h1><span class="header-section-number">2</span> Load Required Libraries
 and Set Variables</h1>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(scDown)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scDown)</span></code></pre></div>
 <div id="annotated-seurat-object" class="section level2" number="2.1">
 <h2><span class="header-section-number">2.1</span> Annotated Seurat
 Object</h2>
@@ -1746,22 +1746,28 @@ variables, set the output directory to save the output results, and load
 Seurat object of scRNA-seq data. The metadata column (annotation_column)
 is defined to specify the cell type or other annotation labels, ensuring
 the analysis runs with the correct input data.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Define output directory for results</span></span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>output_dir <span class="ot">&lt;-</span> <span class="st">&quot;/path/to/save/results&quot;</span></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co"># Load Seurat object</span></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>seurat_obj_path <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;10X43_1_spliced_unspliced.rds&quot;</span>, <span class="at">package=</span><span class="st">&quot;scDown&quot;</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>seurat_obj <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(seurat_obj_path)</span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co"># Metadata cell type column</span></span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>annotation_column <span class="ot">&lt;-</span> <span class="st">&quot;clusters&quot;</span></span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a></span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co"># Define the species: either &quot;mouse&quot; or &quot;human&quot;</span></span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>species <span class="ot">&lt;-</span> <span class="st">&quot;mouse&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define output directory for results</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>output_dir <span class="ot">&lt;-</span> <span class="st">&quot;/path/to/save/results&quot;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Small test data embedded in scDown library</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>seurat_obj_path <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;10X43_1_spliced_unspliced.rds&quot;</span>, <span class="at">package=</span><span class="st">&quot;scDown&quot;</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># for your own data, specify the path and file name using: </span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># seurat_obj_path &lt;- &quot;/input_dir/filename.rds&quot;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># note: the path /input_dir defined in singularity exec -B /path/to/your/input/data/directory:/input_dir /path/to/singularity/image/scdown_amd64.sif R </span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Load Seurat object</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>seurat_obj <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(seurat_obj_path)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Metadata cell type column</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>annotation_column <span class="ot">&lt;-</span> <span class="st">&quot;clusters&quot;</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the species is needed for run_cellchatV2 function</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co"># default CellChatV2 database includes &quot;mouse&quot; and &quot;human&quot; databases</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>species <span class="ot">&lt;-</span> <span class="st">&quot;mouse&quot;</span></span></code></pre></div>
 <p>If you have <code>.h5ad</code> file, convert it to Seurat object
 using:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>h5ad_file <span class="ot">&lt;-</span> <span class="st">&quot;path/to/h5ad.file&quot;</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>seurat_obj <span class="ot">&lt;-</span> <span class="fu">h5adToSeurat</span>(h5ad_file, <span class="at">annotation_column=</span><span class="cn">NULL</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>h5ad_file <span class="ot">&lt;-</span> <span class="st">&quot;path/to/h5ad.file&quot;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>seurat_obj <span class="ot">&lt;-</span> <span class="fu">h5adToSeurat</span>(h5ad_file, <span class="at">annotation_column=</span><span class="cn">NULL</span>)</span></code></pre></div>
 <p>If your Seurat object has cell type annotation you can skip next step
 (2.2) and go to part 3 <code>Run scDown Functions</code></p>
 </div>
@@ -1780,17 +1786,17 @@ query Seurat object for which cell tyoe annotations are to be inferred.
 The optional variables are a variable in the reference metadata to
 harmonize on (e.g., batch, condition) and the option to transfer UMAP
 coordinates from reference to query.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Load your reference unannotated Seurat objects</span></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>reference_seurat_obj <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;path/to/reference-Seurat-object.rds&quot;</span>)</span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>unannotated_seurat_obj <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;path/to/unannotated-Seurat-object.rds&quot;</span>)</span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co"># Transfer cell type labels to your unannotated Seurat object</span></span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>seurat_obj <span class="ot">&lt;-</span> <span class="fu">doTransferLabel</span>(</span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  reference_seurat_obj, </span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>  unannotated_seurat_obj, </span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>  <span class="at">varToHarmonize =</span> <span class="cn">NULL</span>, <span class="co"># optionally provide a variable to harmonize</span></span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>  <span class="at">transferCoordinates =</span> <span class="cn">FALSE</span> <span class="co"># set to TRUE to transfer UMAP coordinates</span></span>
-<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load your reference unannotated Seurat objects</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>reference_seurat_obj <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;path/to/reference-Seurat-object.rds&quot;</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>unannotated_seurat_obj <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;path/to/unannotated-Seurat-object.rds&quot;</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Transfer cell type labels to your unannotated Seurat object</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>seurat_obj <span class="ot">&lt;-</span> <span class="fu">doTransferLabel</span>(</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  reference_seurat_obj, </span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  unannotated_seurat_obj, </span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">varToHarmonize =</span> <span class="cn">NULL</span>, <span class="co"># optionally provide a variable to harmonize</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">transferCoordinates =</span> <span class="cn">FALSE</span> <span class="co"># set to TRUE to transfer UMAP coordinates</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <p>The return <code>seurat_obj</code> will contain the predicted cell
 type labels from each cell and the confidence score of the label
 assignment and the updated UMAP coordinates (if
