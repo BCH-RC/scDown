@@ -77,8 +77,8 @@ seurat_obj <- readRDS(seurat_obj_path)
 # Metadata cell type column
 annotation_column <- "clusters"
 
-# Define the species is needed for run_cellchatV2 function
-# default CellChatV2 database includes "mouse" and "human" databases
+# Defining species is needed for run_cellchatV2 function
+# default CellChatV2 databases include "mouse" and "human" databases
 species <- "mouse"
 
 ```

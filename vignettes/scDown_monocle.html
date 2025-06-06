@@ -485,10 +485,16 @@ specific for run_monocle3</h1>
 <h2><span class="header-section-number">2.1</span> Run monocle3 default
 workflow</h2>
 <p>Users can load their scRNASeq data which they would like to run the
-trajectory analysis. To run the trajectory analysis, the users have to
-provide the scRNASeq data and species. By default, we would run the
-trajectory analysis on the whole dataset, identify the root nodes using
-potency method, and run trajectory analysis using monocle3.</p>
+trajectory analysis. To run the trajectory analysis with
+<code>run_monocle3()</code>, the users have to provide the scRNASeq data
+and species. By default, the function runs the trajectory analysis on
+the whole dataset, identify the root nodes using potency method, and run
+trajectory analysis using monocle3. While <code>run_monocle3()</code> is
+generally species-agnostic and works beyond mouse or human, species
+specification is required when using
+<code>rootNodes_method = &quot;potency&quot;</code>. If you choose to manually
+define root nodes using <code>rootNodes_method = &quot;rootNodes&quot;</code>,
+then species specification is not necessary.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">run_monocle3</span>(<span class="at">seurat_obj =</span> seurat_obj,</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>             <span class="at">species =</span> species,</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">nDim =</span> nDim,</span>

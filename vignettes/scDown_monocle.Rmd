@@ -43,7 +43,7 @@ nDim <- 30
 
 ## Run monocle3 default workflow
 
-Users can load their scRNASeq data which they would like to run the trajectory analysis. To run the trajectory analysis, the users have to provide the scRNASeq data and species. By default, we would run the trajectory analysis on the whole dataset, identify the root nodes using potency method, and run trajectory analysis using monocle3.
+Users can load their scRNASeq data which they would like to run the trajectory analysis. To run the trajectory analysis with `run_monocle3()`, the users have to provide the scRNASeq data and species. By default, the function runs the trajectory analysis on the whole dataset, identify the root nodes using potency method, and run trajectory analysis using monocle3. While `run_monocle3()` is generally species-agnostic and works beyond mouse or human, species specification is required when using `rootNodes_method = "potency"`. If you choose to manually define root nodes using `rootNodes_method = "rootNodes"`, then species specification is not necessary.
 
 ```{r, message = FALSE,eval=FALSE}
 run_monocle3(seurat_obj = seurat_obj,
