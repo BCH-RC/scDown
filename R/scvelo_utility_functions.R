@@ -132,7 +132,7 @@ getVectorField <- function(X, scVeloOutput, reduction = 'umap', dims = 1:2, reso
 #'
 #' @param X a Seurat object with dimension reduction coordinates.
 #' @param tpVF the 4-column dataframe outputted by getVectorField() with start and end point of each velocity vector.
-#' @param output_format  format of output figure: png or pdf (default: png)
+#' @param output_format Format of output figure: "png" or "pdf" (default: "png")
 #' @param group a character vector of conditions or timepoints in the datasets specifying cells from which time should 
 #'be plotted with velocity arrows.
 #' @param group_column a character string specifying name of the metadata that has timepoint information.

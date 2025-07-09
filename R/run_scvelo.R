@@ -33,7 +33,7 @@
 #' @param color_scale A character vector of colors to be used in plotting, must match number of unique values in 
 #' the metadata column marked by @name_by
 #' @param name_by A string specify the name of the metadata column in the Seurat object that should be used for colors
-#' @param output_format  Format of output figure: png or pdf (default: png)
+#' @param output_format Format of output figure: "png" or "pdf" (default: "png")
 #' @param cores A numeric variable to set the number of cores to be used
 #'
 #' @return A list of scVelo data objects
