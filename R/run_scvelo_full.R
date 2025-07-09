@@ -20,6 +20,7 @@
 #' @param groups A list of character vectors representing groups of conditions or time points used to 
 #' calculate RNA velocity separately, default: NULL
 #' @param group_column A string specifying the name of the metadata column in the h5ad object that should be 
+#' @param output_format Format of output figure: "png" or "pdf" (default: "png")
 #' used for subsetting each group in `groups`
 #'
 #' @return A list of scVelo data objects
@@ -35,7 +36,8 @@ run_scvelo_full <- function(h5ad_file="scvelo/rds/obj_spliced_unspliced.h5ad",
                         mode = 'stochastic', 
                         top_gene = 5,
                         groups=NULL, 
-                        group_column=NULL){
+                        group_column=NULL,
+                        output_format="png"){
 
 # create subdirectories in the output directory
 setwd(output_dir)
@@ -54,6 +56,7 @@ checkmate::assert_file_exists(h5ad_file)
 checkmate::assert_string(annotation_column, null.ok = FALSE)
 checkmate::assert_string(mode, null.ok = FALSE)
 checkmate::assert_numeric(top_gene, null.ok = FALSE, any.missing=FALSE)
+checkmate::expect_choice(output_format,c("png","pdf"),label = "output_format")
 
 checkmate::assert_list(groups, types = c("numeric","integer","character"), null.ok = TRUE)
 if(!is.null(groups)){
@@ -79,7 +82,7 @@ reticulate::source_python(py_script)
 #reticulate::source_python("inst/python/scvelo_workflow.py")
 
 # RNA velocity for the entire object
-run_scvelo_workflow(h5ad_file,annotation_column,mode,top_gene,group_label="ALL")
+run_scvelo_workflow(h5ad_file,annotation_column,mode,top_gene,group_label="ALL",output_format)
 system("stty echo")
 
 # RNA velocity for specified conditions or time points, if any
@@ -102,7 +105,7 @@ if (length(groups) != 0){
           subset_adata$write_h5ad(h5ad_group_file)
         }
       }
-      run_scvelo_workflow(h5ad_group_file,annotation_column,mode,top_gene,group_label)
+      run_scvelo_workflow(h5ad_group_file,annotation_column,mode,top_gene,group_label,output_format)
   }
 }
 system("stty sane")

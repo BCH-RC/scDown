@@ -109,17 +109,22 @@ def PAGA_trajectory_inference(adata, annotation_column, group_label="ALL"):
 
 # Main function of scvelo workflow in python
 # 
-def run_scvelo_workflow(h5ad_file='scvelo/rds/obj_spliced_unspliced.h5ad', annotation_column='ID', mode='stochastic', top_gene=5, group_label="ALL"):
+def run_scvelo_workflow(h5ad_file='scvelo/rds/obj_spliced_unspliced.h5ad', annotation_column='ID', mode='stochastic', top_gene=5, group_label="ALL", output_format = "png"):
     """
     :param h5ad_file (str): Base h5ad file path.
     :param annotation_column (str): Annotation column name.
     :param mode (str): scvelo mode.
     :param top_gene (int): Number of top genes.
     :param groups (list): List of character vectors, where each vector defines a group.
+    :param output_format (str): Format of output figure: "png" or "pdf" (default: "png")
     """
     # basic scvelo settings
     scv.settings.verbosity = 3  # show errors(0), warnings(1), info(2), hints(3)
-    scv.set_figure_params('scvelo', transparent=False, format='png')  # set figure format for visualization
+    # set figure format for visualization
+    if output_format == "png":
+        scv.set_figure_params('scvelo', transparent=False, format='png')
+    elif output_format == "pdf":
+        scv.set_figure_params('scvelo', transparent=False, format='pdf')
     # reading data
     adata = sc.read(h5ad_file)
     # Workflow:
