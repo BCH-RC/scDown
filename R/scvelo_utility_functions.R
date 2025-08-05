@@ -45,6 +45,7 @@ addSUmatrices <- function(X, loomFile){
 
     # Reverting to the original cell barcodes 
     X <- Seurat::RenameCells(X, new.names = X$orig.bc)
+    X@reductions$umap <- as(X@reductions$umap, "DimReduc")
 
     # Returning object with new assays
     return(X)
@@ -133,6 +134,8 @@ getVectorField <- function(X, scVeloOutput, reduction = 'umap', dims = 1:2, reso
 #' @param X a Seurat object with dimension reduction coordinates.
 #' @param tpVF the 4-column dataframe outputted by getVectorField() with start and end point of each velocity vector.
 #' @param output_format Format of output figure: "png" or "pdf" (default: "png")
+#' @param mode a character mode specifying the type of velocity computation used. Available modes are "steady_state" 
+#'(original), "deterministic", "stochastic" (fastest:recommended), "dynamical".
 #' @param group a character vector of conditions or timepoints in the datasets specifying cells from which time should 
 #'be plotted with velocity arrows.
 #' @param group_column a character string specifying name of the metadata that has timepoint information.
@@ -144,7 +147,7 @@ getVectorField <- function(X, scVeloOutput, reduction = 'umap', dims = 1:2, reso
 #'
 #' @noRd
 
-plotVectorField <- function(X, tpVF, output_format="png", group=NULL, group_column=NULL, color_scale=NULL, name_by=NULL, grid_res=NULL, arrow_size=0.5, vector_width=0.5){
+plotVectorField <- function(X, tpVF, output_format="png", mode = 'stochastic', group=NULL, group_column=NULL, color_scale=NULL, name_by=NULL, grid_res=NULL, arrow_size=0.5, vector_width=0.5){
     
     # get lower-dimensional coordinates
     D <- X@reductions$umap@cell.embeddings
@@ -196,7 +199,7 @@ plotVectorField <- function(X, tpVF, output_format="png", group=NULL, group_colu
 
     output_format <- match.arg(output_format, choices = c("png", "pdf"))
     file_extension <- switch(output_format, png = "png", pdf = "pdf")
-    output_path <- paste0("scvelo/images/velocityField_",paste(group, collapse="_"),"_gridRes",grid_res,"_arrowSize",arrow_size,"_width",vector_width,".", file_extension)
+    output_path <- paste0("scvelo/images/velocityField_",paste(group, collapse="_"),"_",mode,"_gridRes",grid_res,"_arrowSize",arrow_size,"_width",vector_width,".", file_extension)
 
     if (output_format == "png") {
         png(output_path, width = 1800, height = 1800, res = 300)

@@ -48,7 +48,6 @@ run_scvelo <- function(seurat_obj,loom_files=NULL,output_dir=".",loom_file_subse
                     groups=NULL,group_column=NULL,color_scale=NULL,name_by=NULL,output_format = "png",cores=8){
 
   # create subdirectories in the output directory
-  setwd(output_dir)
   subdirectories <- c("scvelo",
                       "scvelo/csv",
                       "scvelo/rds",
@@ -57,6 +56,7 @@ run_scvelo <- function(seurat_obj,loom_files=NULL,output_dir=".",loom_file_subse
   for(i in subdirectories){
       dir.create(file.path(output_dir,i), showWarnings = F, recursive = T)
   }
+  setwd(output_dir)
 
   ### Input
   library(Seurat)
@@ -141,11 +141,11 @@ run_scvelo <- function(seurat_obj,loom_files=NULL,output_dir=".",loom_file_subse
   tpV <- doVelocity(object_annotated, mode=mode)
   for (grid_resolution in grid_resolutions){
       tpVF <- getVectorField(object_annotated, tpV, reduction = 'umap', resolution = grid_resolution)
-      save(tpVF, file = paste0('scvelo/rds/ALL_gridRes', grid_resolution,'.RData',sep=""))
+      save(tpVF, file = paste0('scvelo/rds/ALL_', mode, '_gridRes', grid_resolution, '.RData',sep=""))
       #load(paste0('scvelo/rds/ALL_gridRes', grid_resolution,'.RData',sep=""))
       for (arrow_size in arrow_sizes){
           for (vector_width in vector_widths){
-              plotVectorField(object_annotated, tpVF, output_format=output_format, color_scale=color_scale, name_by=name_by, grid_res=grid_resolution, arrow_size=arrow_size, vector_width=vector_width)
+              plotVectorField(object_annotated, tpVF, output_format=output_format, mode=mode, color_scale=color_scale, name_by=name_by, grid_res=grid_resolution, arrow_size=arrow_size, vector_width=vector_width)
           }
       }
   }
@@ -158,7 +158,7 @@ run_scvelo <- function(seurat_obj,loom_files=NULL,output_dir=".",loom_file_subse
     
   # RNA velocity for specified conditions or time points, if any
   # Function to process each condition
-  process_group <- function(group) {
+  process_group <- function(group, mode) {
     tpData <- object_annotated[ , object_annotated[[group_column]][[group_column]] %in% group]
     
     # Save as H5Seurat if it doesn't already exist
@@ -185,13 +185,13 @@ run_scvelo <- function(seurat_obj,loom_files=NULL,output_dir=".",loom_file_subse
       tpVF <- getVectorField(tpData, tpV, reduction = "umap", resolution = grid_resolution)
       
       # Save the vector field object
-      save(tpVF, file = paste0("scvelo/rds/", paste(group, collapse = "_"), "_gridRes", grid_resolution, ".RData"))
+      save(tpVF, file = paste0("scvelo/rds/", paste(group, collapse = "_"), "_", mode, "_gridRes", grid_resolution, ".RData"))
       
       # Generate plots for different arrow sizes and vector widths
       for (arrow_size in arrow_sizes) {
         for (vector_width in vector_widths) {
           plotVectorField(
-            object_annotated, tpVF, output_format = output_format, group = group, group_column = group_column, 
+            object_annotated, tpVF, output_format = output_format, mode=mode, group = group, group_column = group_column, 
             color_scale = color_scale, name_by = name_by, 
             grid_res = grid_resolution, arrow_size = arrow_size, vector_width = vector_width
           )
@@ -205,8 +205,17 @@ run_scvelo <- function(seurat_obj,loom_files=NULL,output_dir=".",loom_file_subse
   }
 
   # Run in parallel
+  library(foreach)
+  library(doParallel)
   if (length(groups) != 0) {
-    results <- parallel::mclapply(groups, process_group, mc.cores = cores)
+    # results <- parallel::mclapply(groups, function(g) process_group(g, mode = mode), mc.cores = cores)
+    cl <- parallel::makeCluster(cores)
+    results <- foreach(g = groups, .packages = c("Seurat", "SeuratDisk")) %dopar% {
+      process_group(g, mode = mode)
+    }
+
+    parallel::stopCluster(cl)
+  
     
     # Print results
     message("RNA velocity completed for all groups.")

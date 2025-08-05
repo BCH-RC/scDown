@@ -15,7 +15,7 @@
 #' @param annotation_column A character variable specifying which metadata column of the h5ad object contains 
 #' cell type annotations
 #' @param mode Mode to conduct scvelo velocity calculation, either 'stochastic (default)', 'deterministic', 
-#' or 'dynamical (slowest)'
+#' or 'dynamical (slowest, recommended)'
 #' @param top_gene The number of top differential velocity genes to plot phase portrait for
 #' @param groups A list of character vectors representing groups of conditions or time points used to 
 #' calculate RNA velocity separately, default: NULL
@@ -40,7 +40,6 @@ run_scvelo_full <- function(h5ad_file="scvelo/rds/obj_spliced_unspliced.h5ad",
                         output_format="png"){
 
 # create subdirectories in the output directory
-setwd(output_dir)
 subdirectories <- c("scvelo",
                     "scvelo/csv",
                     "scvelo/rds",
@@ -49,6 +48,7 @@ subdirectories <- c("scvelo",
 for(i in subdirectories){
     dir.create(file.path(output_dir,i), showWarnings = F, recursive = T)
 }
+setwd(output_dir)
 
 
 checkmate::assert_string(h5ad_file, null.ok = FALSE)
@@ -82,7 +82,7 @@ reticulate::source_python(py_script)
 #reticulate::source_python("inst/python/scvelo_workflow.py")
 
 # RNA velocity for the entire object
-run_scvelo_workflow(h5ad_file,annotation_column,mode,top_gene,group_label="ALL",output_format)
+run_scvelo_workflow(h5ad_file = h5ad_file, annotation_column = annotation_column, mode = mode, top_gene = top_gene, group_label = "ALL", output_format = output_format)
 system("stty echo")
 
 # RNA velocity for specified conditions or time points, if any
@@ -102,10 +102,19 @@ if (length(groups) != 0){
         if (!file.exists(h5ad_group_file_output)){
           adata <- anndata::read_h5ad(h5ad_file)
           subset_adata <- adata[adata$obs[[group_column]] %in% group, ]
-          subset_adata$write_h5ad(h5ad_group_file)
+          anndata <- reticulate::import("anndata")
+          adata_clean <- anndata$AnnData(
+            X = subset_adata$X,
+            obs = subset_adata$obs,
+            var = subset_adata$var,
+            obsm = subset_adata$obsm,
+            varm = subset_adata$varm,
+            layers = subset_adata$layers
+          )
+          adata_clean$write_h5ad(h5ad_group_file)
         }
       }
-      run_scvelo_workflow(h5ad_group_file,annotation_column,mode,top_gene,group_label,output_format)
+      run_scvelo_workflow(h5ad_file = h5ad_group_file, annotation_column = annotation_column, mode = mode, top_gene = top_gene, group_label = group_label, output_format = output_format)
   }
 }
 system("stty sane")
