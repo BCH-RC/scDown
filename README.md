@@ -77,5 +77,4 @@ The latter 4 key functions in scDown can be applied to either entire data or sel
 ### 3 Citation
 Sun, L.; Ma, Q.; Cai, C.; Labaf, M.; Jain, A.; Dias, C.; Rockowitz, S.; Sliz, P. scDown: A Pipeline for Single-Cell RNA-Seq Downstream Analysis. Int. J. Mol. Sci. 2025, 26, 5297. https://doi.org/10.3390/ijms26115297
 ### 4 Contact
-Please create an issue under our repository by clicking the issue tab, we will try to address it.
-
+Please submit an issue via our GitHub repository by clicking the 'Issues' tab. We'll do our best to address it promptly.
