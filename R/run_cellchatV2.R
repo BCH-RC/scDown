@@ -17,10 +17,12 @@
 #' @param group_column Name of the metadata column in the Seurat object that defines conditions or groups.
 #' @param group_cmp A list of pairwise condition comparisons for differential CellChat analysis (e.g., comparing different groups or conditions).
 #' @param top_n The number of top signaling pathways to analyze and visualize.
+#' @param output_format Format of output figure: "png" or "pdf" (default: "png")
+#' @param cores A numeric variable to set the number of cores to be used
 #' 
 #' @return NULL
 
-run_cellchatV2 <- function(output_dir, seurat_obj, sample_column = NULL, annotation_column, annotation_selected = NULL, species, group_column = NULL, group_cmp = NULL, top_n = 10, num_cores = 4) {
+run_cellchatV2 <- function(output_dir, seurat_obj, sample_column = NULL, annotation_column, annotation_selected = NULL, species, group_column = NULL, group_cmp = NULL, top_n = 10, output_format = "png", cores = 4) {
 
   library(Seurat)
   library(CellChat)
@@ -37,6 +39,7 @@ run_cellchatV2 <- function(output_dir, seurat_obj, sample_column = NULL, annotat
   checkmate::expect_subset(annotation_selected, as.vector(unique(seurat_obj@meta.data[, annotation_column])), label = "annotation_selected")
   # Check group_cmp
   checkmate::expect_subset(unique(unlist(group_cmp)), as.vector(unique(seurat_obj@meta.data[, group_column])), label = "group_cmp")
+  checkmate::expect_choice(output_format,c("png","pdf"),label = "output_format")
 
   # Create cell chat folders
   create_dir_cellchat(dir_cellchat = output_dir)
@@ -73,7 +76,7 @@ run_cellchatV2 <- function(output_dir, seurat_obj, sample_column = NULL, annotat
     conditions <- unique(as.vector(seurat_obj@meta.data[, group_column]))
     metadata_cond <- FetchData(object = seurat_obj, vars = group_column)
 
-    cl <- makeCluster(num_cores)
+    cl <- makeCluster(cores)
     registerDoParallel(cl)
     # for (condition in conditions) {
     foreach(condition = conditions, .packages = c("Seurat", "CellChat"), .export = c("doCellCom", "subsetCellChatMod", "netAnalysis_computeCentrality")) %dopar% {
@@ -100,11 +103,11 @@ run_cellchatV2 <- function(output_dir, seurat_obj, sample_column = NULL, annotat
   if (is.null(group_column)) {
     condition <- "ALL"
     cellchat_object <- readRDS(paste0(output_dir, "/cellchat/rds/cellchat_obj_", condition, ".rds"))
-    aggregate_visu(X = cellchat_object, condition = condition, dir_cellchat = output_dir)
+    aggregate_visu(X = cellchat_object, condition = condition, output_format=output_format, dir_cellchat = output_dir)
   } else {
     for (condition in conditions) {
       cellchat_object <- readRDS(paste0(output_dir, "/cellchat/rds/cellchat_obj_", condition, ".rds"))
-      aggregate_visu(X = cellchat_object, condition = condition, dir_cellchat = output_dir)
+      aggregate_visu(X = cellchat_object, condition = condition, output_format=output_format, dir_cellchat = output_dir)
     }
   }
   
@@ -123,7 +126,7 @@ run_cellchatV2 <- function(output_dir, seurat_obj, sample_column = NULL, annotat
       warning("No top pathways found for condition: ", condition)
     } else {
       seurat_obj <- readRDS(paste0(output_dir, "/cellchat/rds/seurat_obj_", condition, ".rds"))
-      doCellComVisu(X = cellchat_object, Y = seurat_obj, pathways_to_show = pathways_top, condition = condition, dir_cellchat = output_dir, species = species)
+      doCellComVisu(X = cellchat_object, Y = seurat_obj, pathways_to_show = pathways_top, condition = condition, output_format=output_format, dir_cellchat = output_dir, species = species)
     }
     
     # Save all inferred cell-cell communications at the level of: 1) ligands/receptors, 2) pathways
@@ -150,7 +153,7 @@ run_cellchatV2 <- function(output_dir, seurat_obj, sample_column = NULL, annotat
         warning("No top pathways found for condition: ", condition)
       } else {
         seurat_obj <- readRDS(paste0(output_dir, "/cellchat/rds/seurat_obj_", condition, ".rds"))
-        doCellComVisu(X = cellchat_object, Y = seurat_obj, pathways_to_show = pathways_top, condition = condition, dir_cellchat = output_dir, species = species)
+        doCellComVisu(X = cellchat_object, Y = seurat_obj, pathways_to_show = pathways_top, condition = condition, output_format=output_format, dir_cellchat = output_dir, species = species)
       }
       
       # Save all inferred cell-cell communications at the level of: 1) ligands/receptors, 2) pathways
@@ -184,7 +187,7 @@ run_cellchatV2 <- function(output_dir, seurat_obj, sample_column = NULL, annotat
       seurat_obj_cond2 <- readRDS(paste0(output_dir, "/cellchat/rds/seurat_obj_", cond_2, ".rds"))
       cellchat_obj_cond2 <- readRDS(paste0(output_dir, "/cellchat/rds/cellchat_obj_", cond_2, ".rds"))
       
-      run_cellchatV2_cmp(dir_cellchat = output_dir, seurat_obj_cond1 = seurat_obj_cond1, cellchat_obj_cond1 = cellchat_obj_cond1, seurat_obj_cond2 = seurat_obj_cond2, cellchat_obj_cond2 = cellchat_obj_cond2, condition_col = group_column, condition_1 = cond_1, condition_2 = cond_2, top_n = top_n)
+      run_cellchatV2_cmp(dir_cellchat = output_dir, seurat_obj_cond1 = seurat_obj_cond1, cellchat_obj_cond1 = cellchat_obj_cond1, seurat_obj_cond2 = seurat_obj_cond2, cellchat_obj_cond2 = cellchat_obj_cond2, condition_col = group_column, condition_1 = cond_1, condition_2 = cond_2, top_n = top_n, output_format=output_format)
     }
   }
 }
