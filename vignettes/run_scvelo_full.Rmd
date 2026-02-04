@@ -40,7 +40,7 @@ Loading a h5ad object containing spliced and unspliced RNA data is required. The
 
 ```{r, message = FALSE}
 # input h5ad file path and name. Default "scvelo/rds/obj_spliced_unspliced.h5ad", which is output from run_scvelo()
-h5ad_file="inst/extdata/DentateGyrus/10X43_1.h5ad"
+h5ad_file="scvelo/rds/obj_spliced_unspliced.h5ad"
 
 # Mode to conduct scvelo velocity calculation, default 'stochastic'
 mode = 'stochastic'
