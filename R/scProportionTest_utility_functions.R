@@ -36,7 +36,7 @@ create_dir <- function(output_dir) {
 #' @return NULL saves comparison figures in the specified directory.
 #' @noRd
 
-generate_figure <- function(prop_test.i, output_format="png",comparisons_condition, output_dir=".", annotation_column, i) {
+generate_figure <- function(prop_test.i, output_format="png",comparisons_condition, output_dir=".", annotation_column, i, meta) {
   p <- permutation_plot(prop_test.i) +
     theme_bw(base_size = 12) +
     labs(title = paste0(comparisons_condition[i, 2], " vs ", comparisons_condition[i, 1]),
@@ -49,14 +49,25 @@ generate_figure <- function(prop_test.i, output_format="png",comparisons_conditi
   output_format <- match.arg(output_format, choices = c("png", "pdf", "jpeg"))
   file_extension <- switch(output_format, png = "png", pdf = "pdf", jpeg = "jpg")
   
+  # set figure height and width 
+  label_vec <- as.character(meta[[annotation_column]])
+  n_anno <- length(unique(label_vec))
+  max_label_nchar <- max(nchar(unique(label_vec)))
+
+  # adaptive height
+  img_height <- max(1200, 250 + 50 * n_anno)
+
+  # adaptive width
+  img_width <- max(2100, 900 + 18 * max_label_nchar)
+  
   output_path <- paste0(output_dir, "/scproportion/images/scProportiontest_",
                         comparisons_condition[i, 2], "vs", comparisons_condition[i, 1], ".", file_extension)
   if (output_format == "png") {
-    png(output_path, width = 2000, height = 1250, res = 350)
+    png(output_path, width = img_width, height = img_height, res = 350)
   } else if (output_format == "pdf") {
     pdf(output_path, width = 10, height = 6.25)
   } else if (output_format == "jpeg") {
-    jpeg(output_path, width = 2000, height = 1250, res = 350)
+    jpeg(output_path, width = img_width, height = img_height, res = 350)
   }
   print(p)
   dev.off()
