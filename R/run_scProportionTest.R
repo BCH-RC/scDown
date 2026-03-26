@@ -68,7 +68,7 @@ run_scproportion <- function(seurat_obj,annotation_column,group_column,comparisi
                                     sample_identity = group_column)
     
     # save the figure
-    generate_figure(prop_test_i, output_format,comparisons_condition, output_dir, annotation_column, i)
+    generate_figure(prop_test_i, output_format,comparisons_condition, output_dir, annotation_column, i, meta)
     
     # save the results
     stat_res(prop_test_i,comparisons_condition, output_dir, i)
