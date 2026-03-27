@@ -49,7 +49,14 @@ create_dir_cellchat <- function(dir_cellchat) {
 doCellCom <- function(X, species) {
   ccMetaData <- data.frame(label = Idents(X))
   ccMetaData <- cbind(ccMetaData, X@meta.data)
-  ccX <- createCellChat(X@assays$RNA@data, meta = ccMetaData, group.by = 'label')
+  
+  if (inherits(X[["RNA"]], "Assay5")) {
+    expr_mat <- GetAssayData(X, assay = "RNA", layer = "data")
+  } else {
+    expr_mat <- GetAssayData(X, assay = "RNA", slot = "data")
+  }
+  ccX <- createCellChat(expr_mat, meta = ccMetaData, group.by = 'label')
+  
   if (species == "mouse"){
     ccDB <- CellChatDB.mouse
   } else if (species == "human"){
