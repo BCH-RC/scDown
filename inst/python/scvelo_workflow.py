@@ -3,9 +3,8 @@ import numpy as np
 import pandas as pd
 import scvelo as scv
 import scanpy as sc
-scv.settings.figdir = '.'
-
 import warnings
+scv.settings.figdir = '.'
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 # ========================== SCVELO FUNCTIONS ==========================
@@ -13,7 +12,7 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 # enabled by scVelo. It also outputs basic figures such as spliced/unspliced count proportion
 # and RNA velocity vectors on umap.
 #
-def velocity_calculation(adata, annotation_column, mode='stochastic', group_label="ALL"):
+def velocity_calculation(adata, annotation_column, mode='stochastic', group_label="ALL", n_jobs=None):
     """
     :param adata: an AnnData object with cell type annotation
     :param annotation_column: a key inside adata.obs to use for calculating spliced/unspliced count proportion, normally cell types
@@ -31,11 +30,16 @@ def velocity_calculation(adata, annotation_column, mode='stochastic', group_labe
     # observe proportions of spliced/unspliced counts
     scv.pl.proportions(adata, groupby=annotation_column, fontsize=8, figsize=(14, 10), dpi=500, show=False, save=f'scvelo/images/{group_label}_proportions')
     # velocity calculation workflow
-    scv.pp.filter_and_normalize(adata, min_shared_counts=20, n_top_genes=2000)
-    sc.pp.neighbors(adata, n_neighbors=15, n_pcs=30)
+    scv.pp.filter_genes(adata, min_shared_counts=20)
+    adata.layers["counts"] = adata.X.copy()
+    scv.pp.normalize_per_cell(adata)
+    sc.pp.log1p(adata)
+    sc.pp.highly_variable_genes(adata, layer="counts", flavor='seurat_v3', n_top_genes=2000)
+
+    sc.pp.neighbors(adata, n_pcs=30, n_neighbors=30)
     scv.pp.moments(adata, n_pcs=30, n_neighbors=30)
     if mode == 'dynamical':
-        scv.tl.recover_dynamics(adata) # required if running dynamical model
+        scv.tl.recover_dynamics(adata, n_jobs=n_jobs) # required if running dynamical model
     scv.tl.velocity(adata, mode=mode)
     scv.tl.velocity_graph(adata)
     # save adata object after velocity calculation, since these results can take time to re-run.
@@ -47,6 +51,10 @@ def velocity_calculation(adata, annotation_column, mode='stochastic', group_labe
     scv.pl.velocity_embedding_stream(adata, basis='umap', legend_loc='right margin', save=f'scvelo/images/{group_label}_{mode}_embedding_stream_legend', **kwargs)
     scv.pl.velocity_embedding_grid(adata, basis='umap', save=f'scvelo/images/{group_label}_{mode}_embedding_grid', **kwargs)
     scv.pl.velocity_embedding(adata, arrow_length=5, arrow_size=1, basis='umap', save=f'scvelo/images/{group_label}_{mode}_embedding_arrow', **kwargs)
+    if mode == 'dynamical':
+        scv.tl.latent_time(adata)
+        kwargs = dict(figsize=(10, 10), dpi=500, show=False)
+        scv.pl.scatter(adata, basis='umap', color='latent_time', color_map='gnuplot', size=50, save=f'scvelo/images/{group_label}_{mode}_latent_time', **kwargs)
     return
 
 
@@ -66,7 +74,9 @@ def differential_velocity_genes(adata, annotation_column, top_gene=5, mode='stoc
     :return: an AnnData object with new data in adata.uns['rank_velocity_genes'] and adata.var['spearmans_score']
     """
     # perform differential velocity t-test
-    scv.tl.rank_velocity_genes(adata, groupby=annotation_column, min_corr=.3)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        scv.tl.rank_velocity_genes(adata, groupby=annotation_column, min_corr=.3)
     # extract top-ranking genes into pandas dataframe
     df = pd.DataFrame(adata.uns['rank_velocity_genes']['names'])
     df.to_csv(f'scvelo/csv/{group_label}_{mode}_differential_velocity_genes_by_{annotation_column}.csv')
@@ -106,7 +116,9 @@ def PAGA_trajectory_inference(adata, annotation_column, mode='stochastic', group
     adata.uns['neighbors']['connectivities'] = adata.obsp['connectivities']
     # perform PAGA calculation
     scv.tl.paga(adata, groups=annotation_column)
-    df = scv.get_df(adata, 'paga/transitions_confidence', precision=2).T
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        df = scv.get_df(adata, 'paga/transitions_confidence', precision=2).T
     df.to_csv(f'scvelo/csv/{group_label}_{mode}_paga_transition_confidence_matrix.csv')
     # generate a directed graph superimposed onto the UMAP embedding
     scv.pl.paga(adata, basis='umap', dashed_edges=None, size=50, alpha=.05, min_edge_width=2, node_size_scale=1.5, figsize=(10, 10), dpi=500, show=False, save=f'scvelo/images/{group_label}_{mode}_paga_graph')
@@ -115,7 +127,7 @@ def PAGA_trajectory_inference(adata, annotation_column, mode='stochastic', group
 
 # Main function of scvelo workflow in python
 # 
-def run_scvelo_workflow(h5ad_file='scvelo/rds/obj_spliced_unspliced.h5ad', annotation_column='ID', mode='stochastic', top_gene=5, group_label="ALL", output_format = "png"):
+def run_scvelo_workflow(h5ad_file='scvelo/rds/obj_spliced_unspliced.h5ad', annotation_column='ID', mode='stochastic', top_gene=5, group_label="ALL", output_format = "png", n_jobs=None):
     """
     :param h5ad_file (str): Base h5ad file path.
     :param annotation_column (str): Annotation column name.
@@ -135,7 +147,7 @@ def run_scvelo_workflow(h5ad_file='scvelo/rds/obj_spliced_unspliced.h5ad', annot
     adata = sc.read(h5ad_file)
     # Workflow:
     # 1. calculate RNA velocity using scVelo workflow
-    velocity_calculation(adata, annotation_column=annotation_column, mode=mode, group_label=group_label)
+    velocity_calculation(adata, annotation_column=annotation_column, mode=mode, group_label=group_label, n_jobs=n_jobs)
     # 2. cluster-specific differential velocity genes
     differential_velocity_genes(adata, annotation_column=annotation_column,top_gene=top_gene, mode=mode, group_label=group_label)
     # 3. trajectory inference using PAGA

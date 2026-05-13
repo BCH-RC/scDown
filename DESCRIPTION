@@ -2,7 +2,7 @@ Package: scDown
 Type: Package
 Title: scDown:
 Version: 0.1.0
-Author: Who wrote it
+Author: BCH
 Maintainer: The package maintainer <yourself@somewhere.net>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
@@ -45,7 +45,6 @@ Imports:
     BiocGenerics (>= 0.44.0),
     pbapply (>= 1.7-0),
     pheatmap (>= 1.0.12),
-    velociraptor (>= 1.8.0),
     ggrepel (>= 0.9.3),
     scales (>= 1.2.1),
     htmlwidgets (>= 1.6.2),
