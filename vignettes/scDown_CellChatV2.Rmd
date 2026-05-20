@@ -41,9 +41,12 @@ lapply(r_files, source)
 ```
 
 # Define Universal Variables for CellChat V2
-Set up the environment for running CellChat V2 by defining key variables. Specify the working directory (output_dir) which is optional, and load a Seurat object (seurat_obj) containing single-cell RNA sequencing data is loaded. The species is set to either "human" or "mouse," as CellChat V2 supports only these two species. The metadata column (annotation_column) is defined to specify the cell type or other annotation labels, ensuring the analysis runs with the correct input data.
+Set up the environment for running CellChat V2 by defining key variables. Specify the working directory (output_dir) which is optional, and load a Seurat object (seurat_obj) containing single-cell RNA sequencing data. CellChat requires normalized gene expression values stored in the data slot of the Seurat object. The species is set to either "human" or "mouse," as CellChat V2 supports only these two species. The metadata column (annotation_column) is defined to specify the cell type or other annotation labels, ensuring the analysis runs with the correct input data.
 
 ```{r, message = FALSE}
+# Normalize the Seurat object if the normalized expression matrix is not already stored in the data slot
+# seurat_obj <- NormalizeData(seurat_obj)
+
 # Number of most significant pathways to visualize
 top_n = 10
 
@@ -129,7 +132,7 @@ This heatmap shows the signaling strength for a specific pathway across various 
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "60%", out.height = "60%"}
 
-knitr::include_graphics("../cell_comm/All/cellchat/images/pathway/APP_ALL_signaling_strength_heatmap.png")
+knitr::include_graphics("../cell_comm/All/cellchat/images/pathway/PTN_ALL_signaling_strength_heatmap.png")
 
 ```
 
@@ -137,17 +140,17 @@ knitr::include_graphics("../cell_comm/All/cellchat/images/pathway/APP_ALL_signal
 This violin plot visualizes the distribution of gene expression levels for a specific pathway across different cell types. The width of the violin plot indicates the density of gene expression values at various levels, providing insights into the variability and spread of gene expression within the pathway. It helps to identify which cell types have higher or lower expression levels for genes associated with the pathway, giving a clearer understanding of how these genes are regulated in different cell types.
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "60%", out.height = "60%"}
-cat("Pathway APP:\n")
-knitr::include_graphics("../cell_comm/All/cellchat/images/pathway/LR_gene/APP_ALL_signaling_gene.png")
+cat("Pathway PTN:\n")
+knitr::include_graphics("../cell_comm/All/cellchat/images/pathway/LR_gene/PTN_ALL_signaling_gene.png")
 
 ```
 
 #### Ligand-Receptor pairs bubble plot for each pathway
 This bubble plot displays the ligand-receptor pairs involved in signaling for a specific pathway. Each bubble represents a ligand-receptor interaction, with the size of the bubble indicating the strength of the interaction. It helps to identify the most prominent ligand-receptor pairs that mediate the pathway-specific cell communication.
 
-```{r, echo = FALSE, eval = TRUE}
-cat("Pathway APP:\n")
-knitr::include_graphics("../cell_comm/All/cellchat/images/pathway/LR_gene/APP_ALL_LR_bubble_plot.png")
+```{r, echo = FALSE, eval = TRUE, fig.retina=3}
+cat("Pathway PTN:\n")
+knitr::include_graphics("../cell_comm/All/cellchat/images/pathway/LR_gene/PTN_ALL_LR_bubble_plot.png")
 
 ```
 
@@ -189,21 +192,21 @@ Heatmap
 
 ```{r, echo = FALSE, eval = TRUE, out.width = "60%", out.height = "60%"}
 cat("Age group: 12\n")
-knitr::include_graphics("../cell_comm/by_age_groups/cellchat/images/pathway/APP_12_signaling_strength_heatmap.png")
+knitr::include_graphics("../cell_comm/by_age_groups/cellchat/images/pathway/PTN_12_signaling_strength_heatmap.png")
 
 cat("Age group: 35\n")
-knitr::include_graphics("../cell_comm/by_age_groups/cellchat/images/pathway/APP_35_signaling_strength_heatmap.png")
+knitr::include_graphics("../cell_comm/by_age_groups/cellchat/images/pathway/PTN_35_signaling_strength_heatmap.png")
 
 ```
 
 The bubble plot of ligand-receptor pairs
 
-```{r, echo = FALSE, eval = TRUE, out.width = "75%", out.height = "75%"}
+```{r, echo = FALSE, eval = TRUE, fig.retina=3, out.width = "100%", out.height = "75%"}
 cat("Age group: 12\n")
-knitr::include_graphics("../cell_comm/by_age_groups/cellchat/images/pathway/LR_gene/APP_12_LR_bubble_plot.png")
+knitr::include_graphics("../cell_comm/by_age_groups/cellchat/images/pathway/LR_gene/PTN_12_LR_bubble_plot.png")
 
 cat("Age group: 35\n")
-knitr::include_graphics("../cell_comm/by_age_groups/cellchat/images/pathway/LR_gene/APP_35_LR_bubble_plot.png")
+knitr::include_graphics("../cell_comm/by_age_groups/cellchat/images/pathway/LR_gene/PTN_35_LR_bubble_plot.png")
 
 ```
 
