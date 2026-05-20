@@ -54,7 +54,7 @@ subdirectories <- c("scvelo",
                     "scvelo/images")
 
 for(i in subdirectories){
-  dir.create(file.path(output_dir,i), showWarnings = F, recursive = T)
+  dir.create(file.path(output_dir,i), showWarnings = FALSE, recursive = TRUE)
 }
 setwd(output_dir)
 

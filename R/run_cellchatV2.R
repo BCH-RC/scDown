@@ -132,12 +132,12 @@ run_cellchatV2 <- function(output_dir, seurat_obj, sample_column = NULL, annotat
     # Save all inferred cell-cell communications at the level of: 1) ligands/receptors, 2) pathways
     # cellchat_object_net <- subsetCommunication(cellchat_object)
     cellchat_object_netp <- subsetCommunication(cellchat_object, slot.name = "netP")
-    # write.csv(cellchat_object_net, file=paste0(output_dir, "/cellchat/csv/", condition, "_enriched_LRpairs.csv", sep=""), quote = F, row.names = F)
-    write.csv(cellchat_object_netp, file=paste0(output_dir, "/cellchat/csv/", condition, "_enriched_pathways.csv", sep=""), quote = F, row.names = F)
+    # write.csv(cellchat_object_net, file=paste0(output_dir, "/cellchat/csv/", condition, "_enriched_LRpairs.csv", sep=""), quote = FALSE, row.names = FALSE)
+    write.csv(cellchat_object_netp, file=paste0(output_dir, "/cellchat/csv/", condition, "_enriched_pathways.csv", sep=""), quote = FALSE, row.names = FALSE)
     
     # Save all inferred cell-cell communications by pathways
     info_flow <- calc_infoflow(X = cellchat_object, condition)
-    write.csv(info_flow, file=paste0(output_dir, "/cellchat/csv/", condition, "_enriched_pathways_aggregated.csv", sep=""), quote = F, row.names = F)
+    write.csv(info_flow, file=paste0(output_dir, "/cellchat/csv/", condition, "_enriched_pathways_aggregated.csv", sep=""), quote = FALSE, row.names = FALSE)
     
   } else {
     for (condition in conditions) {
@@ -159,12 +159,12 @@ run_cellchatV2 <- function(output_dir, seurat_obj, sample_column = NULL, annotat
       # Save all inferred cell-cell communications at the level of: 1) ligands/receptors, 2) pathways
       # cellchat_object_net <- subsetCommunication(cellchat_object)
       cellchat_object_netp <- subsetCommunication(cellchat_object, slot.name = "netP")
-      # write.csv(cellchat_object_net, file=paste0(output_dir, "/cellchat/csv/", condition, "_enriched_LRpairs.csv", sep=""), quote = F, row.names = F)
-      write.csv(cellchat_object_netp, file=paste0(output_dir, "/cellchat/csv/", condition, "_enriched_pathways.csv", sep=""), quote = F, row.names = F)
+      # write.csv(cellchat_object_net, file=paste0(output_dir, "/cellchat/csv/", condition, "_enriched_LRpairs.csv", sep=""), quote = FALSE, row.names = FALSE)
+      write.csv(cellchat_object_netp, file=paste0(output_dir, "/cellchat/csv/", condition, "_enriched_pathways.csv", sep=""), quote = FALSE, row.names = FALSE)
       
       # Save all inferred cell-cell communications by pathways
       info_flow <- calc_infoflow(X = cellchat_object, condition)
-      write.csv(info_flow, file=paste0(output_dir, "/cellchat/csv/", condition, "_enriched_pathways_aggregated.csv", sep=""), quote = F, row.names = F)
+      write.csv(info_flow, file=paste0(output_dir, "/cellchat/csv/", condition, "_enriched_pathways_aggregated.csv", sep=""), quote = FALSE, row.names = FALSE)
     }
   }
   

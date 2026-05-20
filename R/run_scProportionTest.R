@@ -49,7 +49,7 @@ run_scproportion <- function(seurat_obj,annotation_column,group_column,comparisi
   #subdirectories <- c(file.path("scproportion", "images"),file.path("scproportion","results"))
   
   #for(dir.i in subdirectories){
-  #  dir.create(dir.i, showWarnings = F, recursive = T)
+  #  dir.create(dir.i, showWarnings = FALSE, recursive = TRUE)
   #}
   #output_dir <- file.path(output_dir,"scproportion")
   prop_test <- scProportionTest::sc_utils(seurat_obj)

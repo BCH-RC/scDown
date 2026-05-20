@@ -121,7 +121,7 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
                       file.path("monocle","images","DEG"))
 
   for(i in subdirectories){
-    dir.create(file.path(output_dir,i), showWarnings = F, recursive = T)
+    dir.create(file.path(output_dir,i), showWarnings = FALSE, recursive = TRUE)
   }
   output_dir <- file.path(output_dir,"monocle")
 

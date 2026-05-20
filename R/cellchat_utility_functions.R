@@ -28,7 +28,7 @@ create_dir_cellchat <- function(dir_cellchat) {
                       "/cellchat/images/comparison/sidebyside")
   
   for(dir.i in subdirectories){
-    dir.create(paste0(dir_cellchat, dir.i), showWarnings = FALSE, recursive = TRUE)
+    dir.create(file.path(dir_cellchat, dir.i), showWarnings = FALSE, recursive = TRUE)
   }
 }
 
@@ -99,8 +99,8 @@ aggregate_visu <- function(X, condition, dir_cellchat, output_format="png"){
   # According to https://github.com/sqjin/CellChat/issues/499, position of vertex labels cannot be changed?
   png(paste0(dir_cellchat, "/cellchat/images/aggregate/", condition, "_net_interaction_and_weight.png", sep=""), height = 600*(numofcelltypes/4), width = 800*(numofcelltypes/4+1), res=300)
   par(mfrow = c(1, 2), xpd=TRUE)
-  netVisual_circle(X@net$count, vertex.weight = groupSize, weight.scale = T, label.edge= F, title.name = "Number of interactions")
-  netVisual_circle(X@net$weight, vertex.weight = groupSize, weight.scale = T, label.edge= F, title.name = "Interaction weights/strength")
+  netVisual_circle(X@net$count, vertex.weight = groupSize, weight.scale = TRUE, label.edge= FALSE, title.name = "Number of interactions")
+  netVisual_circle(X@net$weight, vertex.weight = groupSize, weight.scale = TRUE, label.edge= FALSE, title.name = "Interaction weights/strength")
   dev.off()
   
   # Circle plot: interaction strength for each individual cell type
@@ -110,7 +110,7 @@ aggregate_visu <- function(X, condition, dir_cellchat, output_format="png"){
   for (i in 1:nrow(mat)) {
     mat2 <- matrix(0, nrow = nrow(mat), ncol = ncol(mat), dimnames = dimnames(mat))
     mat2[i, ] <- mat[i, ]
-    netVisual_circle(mat2, vertex.weight = groupSize, weight.scale = T, edge.weight.max = max(mat), vertex.label.cex = 1 + 4/numofcelltypes, title.name = rownames(mat)[i])
+    netVisual_circle(mat2, vertex.weight = groupSize, weight.scale = TRUE, edge.weight.max = max(mat), vertex.label.cex = 1 + 4/numofcelltypes, title.name = rownames(mat)[i])
   }
   dev.off()
   
@@ -145,8 +145,8 @@ aggregate_visu <- function(X, condition, dir_cellchat, output_format="png"){
   # According to https://github.com/sqjin/CellChat/issues/499, position of vertex labels cannot be changed?
   pdf(paste0(dir_cellchat, "/cellchat/images/aggregate/", condition, "_net_interaction_and_weight.pdf", sep=""), height = 2*(numofcelltypes/4), width = 8/3*(numofcelltypes/4+1))
   par(mfrow = c(1, 2), xpd=TRUE)
-  netVisual_circle(X@net$count, vertex.weight = groupSize, weight.scale = T, label.edge= F, title.name = "Number of interactions")
-  netVisual_circle(X@net$weight, vertex.weight = groupSize, weight.scale = T, label.edge= F, title.name = "Interaction weights/strength")
+  netVisual_circle(X@net$count, vertex.weight = groupSize, weight.scale = TRUE, label.edge= FALSE, title.name = "Number of interactions")
+  netVisual_circle(X@net$weight, vertex.weight = groupSize, weight.scale = TRUE, label.edge= FALSE, title.name = "Interaction weights/strength")
   dev.off()
   
   # Circle plot: interaction strength for each individual cell type
@@ -156,7 +156,7 @@ aggregate_visu <- function(X, condition, dir_cellchat, output_format="png"){
   for (i in 1:nrow(mat)) {
     mat2 <- matrix(0, nrow = nrow(mat), ncol = ncol(mat), dimnames = dimnames(mat))
     mat2[i, ] <- mat[i, ]
-    netVisual_circle(mat2, vertex.weight = groupSize, weight.scale = T, edge.weight.max = max(mat), vertex.label.cex = 1 + 4/numofcelltypes, title.name = rownames(mat)[i])
+    netVisual_circle(mat2, vertex.weight = groupSize, weight.scale = TRUE, edge.weight.max = max(mat), vertex.label.cex = 1 + 4/numofcelltypes, title.name = rownames(mat)[i])
   }
   dev.off()
   
@@ -210,8 +210,8 @@ aggregate_circleplot <- function(X, dir_cellchat, height, width, res) {
   cat("Image file saved as", fname, "\n")
   png(fname, height = height, width = width, res=res)
   par(mfrow = c(1, 2), xpd=TRUE)
-  netVisual_circle(X@net$count, weight.scale = T, label.edge= F, title.name = "Number of interactions")
-  netVisual_circle(X@net$weight, weight.scale = T, label.edge= F, title.name = "Interaction weights/strength")
+  netVisual_circle(X@net$count, weight.scale = TRUE, label.edge= FALSE, title.name = "Number of interactions")
+  netVisual_circle(X@net$weight, weight.scale = TRUE, label.edge= FALSE, title.name = "Interaction weights/strength")
   dev.off()
 }
 
@@ -273,7 +273,7 @@ aggregate_circleplot_percelltype <- function(X, dir_cellchat, image.ncol, vertex
   for (i in 1:nrow(mat)) {
     mat2 <- matrix(0, nrow = nrow(mat), ncol = ncol(mat), dimnames = dimnames(mat))
     mat2[i, ] <- mat[i, ]
-    netVisual_circle(mat2, weight.scale = T, edge.weight.max = max(mat), vertex.label.cex = vertex.label.cex, title.name = rownames(mat)[i])
+    netVisual_circle(mat2, weight.scale = TRUE, edge.weight.max = max(mat), vertex.label.cex = vertex.label.cex, title.name = rownames(mat)[i])
   }
   dev.off()
 }
@@ -663,8 +663,8 @@ network_comparison <- function(dir_cellchat, X, object_list, cond_in_compare, ou
 
   if (output_format == "png") {
     # total number of interactions and strength between conditions
-    gg1 <- compareInteractions(X, show.legend = F, group = c(1,2))
-    gg2 <- compareInteractions(X, show.legend = F, group = c(1,2), measure = "weight")
+    gg1 <- compareInteractions(X, show.legend = FALSE, group = c(1,2))
+    gg2 <- compareInteractions(X, show.legend = FALSE, group = c(1,2), measure = "weight")
     p1 <- gg1 + gg2
     ggsave(file=paste0(dir_cellchat, "/cellchat/images/comparison/Net/",cond_in_compare[1],"_",cond_in_compare[2],"_interactNum_histo", ".png", sep=""), plot=p1, height = 6, width = 8)
 
@@ -711,8 +711,8 @@ network_comparison <- function(dir_cellchat, X, object_list, cond_in_compare, ou
 
   } else if (output_format == "pdf") {
     # total number of interactions and strength between conditions
-    gg1 <- compareInteractions(X, show.legend = F, group = c(1,2))
-    gg2 <- compareInteractions(X, show.legend = F, group = c(1,2), measure = "weight")
+    gg1 <- compareInteractions(X, show.legend = FALSE, group = c(1,2))
+    gg2 <- compareInteractions(X, show.legend = FALSE, group = c(1,2), measure = "weight")
     p1 <- gg1 + gg2
     ggsave(file=paste0(dir_cellchat, "/cellchat/images/comparison/Net/",cond_in_compare[1],"_",cond_in_compare[2],"_interactNum_histo", ".pdf", sep=""), plot=p1, height = 6, width = 8)
 
@@ -781,8 +781,8 @@ information_flow <- function(dir_cellchat, X, object_list,cond_in_compare, outpu
  
   if (output_format == "png") {
     # significant signaling pathways based on differences in the overall information flow
-    gg1 <- rankNet(X, mode = "comparison", stacked = T, do.stat = TRUE)
-    gg2 <- rankNet(X, mode = "comparison", stacked = F, do.stat = TRUE)
+    gg1 <- rankNet(X, mode = "comparison", stacked = TRUE, do.stat = TRUE)
+    gg2 <- rankNet(X, mode = "comparison", stacked = FALSE, do.stat = TRUE)
     p1 <- gg1 + gg2
     # use the number of pathways showing in plot to tune height
     pathway_in_plot <- length(levels(gg1$data$name))
@@ -810,8 +810,8 @@ information_flow <- function(dir_cellchat, X, object_list,cond_in_compare, outpu
 
   } else if (output_format == "pdf") {
     # significant signaling pathways based on differences in the overall information flow
-    gg1 <- rankNet(X, mode = "comparison", stacked = T, do.stat = TRUE)
-    gg2 <- rankNet(X, mode = "comparison", stacked = F, do.stat = TRUE)
+    gg1 <- rankNet(X, mode = "comparison", stacked = TRUE, do.stat = TRUE)
+    gg2 <- rankNet(X, mode = "comparison", stacked = FALSE, do.stat = TRUE)
     p1 <- gg1 + gg2
     # use the number of pathways showing in plot to tune height
     pathway_in_plot <- length(levels(gg1$data$name))
@@ -857,8 +857,8 @@ information_flow <- function(dir_cellchat, X, object_list,cond_in_compare, outpu
 differential_ligand_receptor <- function(dir_cellchat, X, cond_in_compare){
 
   # DEG by communication probability: max.dataset = keep the communications with highest probability in max.dataset
-  gg1 <- netVisual_bubble(X, comparison = c(1, 2), max.dataset = 2, title.name = paste0("Increased signaling in", cond_in_compare[2]), angle.x = 45, remove.isolate = T)
-  gg2 <- netVisual_bubble(X, comparison = c(1, 2), max.dataset = 1, title.name = paste0("Decreased signaling in", cond_in_compare[2]), angle.x = 45, remove.isolate = T)
+  gg1 <- netVisual_bubble(X, comparison = c(1, 2), max.dataset = 2, title.name = paste0("Increased signaling in", cond_in_compare[2]), angle.x = 45, remove.isolate = TRUE)
+  gg2 <- netVisual_bubble(X, comparison = c(1, 2), max.dataset = 1, title.name = paste0("Decreased signaling in", cond_in_compare[2]), angle.x = 45, remove.isolate = TRUE)
   # write.csv(gg1$data, file=paste0(dir_cellchat, "/cellchat/csv/",cond_in_compare[2],"_increased_signalingLR_commProb.csv", sep=""))
   # write.csv(gg2$data, file=paste0(dir_cellchat, "/cellchat/csv/",cond_in_compare[2],"_decreased_signalingLR_commProb.csv", sep=""))
 
