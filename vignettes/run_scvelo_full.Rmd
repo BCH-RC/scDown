@@ -35,7 +35,7 @@ knitr::opts_chunk$set(
 # Define Variables specific for `scDown::run_scvelo_full`
 Apart from global universal variables applied to all functions in scDown, defining additional variables specific for running `scDown::run_scvelo_full`. 
 
-Loading a Seurat object (`seurat_obj`) containing single-cell RNA-seq data is required. The cell type annotation column (`annotation_column`) is defined to specify the cell type or other annotation labels, ensuring the analysis runs with the correct group.
+Loading a Seurat object (`seurat_obj`) containing raw gene expression values stored in the counts slot is required, as the `run_scvelo_full` function enforces normalization using `scVelo`. The cell type annotation column (`annotation_column`) is defined to specify the cell type or other annotation labels, ensuring the analysis runs with the correct group.
 
 The `loom_files` is required for `run_scvelo_full`, except when the spliced and unspliced mRNA counts are already incoporated into the Seurat object. The loom files containing spliced and unspliced counts can be generated using [`velocyto`](https://velocyto.org/velocyto.py/tutorial/index.html). Please refer to [`velocyto`](https://velocyto.org/velocyto.py/install/index.html) for instalation and detailed usage instructions. Below is sample code to generate loom files for each sample using [`velocyto`](https://velocyto.org/velocyto.py/tutorial/cli.html#run10x-run-on-10x-chromium-samples): 
 ```{sh, message = FALSE}

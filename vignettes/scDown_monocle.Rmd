@@ -43,7 +43,7 @@ nDim <- 30
 
 ## Run monocle3 default workflow
 
-Users can load their scRNASeq data which they would like to run the trajectory analysis. To run the trajectory analysis with `run_monocle3()`, the users have to provide the scRNASeq data and species. By default, the function runs the trajectory analysis on the whole dataset, identify the root nodes using potency method, and run trajectory analysis using monocle3. While `run_monocle3()` is generally species-agnostic and works beyond mouse or human, species specification is required when using `rootNodes_method = "potency"`. If you choose to manually define root nodes using `rootNodes_method = "rootNodes"`, then species specification is not necessary.
+Users can load their scRNA-seq data which they would like to run the trajectory analysis. To run the trajectory analysis with `run_monocle3()`, the users have to provide the scRNA-seq data and species. Monocle3 requires raw gene expression values stored in the counts slot of the Seurat object. By default, the function runs the trajectory analysis on the whole dataset, identify the root nodes using potency method, and run trajectory analysis using monocle3. While `run_monocle3()` is generally species-agnostic and works beyond mouse or human, species specification is required when using `rootNodes_method = "potency"`. If you choose to manually define root nodes using `rootNodes_method = "rootNodes"`, then species specification is not necessary.
 
 ```{r, message = FALSE,eval=FALSE}
 run_monocle3(seurat_obj = seurat_obj,
@@ -234,7 +234,7 @@ knitr::include_graphics("../scdown/monocle3/images/significant_by_age.days.+traj
 ```
 
 
-### Regression analysis between various groups in the scRNASeq data
+### Regression analysis between various groups in the scRNA-seq data
 The pipeline can also be used to identify the significant differential expression genes between conditions using a generalized linear model using "quasipoisson" distribution by default. The users can use four different models ("quasipoisson", "negbinomial","poisson" or "binomial") by supplying it in `deg_model` variable. This is an optional feature which can be turned on by supplying the metadata in the `metadata_deg_model`.
 
 ```{r, message = FALSE,eval=FALSE}
