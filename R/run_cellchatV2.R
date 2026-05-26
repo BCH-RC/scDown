@@ -236,7 +236,7 @@ cellchatV2_path_visu <- function(output_dir, species, pathway_to_show) {
     }
   }
   
-  cat(paste0("Pathway plots are updated in the folder: ", output_dir, "/cellchat/images/pathway"))
+  cat(paste0("Pathway plots are updated in the folder:", output_dir, "/cellchat/images/pathway"))
 }
 
 

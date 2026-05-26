@@ -24,16 +24,22 @@ doTransferLabel <- function(X, Y, varToHarmonize = NULL, transferCoordinates = F
     file.remove('.UMAP')
   }
 
+  # Update object structure
+  X <- SeuratObject::UpdateSeuratObject(X)
+  Y <- SeuratObject::UpdateSeuratObject(X)
+
   # Adjust value so it will not generate error in either case when calling buildReferrence()
-  varToHarmonize <- ifelse(is.null(varToHarmonize), NULL, 'B')
+  varToHarmonize <- if (is.null(varToHarmonize)) NULL else 'B'
 
   # Generating a Symphony Reference
-  S <- symphony::buildReference(X@assays$RNA@counts, MD,
-                      vars = varToHarmonize,
-                      do_umap = TRUE,
-                      verbose = TRUE,
-                      d = 30,
-                      save_uwot_path = '.UMAP')
+  cat("Building reference...\n")
+  S <- symphony::buildReference(LayerData(X, layer="counts", assay="RNA"),
+                                MD,
+                                vars = varToHarmonize,
+                                do_umap = TRUE,
+                                verbose = TRUE,
+                                d = 30,
+                                save_uwot_path = '.UMAP')
 
   # Replacing embeeding by the one in the Seurat object
   if(transferCoordinates){
@@ -47,21 +53,26 @@ doTransferLabel <- function(X, Y, varToHarmonize = NULL, transferCoordinates = F
   }
 
   # Querying the new data into the generated reference
+  cat("Mapping query...\n")
   set.seed(1)
-  Q <- symphony::mapQuery(Y@assays$RNA@counts, Y@meta.data, ref_obj = S)
+  Q <- symphony::mapQuery(LayerData(Y, layer="counts", assay="RNA"),
+                          Y@meta.data, 
+                          ref_obj = S)
 
   # Transfering Labels
+  cat("Predicting kNN...\n")
   Q <- symphony::knnPredict(Q, S, S$meta_data$L, k = 5)
 
   # Adding new metadata to the Y object
-  Y$transferedCellType <- Q$meta_data$cell_type_pred_knn
+  Y$transferredCellType <- Q$meta_data$cell_type_pred_knn
   Y$labelProbability <- Q$meta_data$cell_type_pred_knn_prob
-  Idents(Y) <- Y$transferedCellType
+  Idents(Y) <- Y$transferredCellType
 
   if(transferCoordinates){
     Y@reductions$umap@cell.embeddings[,1] <- Q$umap[,1]
     Y@reductions$umap@cell.embeddings[,2] <- Q$umap[,2]
   }
+  cat("Label transfer completed.\n")
 
   # Returning annotated object
   return(Y)

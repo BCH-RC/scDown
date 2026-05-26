@@ -32,7 +32,7 @@ def velocity_calculation(adata, annotation_column, mode='stochastic', group_labe
     # velocity calculation workflow
     scv.pp.filter_genes(adata, min_shared_counts=20)
     adata.layers["counts"] = adata.X.copy()
-    scv.pp.normalize_per_cell(adata)
+    scv.pp.normalize_per_cell(adata, enforce=True)
     sc.pp.log1p(adata)
     sc.pp.highly_variable_genes(adata, layer="counts", flavor='seurat_v3', n_top_genes=2000)
 
@@ -42,6 +42,8 @@ def velocity_calculation(adata, annotation_column, mode='stochastic', group_labe
         scv.tl.recover_dynamics(adata, n_jobs=n_jobs) # required if running dynamical model
     scv.tl.velocity(adata, mode=mode)
     scv.tl.velocity_graph(adata)
+    if mode == 'dynamical':
+        scv.tl.latent_time(adata)
     # save adata object after velocity calculation, since these results can take time to re-run.
     if adata._raw is not None:
         adata.__dict__['_raw'].__dict__['_var'] = adata.__dict__['_raw'].__dict__['_var'].rename(columns={'_index': 'features'}) # for getting around a bug
@@ -52,7 +54,6 @@ def velocity_calculation(adata, annotation_column, mode='stochastic', group_labe
     scv.pl.velocity_embedding_grid(adata, basis='umap', save=f'scvelo/images/{group_label}_{mode}_embedding_grid', **kwargs)
     scv.pl.velocity_embedding(adata, arrow_length=5, arrow_size=1, basis='umap', save=f'scvelo/images/{group_label}_{mode}_embedding_arrow', **kwargs)
     if mode == 'dynamical':
-        scv.tl.latent_time(adata)
         kwargs = dict(figsize=(10, 10), dpi=500, show=False)
         scv.pl.scatter(adata, basis='umap', color='latent_time', color_map='gnuplot', size=50, save=f'scvelo/images/{group_label}_{mode}_latent_time', **kwargs)
     return

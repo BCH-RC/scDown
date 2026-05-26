@@ -84,8 +84,8 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
           t<-table(seurat_obj_subset@meta.data[,group_column])
           if(t[cond] < 2)
           {
-            msg<-paste0("There is less than 2 cells for the ",timePoint," timepoint for condition ",cond,". Trajectory analysis will not be carried out for this condition separately.")
-            print(msg)
+            msg<-paste0("There is less than 2 cells for the ",timePoint," timepoint for condition ",cond,". Trajectory analysis will not be carried out for this condition separately.\n")
+            cat(msg)
             return(NULL)
           }else{
             return(cond)
@@ -151,7 +151,7 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
   cellTypeDistribution(cds=cds, colData_name=group_column, output_format = output_format,outputDir=output_dir)
   #cds_by_group <- c(cds_by_group, list(cds)) # add cds with completed trrajectory inference to list
   cds_by_group <- list("ALL"=cds) # add cds with completed trrajectory inference to list
-  print("Trajectory and pseudotime for the entire object completed.")
+ cat("Trajectory and pseudotime for the entire object completed.\n")
 
   process_celltypegroup <- function(celltype_group)
   {
@@ -171,7 +171,7 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
     parallel::stopCluster(cl)
     names(cds_subset)<-unlist(lapply(celltype_groups,function(x){paste(unlist(x),collapse = '_')}))
     cds_by_group<-c(cds_by_group,cds_subset)
-    print("Trajectory and pseudotime for all subsetted objects completed.")
+    cat("Trajectory and pseudotime for all subsetted objects completed.\n")
   }
 
   # loop over each cell_data_set object (whole and subsetted, if any) and perform:
@@ -196,11 +196,11 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
       }
     }
 
-    print(paste0("Regression analysis completed for cds object #",i," completed.", sep=""))
+    cat("Regression analysis completed for cds object #",i," completed.\n", sep="")
 
     if (graph_test){
       graphAutoCorrelation(cds=cds.current,conditions_all=conditions,colData_name=group_column, top_gene=top_genes, subset=cell_type_use,deg_method=deg_method,batch=batch_metadata, output_format = output_format,outputDir=output_dir,cores=cores)
-      print(paste0("Graph autocorrelation analysis for cds object #",i," completed.", sep=""))
+      cat("Graph autocorrelation analysis for cds object #",i," completed.\n", sep="")
     }
 
     if (conditions_to_compare){
@@ -212,9 +212,9 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
 
         # plot umap by cell types
         if (output_format == "png") {
-            png(filename = file.path(output_dir,"images","pseudotime",paste0("umap_celltypes_","transferUMAP_",transferUMAP,transferUMAP,ifelse(!is.null(cell_type_use),paste0("_",paste(cell_type_use,collapse = '_')),""),"_",condition,".png",sep="")), width = 2000*1.4, height = 1500*1.5, res = 400)
+            png(filename = file.path(output_dir,"images","pseudotime",paste0("umap_celltypes_","transferUMAP_",transferUMAP,ifelse(!is.null(cell_type_use),paste0("_",paste(cell_type_use,collapse = '_')),""),"_",condition,".png",sep="")), width = 2000*1.4, height = 1500*1.5, res = 400)
         } else if (output_format == "pdf") {
-            pdf(file.path(output_dir,"images","pseudotime",paste0("umap_celltypes_","transferUMAP_",transferUMAP,transferUMAP,ifelse(!is.null(cell_type_use),paste0("_",paste(cell_type_use,collapse = '_')),""),"_",condition,".pdf",sep="")), width = 5*1.4, height = 3.75*1.5)
+            pdf(file.path(output_dir,"images","pseudotime",paste0("umap_celltypes_","transferUMAP_",transferUMAP,ifelse(!is.null(cell_type_use),paste0("_",paste(cell_type_use,collapse = '_')),""),"_",condition,".pdf",sep="")), width = 5*1.4, height = 3.75*1.5)
         } 
 
         p4 <- monocle3::plot_cells(cds.condition, color_cells_by="cell.type", show_trajectory_graph=FALSE,label_groups_by_cluster=FALSE) +
@@ -226,9 +226,9 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
 
         # plot umap by trajectory
         if (output_format == "png") {
-            png(filename = file.path(output_dir,"images","pseudotime",paste0("umap_trajectory_","transferUMAP_",transferUMAP,transferUMAP,ifelse(!is.null(cell_type_use),paste0("_",paste(cell_type_use,collapse = '_')),""),"_",condition,".png",sep="")), width = 2000*1.4, height = 1500*1.5, res = 400)
+            png(filename = file.path(output_dir,"images","pseudotime",paste0("umap_trajectory_","transferUMAP_",transferUMAP,ifelse(!is.null(cell_type_use),paste0("_",paste(cell_type_use,collapse = '_')),""),"_",condition,".png",sep="")), width = 2000*1.4, height = 1500*1.5, res = 400)
         } else if (output_format == "pdf") {
-            pdf(file.path(output_dir,"images","pseudotime",paste0("umap_trajectory_","transferUMAP_",transferUMAP,transferUMAP,ifelse(!is.null(cell_type_use),paste0("_",paste(cell_type_use,collapse = '_')),""),"_",condition,".pdf",sep="")), width = 5*1.4, height = 3.75*1.5)
+            pdf(file.path(output_dir,"images","pseudotime",paste0("umap_trajectory_","transferUMAP_",transferUMAP,ifelse(!is.null(cell_type_use),paste0("_",paste(cell_type_use,collapse = '_')),""),"_",condition,".pdf",sep="")), width = 5*1.4, height = 3.75*1.5)
         }         
         p5 <- monocle3::plot_cells(cds.condition, label_principal_points = TRUE,  color_cells_by = "cell.type", label_cell_groups=FALSE) +
           ggplot2::theme_void() +
@@ -250,7 +250,7 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
         runmonocle_percondition(i=i)
       parallel::stopCluster(cl)
       
-      print(paste0("Trajectory and pseudotime for all conditions subsetted from cds object #",i," completed.", sep=""))
+      cat("Trajectory and pseudotime for all conditions subsetted from cds object #",i," completed.\n", sep="")
     }
     #return(cds.current)
   }

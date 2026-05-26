@@ -33,6 +33,7 @@ create_dir <- function(output_dir) {
 #' @param output_dir path to save the figures 
 #' @param annotation_column the column name in the meta, cluster or celltype
 #' @param i index of the comparison condition
+#' @param meta metadata information
 #' @return NULL saves comparison figures in the specified directory.
 #' @noRd
 
@@ -48,7 +49,7 @@ generate_figure <- function(prop_test.i, output_format="png",comparisons_conditi
   
   output_format <- match.arg(output_format, choices = c("png", "pdf", "jpeg"))
   file_extension <- switch(output_format, png = "png", pdf = "pdf", jpeg = "jpg")
-  
+
   # set figure height and width 
   label_vec <- as.character(meta[[annotation_column]])
   n_anno <- length(unique(label_vec))

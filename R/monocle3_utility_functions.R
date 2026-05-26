@@ -31,16 +31,16 @@
 #'
 #' @noRd
 
-getTrajectory <- function(X, nDim=30, batch=NULL, transferUMAP=TRUE, subset=NULL, cond=NULL, output_format="png",outputDir="."){
+getTrajectory <- function(X, nDim=30, batch=NULL, transferUMAP=TRUE, subset=NULL, cond=NULL, output_format="png", outputDir="."){
 
   # when idents = NULL, WhichCells() will simply return all cells, thus no subsetting
   selected_cells <- Seurat::WhichCells(X, idents = subset)
   geneInfo <- data.frame(gene_short_name = rownames(X[,selected_cells]@assays$RNA))
   rownames(geneInfo) <- rownames(X[,selected_cells]@assays$RNA)
   cellInfo <- X[,selected_cells]@meta.data
-  cds <- monocle3::new_cell_data_set(X[,selected_cells]@assays$RNA@counts,
-                           cell_metadata = cellInfo,
-                           gene_metadata = geneInfo)
+  cds <- monocle3::new_cell_data_set(SeuratObject::LayerData(X[,selected_cells], layer="counts", assay="RNA"),
+                                     cell_metadata = cellInfo,
+                                     gene_metadata = geneInfo)
   cds <- monocle3::preprocess_cds(cds, num_dim = nDim,method = "PCA")
   cds <- monocle3::reduce_dimension(cds,umap.fast_sgd=FALSE)
 
@@ -465,7 +465,7 @@ graphAutoCorrelation <- function(cds,conditions_all,colData_name, top_gene, subs
   # test whether cells at similar positions on the trajectory have correlated expression
   pr_graph_test_res <- monocle3::graph_test(cds, neighbor_graph = "principal_graph", cores = cores)
 
-  print("Graph_test function finished successfully. Continue to csv saving...")
+  cat("Graph_test function finished successfully. Continue to csv saving...\n")
   #ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),"")
   write.csv(pr_graph_test_res, file=file.path(outputDir,"csv",paste0("monocleDEG_by_","trajectory",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),".csv", sep="")))
 
@@ -490,7 +490,7 @@ graphAutoCorrelation <- function(cds,conditions_all,colData_name, top_gene, subs
   print(p1)
   dev.off()
 
-  print("CSV saving and feature plot plotting finished successfully. Continue to module finding...")
+  cat("CSV saving and feature plot plotting finished successfully. Continue to module finding...\n")
 
   # below few lines are repetitive and are just here to get around a bug caused by file too large (ex. object the size of p147)
   rm(pr_graph_test_sig)
@@ -499,17 +499,17 @@ graphAutoCorrelation <- function(cds,conditions_all,colData_name, top_gene, subs
   rownames(pr_graph_test_sig) <- pr_graph_test_sig$X
   pr_graph_test_sig <- pr_graph_test_sig[,-1]
 
-  print("Module finding start...")
+ cat("Module finding start...\n")
 
   # organize significant trajectory-variable genes into modules
   # this function will give different results with every run if seed not set, see https://github.com/cole-trapnell-lab/monocle3/issues/494
 
   gene_module_df <- monocle3::find_gene_modules(cds[pr_graph_test_sig$gene_short_name, ], resolution=c(10^seq(-6,-1)), random_seed=1, cores=cores)
   #gene_module_df <- find_gene_modules_leiden(cds[pr_graph_test_sig$gene_short_name, ], resolution=c(10^seq(-6,-1)), random_seed=1, cores=cores)
-  print("Module found successfully.")
+  cat("Module found successfully.\n")
   write.csv(gene_module_df, file=file.path(outputDir,"csv",paste0("monocleDEG_by_trajectory","_moduleInformation",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),".csv", sep="")))
 
-  print("Module information saved to csv successfully.")
+  cat("Module information saved to csv successfully.\n")
 
   cell_group_df <- tibble::tibble(cell=row.names(SummarizedExperiment::colData(cds)), cell_group=SummarizedExperiment::colData(cds)$cell.type)
   agg_mat <- monocle3::aggregate_gene_expression(cds, gene_module_df, cell_group_df)

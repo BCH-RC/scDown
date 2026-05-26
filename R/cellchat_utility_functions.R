@@ -37,10 +37,10 @@ create_dir_cellchat <- function(dir_cellchat) {
 #' This function performs cell-cell communication analysis using CellChat and generates a CellChat V2 object.
 #' It takes a Seurat object as input, with cell annotation labels assigned as identities of the cells.
 #' The Seurat object should have cell identities populated in `Idents(X)` and normalized count data in 
-#' `X@assays$RNA@data`.
+#' `X@assays$RNA$data`.
 #'
 #' @param X A Seurat object with cell-type identities assigned to `Idents(X)` and normalized counts 
-#'          in `X@assays$RNA@data`.
+#'          in `X@assays$RNA$data`.
 #' @param species The species of the data, either 'human' or 'mouse'.
 #' @return ccX, A CellChat object containing the results of the cell-cell communication analysis.
 #' 
@@ -49,20 +49,15 @@ create_dir_cellchat <- function(dir_cellchat) {
 doCellCom <- function(X, species) {
   ccMetaData <- data.frame(label = Idents(X))
   ccMetaData <- cbind(ccMetaData, X@meta.data)
-  
-  if (inherits(X[["RNA"]], "Assay5")) {
-    expr_mat <- GetAssayData(X, assay = "RNA", layer = "data")
-  } else {
-    expr_mat <- GetAssayData(X, assay = "RNA", slot = "data")
-  }
-  ccX <- createCellChat(expr_mat, meta = ccMetaData, group.by = 'label')
-  
+  ccX <- createCellChat(LayerData(X, layer="data", assay="RNA"),
+                        meta = ccMetaData, 
+                        group.by = 'label')
   if (species == "mouse"){
     ccDB <- CellChatDB.mouse
   } else if (species == "human"){
     ccDB <- CellChatDB.human
   } else {
-    print("Other species currently not supported.")
+    cat("Other species currently not supported.\n")
   }
   ccX@DB <- ccDB
   ccX <- subsetData(ccX)
@@ -313,7 +308,7 @@ pathway_visu <- function(X, Y, pathway, condition, output_format="png", dir_cell
       dev.off()
     }, error = function(e) {
       # Print the error message (optional) and continue
-      cat("Warning: ", e$message, "\n")
+      cat("Warning:", e$message, "\n")
       cat("Creation of signaling_strength_heatmap.png file failed!\n")
     })
     
@@ -323,7 +318,7 @@ pathway_visu <- function(X, Y, pathway, condition, output_format="png", dir_cell
       ggsave(file = paste0(dir_cellchat, "/cellchat/images/pathway/LR_gene/", pathway, "_", condition, "_LR_contribution.png", sep=""), plot = p1, height = 6, width = 8)
     }, error = function(e) {
       # Print the error message (optional) and continue
-      cat("Warning: ", e$message, "\n")
+      cat("Warning:", e$message, "\n")
       cat("Creation of LR_contribution.png file failed!\n")
     })
 
@@ -402,7 +397,7 @@ pathway_visu <- function(X, Y, pathway, condition, output_format="png", dir_cell
       dev.off()
     }, error = function(e) {
       # Print the error message (optional) and continue
-      cat("Warning: ", e$message, "\n")
+      cat("Warning:", e$message, "\n")
       cat("Creation of signaling_strength_heatmap.pdf file failed!\n")
     })
     
@@ -412,7 +407,7 @@ pathway_visu <- function(X, Y, pathway, condition, output_format="png", dir_cell
       ggsave(file = paste0(dir_cellchat, "/cellchat/images/pathway/LR_gene/", pathway, "_", condition, "_LR_contribution.pdf", sep=""), plot = p1, height = 6, width = 8)
     }, error = function(e) {
       # Print the error message (optional) and continue
-      cat("Warning: ", e$message, "\n")
+      cat("Warning:", e$message, "\n")
       cat("Creation of LR_contribution.pdf file failed!\n")
     })
 
@@ -988,7 +983,7 @@ subsetCellChatMod <- function(object, idents.use, thresh = 0.05) {
   level.use <- level.use[level.use %in% idents.use]
   cells.use.index <- which(as.character(labels) %in% level.use)
   cells.use <- names(labels)[cells.use.index] # NULL
-  cat("The subset of cell groups used for CellChat analysis are ", level.use, '\n')
+  cat("The subset of cell groups used for CellChat analysis are", level.use, '\n')
   
   # Subsetting data for the selected cells
   data.subset <- object@data[, cells.use.index]
@@ -1010,7 +1005,7 @@ subsetCellChatMod <- function(object, idents.use, thresh = 0.05) {
     names(images.subset) <- names(object@idents[1:(length(object@idents)-1)])
     
     for (i in 1:length(idents)) {
-      cat("Update slots object@images, object@net, object@netP, object@idents in dataset ", names(object@idents)[i],'\n')
+      cat("Update slots object@images, object@net, object@netP, object@idents in dataset", names(object@idents)[i],'\n')
       images <- object@images[[i]]
       for (images.j in names(images)) {
         values <- images[[images.j]]
