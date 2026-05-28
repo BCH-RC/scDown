@@ -22,7 +22,8 @@ run_monocle3(
   deg_method = "quasipoisson",
   metadata_deg_model = NULL,
   graph_test = FALSE,
-  cores = 1,
+  output_format = "png",
+  cores = 8,
   output_dir = "."
 )
 }
@@ -60,6 +61,8 @@ run_monocle3(
 \item{metadata_deg_model}{A character vector specifying the model used for regression analysis, can be any term that exists in the metadata}
 
 \item{graph_test}{A boolean variable to run graph auto-correlation to find differential genes along the trajectory}
+
+\item{output_format}{Format of output figure: "png" or "pdf" (default: "png")}
 
 \item{cores}{A numeric variable to set the number of cores to be used}
 

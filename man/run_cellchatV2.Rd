@@ -13,7 +13,9 @@ run_cellchatV2(
   species,
   group_column = NULL,
   group_cmp = NULL,
-  top_n = 10
+  top_n = 10,
+  output_format = "png",
+  cores = 4
 )
 }
 \arguments{
@@ -34,6 +36,10 @@ run_cellchatV2(
 \item{group_cmp}{A list of pairwise condition comparisons for differential CellChat analysis (e.g., comparing different groups or conditions).}
 
 \item{top_n}{The number of top signaling pathways to analyze and visualize.}
+
+\item{output_format}{Format of output figure: "png" or "pdf" (default: "png")}
+
+\item{cores}{A numeric variable to set the number of cores to be used}
 }
 \description{
 run CellChat analysis

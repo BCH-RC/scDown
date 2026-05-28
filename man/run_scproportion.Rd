@@ -13,7 +13,7 @@ run_scproportion(
   output_dir = ".",
   output_format = "png",
   verbose = TRUE,
-  cores = detectCores() - 1
+  cores = 8
 )
 }
 \arguments{

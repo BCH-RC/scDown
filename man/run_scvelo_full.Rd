@@ -5,23 +5,43 @@
 \title{Function to run the scVelo pipeline using python script}
 \usage{
 run_scvelo_full(
-  h5ad_file = "scvelo/rds/obj_spliced_unspliced.h5ad",
+  seurat_obj,
+  loom_files = NULL,
   output_dir = ".",
+  loom_file_subset_by = NULL,
+  loom_file_subset_column = "orig.ident",
   annotation_column = "ID",
   mode = "stochastic",
-  top_gene = 5
+  top_gene = 5,
+  groups = NULL,
+  group_column = NULL,
+  output_format = "png",
+  cores = 4
 )
 }
 \arguments{
-\item{h5ad_file}{input h5ad file path and name, if running after run_scvelo(), this object has a fixed name and does not need to be changed}
-
 \item{output_dir}{A character vector specifying the output directory}
 
-\item{annotation_column}{A character variable specifying which metadata column of the h5ad object contains cell type annotations}
+\item{annotation_column}{A character variable specifying which metadata column of the h5ad object contains 
+cell type annotations}
 
-\item{mode}{Mode to conduct scvelo velocity calculation, either 'stochastic (default)', 'deterministic', or 'dynamical (slowest)'}
+\item{mode}{Mode to conduct scvelo velocity calculation, either 'stochastic (default)', 'deterministic', 
+or 'dynamical (slowest, recommended)'}
 
 \item{top_gene}{The number of top differential velocity genes to plot phase portrait for}
+
+\item{groups}{A list of character vectors representing groups of conditions or time points used to 
+calculate RNA velocity separately, default: NULL}
+
+\item{group_column}{A string specifying the name of the metadata column in the h5ad object that should be}
+
+\item{output_format}{Format of output figure: "png" or "pdf" (default: "png")
+used for subsetting each group in `groups`}
+
+\item{cores}{A numeric variable to set the number of cores to be used}
+
+\item{h5ad_file}{input h5ad file path and name, if running after `run_scvelo()`, this object has a fixed 
+name and does not need to be changed}
 }
 \value{
 A list of scVelo data objects
@@ -32,7 +52,7 @@ Workflow of this function:
 1. calculate RNA velocity using scVelo workflow
 2. cluster-specific differential velocity genes
 3. trajectory inference using PAGA
-This function outputs basic figures such as spliced/unspliced count proportion, projected RNA velocity on umap,
-the phase portrait (ratio of spliced/unspliced RNA abundance) for top differential genes, 
-and directed graphs of predicted lineages from PAGA trajectory inference
+This function outputs basic figures such as spliced/unspliced count proportion, projected RNA velocity 
+on umap, the phase portrait (ratio of spliced/unspliced RNA abundance) for top differential genes, and 
+directed graphs of predicted lineages from PAGA trajectory inference
 }
