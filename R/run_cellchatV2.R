@@ -21,6 +21,10 @@
 #' @param cores A numeric variable to set the number of cores to be used
 #' 
 #' @return NULL
+#' 
+#' @export
+#' 
+#'
 
 run_cellchatV2 <- function(output_dir, seurat_obj, sample_column = NULL, annotation_column, annotation_selected = NULL, species, group_column = NULL, group_cmp = NULL, top_n = 10, output_format = "png", cores = 4) {
 

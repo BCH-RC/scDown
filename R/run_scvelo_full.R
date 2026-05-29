@@ -27,8 +27,6 @@
 #' @return A list of scVelo data objects
 #'
 #' @export
-#'
-#' Estimate RNA velocity for spliced and unspliced counts of scRNA-seq data
 
 
 run_scvelo_full <- function(seurat_obj,
