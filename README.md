@@ -1,4 +1,4 @@
-## scDown: a pipeline for scRNASeq downstream analysis (version 1)
+## scDown: a pipeline for scRNASeq downstream analysis (v1.2)
 
 ### Table of Contents
 - [1 Installation](#1-installation)
@@ -53,7 +53,7 @@ library(scDown)
 
 ### 2 Tutorial 
 Each key function in **scDown** is a wrap-up function of a workflow. Below is a main flowchart of the key functions:
-<img width="600" height="330" alt="scdown_chart" src="https://github.com/user-attachments/assets/726aa8b1-4469-4ff7-af0e-297e526a8c45" />
+<img width="600" height="280" alt="scdown_chart" src="https://github.com/user-attachments/assets/726aa8b1-4469-4ff7-af0e-297e526a8c45" />
 
 The test data used in the scDown vignettes is scRNA-seq data using 10X Genomics Chromium described in [Hochgerner et al. (2018)](https://www.nature.com/articles/s41593-017-0056-2). It is from dentate gyrus, a part of the hippocampus. The data consists of 25,919 genes across 2,930 cells with two time points. We converted the original h5ad file of the dentate gyrus data (10X43_1.h5ad) to Seurat object (10X43_1_spliced_unspliced.rds) using our `h5adToSeurat` function in Preprocess Tutorial below.  
 
