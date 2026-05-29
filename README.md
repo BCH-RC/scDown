@@ -53,8 +53,7 @@ library(scDown)
 
 ### 2 Tutorial 
 Each key function in **scDown** is a wrap-up function of a workflow. Below is a main flowchart of the key functions:
-
-<img src="https://github.com/user-attachments/assets/79e2ac3c-694f-4da1-95e6-8e8001eadd52" width="600" height="330">
+<img width="600" height="330" alt="scdown_chart" src="https://github.com/user-attachments/assets/726aa8b1-4469-4ff7-af0e-297e526a8c45" />
 
 The test data used in the scDown vignettes is scRNA-seq data using 10X Genomics Chromium described in [Hochgerner et al. (2018)](https://www.nature.com/articles/s41593-017-0056-2). It is from dentate gyrus, a part of the hippocampus. The data consists of 25,919 genes across 2,930 cells with two time points. We converted the original h5ad file of the dentate gyrus data (10X43_1.h5ad) to Seurat object (10X43_1_spliced_unspliced.rds) using our `h5adToSeurat` function in Preprocess Tutorial below.  
 
@@ -69,12 +68,12 @@ The **scDown** package provides a single function for each purpose, integrating 
 - [`run_scproportion`](https://htmlpreview.github.io/?https://raw.githubusercontent.com/BCH-RC/scDown/main/vignettes/scProportionTest.html) - Implements scProportionTest to statistically assess the significance of differences in cell type proportions between all condition pairs. 
 - [`run_cellchatV2`](https://htmlpreview.github.io/?https://raw.githubusercontent.com/BCH-RC/scDown/main/vignettes/scDown_CellChatV2.html) - Utilizes CellChat V2 to perform comprehensive intercellular communications analysis based on ligand-recptor pair interactions across cell types. 
 - [`run_monocle3`](https://htmlpreview.github.io/?https://raw.githubusercontent.com/BCH-RC/scDown/main/vignettes/scDown_monocle.html) - Leverages Monocle3 to construct pseudotime trajectories to model the progression of cellular differentiation. 
-- [`run_scvelo`](https://htmlpreview.github.io/?https://raw.githubusercontent.com/BCH-RC/scDown/main/vignettes/run_scvelo.html) - Employs velocyto.R to incoporate spliced and unspliced counts to Seurat object and utilizes velociraptor to estimate RNA velocity by examining the ratio of unspliced and spliced mRNAs.
-- [`run_scvelo_full`](https://htmlpreview.github.io/?https://raw.githubusercontent.com/BCH-RC/scDown/main/vignettes/run_scvelo_full.html) - Calls the original scVelo for RNA velocity analysis from .h5ad files, providing enhanced visualizations and PAGA trajectory inference.
+- [`run_scvelo_full`](https://htmlpreview.github.io/?https://raw.githubusercontent.com/BCH-RC/scDown/main/vignettes/run_scvelo_full.html) - Employs velocyto.R to incoporate spliced and unspliced counts to Seurat object and calls the original scVelo to estimate RNA velocity, providing enhanced visualizations and PAGA trajectory inference.
   
-The latter 4 key functions in scDown can be applied to either entire data or selected conditions of interest. 
+The latter 3 key functions in scDown can be applied to either entire data or selected conditions of interest. 
 
 ### 3 Citation
 Sun, L.; Ma, Q.; Cai, C.; Labaf, M.; Jain, A.; Dias, C.; Rockowitz, S.; Sliz, P. scDown: A Pipeline for Single-Cell RNA-Seq Downstream Analysis. Int. J. Mol. Sci. 2025, 26, 5297. https://doi.org/10.3390/ijms26115297
+
 ### 4 Contact
 Please submit an issue via our GitHub repository by clicking the 'Issues' tab. We'll do our best to address it promptly.
