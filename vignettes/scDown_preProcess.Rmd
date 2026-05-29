@@ -47,9 +47,7 @@ Key Modules:
   
   4. scDown::run_monocle3: Perform pseudotime trajectory inference.
   
-  5. scDown::run_scvelo: Incorporate spliced and unspliced counts and conduct RNA velocity analysis.
-
-  5. scDown::run_scvelo_full: Estimate RNA velocity with enhanced visualizations and PAGA trajectory inference.
+  5. scDown::run_scvelo_full: Incorporate spliced and unspliced counts and conduct RNA velocity analysis with enhanced visualizations and PAGA trajectory inference.
 
 
 # Load Required Libraries and Set Variables
@@ -120,10 +118,7 @@ Explore cell–cell communication across cell types, tissues, or disease states.
 ➡️ <a href="scDown_monocle.html" target="_blank">scDown::run_monocle3</a>
 Perform pseudotime trajectory analysis and identify key regulators of cell state transitions.
 
-➡️ <a href="run_scvelo.html" target="_blank">scDown::run_scvelo</a>
-Incorporate spliced and unspliced counts and conduct RNA velocity analysis.
-
 ➡️ <a href="run_scvelo_full.html" target="_blank">scDown::run_scvelo_full</a>
-Estimate RNA velocity with enhanced visualizations and PAGA trajectory inference.
+Incorporate spliced and unspliced counts and conduct RNA velocity analysis with enhanced visualizations and PAGA trajectory inference.
 
 
