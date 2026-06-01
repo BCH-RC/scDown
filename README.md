@@ -1,5 +1,8 @@
 ## scDown: a pipeline for scRNASeq downstream analysis (v1.2)
 
+🎥 Watch the scDown Training Video:
+[![scDown Training Video](docs/images/video_thumbnail.png)](https://youtu.be/xGbnB88P41A)
+
 ### Table of Contents
 - [1 Installation](#1-installation)
   - [1.1 System requirement](#11-system-requirement)

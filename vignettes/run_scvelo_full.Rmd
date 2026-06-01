@@ -274,7 +274,7 @@ group_column="age.days."
 # specify the number of cores to run each group separately in parallel
 cores = 2
 
-# Run scVelo Part I
+# Run scVelo 
 run_scvelo_full(seurat_obj = seurat_obj,
            loom_files = loom_files,   
            loom_file_subset_column = "orig.ident",  
