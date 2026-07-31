@@ -1,6 +1,6 @@
 ---
 title: "scDown::run_scvelo_full - Incorporate spliced and unspliced counts, Estimate RNA velocity and Infer PAGA trajectory"
-output: 
+output:
   rmarkdown::html_document:
     highlight: pygments
     toc: true
@@ -8,8 +8,8 @@ output:
     number_sections: true  # Automatically number sections
     #theme: united  # many options for theme, this one is my favorite.
 #bibliography: library.bib
-fig_width: 8 
-fig_height: 5 
+fig_width: 8
+fig_height: 5
 vignette: >
   %\VignetteIndexEntry{scVelo-1-vignette}
   %\VignetteEngine{knitr::rmarkdown}
@@ -24,7 +24,7 @@ knitr::opts_chunk$set(
   eval = FALSE,     # Ensure code is not run by default
   message = FALSE,
   warning = FALSE,
-  fig.width=8, 
+  fig.width=8,
   fig.height=5
 )
 ```
@@ -33,16 +33,16 @@ knitr::opts_chunk$set(
 ```
 
 # Define Variables specific for `scDown::run_scvelo_full`
-Apart from global universal variables applied to all functions in scDown, defining additional variables specific for running `scDown::run_scvelo_full`. 
+Apart from global universal variables applied to all functions in scDown, defining additional variables specific for running `scDown::run_scvelo_full`.
 
 Loading a Seurat object (`seurat_obj`) containing raw gene expression values stored in the counts slot is required, as the `run_scvelo_full` function enforces normalization using `scVelo`. The cell type annotation column (`annotation_column`) is defined to specify the cell type or other annotation labels, ensuring the analysis runs with the correct group.
 
-The `loom_files` is required for `run_scvelo_full`, except when the spliced and unspliced mRNA counts are already incoporated into the Seurat object. The loom files containing spliced and unspliced counts can be generated using [`velocyto`](https://velocyto.org/velocyto.py/tutorial/index.html). Please refer to [`velocyto`](https://velocyto.org/velocyto.py/install/index.html) for instalation and detailed usage instructions. Below is sample code to generate loom files for each sample using [`velocyto`](https://velocyto.org/velocyto.py/tutorial/cli.html#run10x-run-on-10x-chromium-samples): 
+The `loom_files` is required for `run_scvelo_full`, except when the spliced and unspliced mRNA counts are already incoporated into the Seurat object. The loom files containing spliced and unspliced counts can be generated using [`velocyto`](https://velocyto.org/velocyto.py/tutorial/index.html). Please refer to [`velocyto`](https://velocyto.org/velocyto.py/install/index.html) for instalation and detailed usage instructions. Below is sample code to generate loom files for each sample using [`velocyto`](https://velocyto.org/velocyto.py/tutorial/cli.html#run10x-run-on-10x-chromium-samples):
 ```{sh, message = FALSE}
-# run velocyto on 10X Chromium samples 
-velocyto run10x -v /path/to/cellranger/output/sample genes.gtf 
+# run velocyto on 10X Chromium samples
+velocyto run10x -v /path/to/cellranger/output/sample genes.gtf
 
-# /path/to/cellranger/output/sample: CellRanger output folder containing the subfolder outs/, with the 
+# /path/to/cellranger/output/sample: CellRanger output folder containing the subfolder outs/, with the
 # necessary BAM files, including outs/possorted_genome_bam.bam and outs/possorted_genome_bam.bam.bai
 
 # gene.gtf needs to correspond to correct species, such as human and mouse:
@@ -52,20 +52,20 @@ velocyto run10x -v /path/to/cellranger/output/sample genes.gtf
 
 To integrate spliced and unspliced mRNA counts from loom files with the Seurat object, users need to specify `loom_file_subset_column` to indicate the metadata column in the seurat object that matches with the file names of input loom files (the default is "orig.ident"). For multiple loom files, the file names in `loom_files` must correspond to the values in the specified metadata column of the Seurat object.
 
-By default, `loom_file_subset_by` is left blank, as it will automatically be extracted from loom file names in the same order as input `loom_files`. If needed, users may specify a character vector for `loom_file_subset_by` to subset the Seurat object while ensuring that the order of `loom_file_subset_by` matches the order of file names in `loom_files`. 
+By default, `loom_file_subset_by` is left blank, as it will automatically be extracted from loom file names in the same order as input `loom_files`. If needed, users may specify a character vector for `loom_file_subset_by` to subset the Seurat object while ensuring that the order of `loom_file_subset_by` matches the order of file names in `loom_files`.
 
-The `mode` for scVelo velocity calculation can be one of four options: "steady_state" (original), "deterministic", "stochastic" (fastest, default), "dynamical" (recommended). 
+The `mode` for scVelo velocity calculation can be one of four options: "steady_state" (original), "deterministic", "stochastic" (fastest, default), "dynamical" (recommended).
 
-The working directory `output_dir` by default is the current directory and can be changed to specific path. 
+The working directory `output_dir` by default is the current directory and can be changed to specific path.
 
 
 ```{r, message = FALSE}
 # file names for input loom files containing spliced and unspliced counts of scRNA-seq data
-# e.g., loom_files=c("/path/to/directory/WT.loom", "/path/to/directory/KO.loom") 
+# e.g., loom_files=c("/path/to/directory/WT.loom", "/path/to/directory/KO.loom")
 loom_files=NULL
 # specify the metadata column in the Seurat object that matches with the file names of input loom_files
 loom_file_subset_column="orig.ident"
-# optional, this can automatically be extracted from file names of input loom_files 
+# optional, this can automatically be extracted from file names of input loom_files
 loom_file_subset_by=NULL
 
 # mode for scVelo velocity calculation
@@ -75,11 +75,11 @@ mode='stochastic'  # mode='dynamical' is recommended
 top_gene = 5
 ```
 
-# Run `scDown::run_scvelo_full`: Read loom using velocyto.R and estimate RNA velocity using scVelo 
-The spliced and unspliced matrices from loom files are added as new assays to seurat_obj and converted to h5ad file, which is then used for RNA velocity analysis using scVelo. 
+# Run `scDown::run_scvelo_full`: Read loom using velocyto.R and estimate RNA velocity using scVelo
+The spliced and unspliced matrices from loom files are added as new assays to seurat_obj and converted to h5ad file, which is then used for RNA velocity analysis using scVelo.
 
 ## Run full scVelo and PAGA for entire data
-Workflow of `scDown::run_scvelo_full`: 
+Workflow of `scDown::run_scvelo_full`:
 
 2.1.1 [Calculate RNA Velocity using scVelo](#calculate-rna-velocity-using-scvelo)
 
@@ -90,10 +90,10 @@ Workflow of `scDown::run_scvelo_full`:
 ```{r}
 start_time <- proc.time()
 
-# Run scVelo and PAGA 
+# Run scVelo and PAGA
 run_scvelo_full(seurat_obj = seurat_obj,
-           loom_files = loom_files,   
-           loom_file_subset_column = "orig.ident",       
+           loom_files = loom_files,
+           loom_file_subset_column = "orig.ident",
            output_dir = output_dir,
            annotation_column = annotation_column )
 
@@ -107,41 +107,41 @@ print(elapsed_time)
 ```{r}
 # elapsed_time: 1 min
 ```
-### Calculate RNA Velocity using scVelo 
+### Calculate RNA Velocity using scVelo
 This step takes in an AnnData object in h5ad and performs all basic velocity calculations enabled by scVelo. It also outputs basic figures such as spliced/unspliced count proportion and RNA velocity vectors on umap.
 
-This plot visualizes the % spliced Vs. unspliced RNA for each cell type. 
+This plot visualizes the % spliced Vs. unspliced RNA for each cell type.
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("../scdown/scvelo_full/ALL_proportions.png")
+knitr::include_graphics("../scdown/scvelo/ALL_proportions.png")
 
 ```
 
-This plot visualizes the velocity stream on UMAP embeddings. 
+This plot visualizes the velocity stream on UMAP embeddings.
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("../scdown/scvelo_full/ALL_embedding_stream.png")
+knitr::include_graphics("../scdown/scvelo/ALL_stochastic_embedding_stream.png")
 
 ```
 
-This plot visualizes the vector grid on UMAP embeddings. 
+This plot visualizes the vector grid on UMAP embeddings.
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("../scdown/scvelo_full/ALL_embedding_grid.png")
+knitr::include_graphics("../scdown/scvelo/ALL_stochastic_embedding_grid.png")
 
 ```
 
-This plot visualizes the vector arrow on UMAP embeddings. 
+This plot visualizes the vector arrow on UMAP embeddings.
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("../scdown/scvelo_full/ALL_embedding_arrow.png")
+knitr::include_graphics("../scdown/scvelo/ALL_stochastic_embedding_arrow.png")
 
 ```
 
 ### Cluster-specific Differential Velocity Genes
-This step performs a differential velocity t-test to find genes that explain the directionality of calculated velocity vectors. It tests which genes have cell type-specific differential velocity expression, i.e., being siginificantly higher/lower compared to the remaining population, and visualizes the phase portrait (ratio of spliced/unspliced RNA abundance) for highly ranked genes, i.e., the unspliced mRNAs (y-axis) Vs. spliced mRNAs (x-axis). Transcriptional induction for a particular gene results in an increase of (newly transcribed) precursor unspliced mRNAs. 
+This step performs a differential velocity t-test to find genes that explain the directionality of calculated velocity vectors. It tests which genes have cell type-specific differential velocity expression, i.e., being siginificantly higher/lower compared to the remaining population, and visualizes the phase portrait (ratio of spliced/unspliced RNA abundance) for highly ranked genes, i.e., the unspliced mRNAs (y-axis) Vs. spliced mRNAs (x-axis). Transcriptional induction for a particular gene results in an increase of (newly transcribed) precursor unspliced mRNAs.
 
-This plot visualizes the phase portrait for top 5 highly ranked differential velocity genes for each cell type. 
+This plot visualizes the phase portrait for top 5 highly ranked differential velocity genes for each cell type.
 
 
 ```{r}
@@ -149,7 +149,7 @@ This plot visualizes the phase portrait for top 5 highly ranked differential vel
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("../scdown/scvelo_full/ALL_Astrocytes_genePhase.png")
+knitr::include_graphics("../scdown/scvelo/ALL_stochastic_Astrocytes_genePhase.png")
 
 ```
 ```{r}
@@ -157,7 +157,7 @@ knitr::include_graphics("../scdown/scvelo_full/ALL_Astrocytes_genePhase.png")
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("../scdown/scvelo_full/ALL_Cajal Retzius_genePhase.png")
+knitr::include_graphics("../scdown/scvelo/ALL_stochastic_Cajal Retzius_genePhase.png")
 
 ```
 ```{r}
@@ -165,25 +165,23 @@ knitr::include_graphics("../scdown/scvelo_full/ALL_Cajal Retzius_genePhase.png")
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("../scdown/scvelo_full/ALL_Cck-Tox_genePhase.png")
+knitr::include_graphics("../scdown/scvelo/ALL_stochastic_Cck-Tox_genePhase.png")
 
 ```
-
 ```{r}
 # cluster: Endothelial
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("../scdown/scvelo_full/ALL_Endothelial_genePhase.png")
+knitr::include_graphics("../scdown/scvelo/ALL_stochastic_Endothelial_genePhase.png")
 
 ```
-
 ```{r}
 # cluster: GABA
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("../scdown/scvelo_full/ALL_GABA_genePhase.png")
+knitr::include_graphics("../scdown/scvelo/ALL_stochastic_GABA_genePhase.png")
 
 ```
 ```{r}
@@ -191,7 +189,7 @@ knitr::include_graphics("../scdown/scvelo_full/ALL_GABA_genePhase.png")
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("../scdown/scvelo_full/ALL_Granule immature_genePhase.png")
+knitr::include_graphics("../scdown/scvelo/ALL_stochastic_Granule immature_genePhase.png")
 
 ```
 ```{r}
@@ -199,7 +197,7 @@ knitr::include_graphics("../scdown/scvelo_full/ALL_Granule immature_genePhase.pn
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("../scdown/scvelo_full/ALL_Granule mature_genePhase.png")
+knitr::include_graphics("../scdown/scvelo/ALL_stochastic_Granule mature_genePhase.png")
 
 ```
 ```{r}
@@ -207,7 +205,7 @@ knitr::include_graphics("../scdown/scvelo_full/ALL_Granule mature_genePhase.png"
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("../scdown/scvelo_full/ALL_Microglia_genePhase.png")
+knitr::include_graphics("../scdown/scvelo/ALL_stochastic_Microglia_genePhase.png")
 
 ```
 ```{r}
@@ -215,7 +213,7 @@ knitr::include_graphics("../scdown/scvelo_full/ALL_Microglia_genePhase.png")
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("../scdown/scvelo_full/ALL_Mossy_genePhase.png")
+knitr::include_graphics("../scdown/scvelo/ALL_stochastic_Mossy_genePhase.png")
 
 ```
 ```{r}
@@ -223,15 +221,7 @@ knitr::include_graphics("../scdown/scvelo_full/ALL_Mossy_genePhase.png")
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("../scdown/scvelo_full/ALL_Neuroblast_genePhase.png")
-
-```
-```{r}
-# cluster: nIPC
-```
-```{r, echo = FALSE, eval = TRUE}
-
-knitr::include_graphics("../scdown/scvelo_full/ALL_nIPC_genePhase.png")
+knitr::include_graphics("../scdown/scvelo/ALL_stochastic_Neuroblast_genePhase.png")
 
 ```
 ```{r}
@@ -239,45 +229,61 @@ knitr::include_graphics("../scdown/scvelo_full/ALL_nIPC_genePhase.png")
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("../scdown/scvelo_full/ALL_OL_genePhase.png")
+knitr::include_graphics("../scdown/scvelo/ALL_stochastic_OL_genePhase.png")
 
 ```
 ```{r}
-# cluster: Neuroblast
+# cluster: OPC
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("../scdown/scvelo_full/ALL_Neuroblast_genePhase.png")
+knitr::include_graphics("../scdown/scvelo/ALL_stochastic_OPC_genePhase.png")
+
+```
+```{r}
+# cluster: Radial Glia-like
+```
+```{r, echo = FALSE, eval = TRUE}
+
+knitr::include_graphics("../scdown/scvelo/ALL_stochastic_Radial Glia-like_genePhase.png")
+
+```
+```{r}
+# cluster: nIPC
+```
+```{r, echo = FALSE, eval = TRUE}
+
+knitr::include_graphics("../scdown/scvelo/ALL_stochastic_nIPC_genePhase.png")
 
 ```
 
 ### Trajectory Inference using PAGA
 This step performs trajectory inference using the [PAGA method](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1663-x). It provides a graph-like map of the data with solid edges corresponding to the transition confidence between two cell type groups (defined in annotation_column). Here, PAGA is extended by velocity-inferred directionality and predicts transitions/lineages between groups.
 
-This plot visualizes the directed graphs of predicted lineages. 
+This plot visualizes the directed graphs of predicted lineages.
 
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("../scdown/scvelo_full/ALL_paga_graph.png")
+knitr::include_graphics("../scdown/scvelo/ALL_stochastic_paga_graph.png")
 
 ```
 
 
 ## Run full scVelo and PAGA for user-defined groups
-If specific groups of conditions or time points are provided, we subset the h5ad object for each group of conditions or time points, and then compute velocity using original scVelo and visualize all the above figures in each individual group. 
+If specific groups of conditions or time points are provided, we subset the h5ad object for each group of conditions or time points, and then compute velocity using original scVelo and visualize all the above figures in each individual group.
 
 ```{r}
 # subset a group of conditions or time points used to calculate RNA velocity
 groups=list("12","35")
-# specify which metadata column of the Seurat object should be used for the group subset 
+# specify which metadata column of the Seurat object should be used for the group subset
 group_column="age.days."
 # specify the number of cores to run each group separately in parallel
 cores = 2
 
-# Run scVelo 
+# Run scVelo
 run_scvelo_full(seurat_obj = seurat_obj,
-           loom_files = loom_files,   
-           loom_file_subset_column = "orig.ident",  
+           loom_files = loom_files,
+           loom_file_subset_column = "orig.ident",
            output_dir = output_dir,
            annotation_column = annotation_column,
            groups = groups,
@@ -286,50 +292,50 @@ run_scvelo_full(seurat_obj = seurat_obj,
 
 ```
 
-This plot visualizes the velocity stream on UMAP embeddings. 
+This plot visualizes the velocity stream on UMAP embeddings.
 ```{r}
-# time point: day 12 
+# time point: day 12
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("../scdown/scvelo_full/12_embedding_stream.png")
+knitr::include_graphics("../scdown/scvelo/12_stochastic_embedding_stream.png")
 
 ```
 ```{r}
-# time point: day 35 
+# time point: day 35
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("../scdown/scvelo_full/35_embedding_stream.png")
+knitr::include_graphics("../scdown/scvelo/35_stochastic_embedding_stream.png")
 
 ```
 
-This plot visualizes the directed PAGA graphs of predicted lineages. 
+This plot visualizes the directed PAGA graphs of predicted lineages.
 ```{r}
-# time point: day 12 
+# time point: day 12
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("../scdown/scvelo_full/12_paga_graph.png")
+knitr::include_graphics("../scdown/scvelo/12_stochastic_paga_graph.png")
 
 ```
 ```{r}
-# time point: day 35 
+# time point: day 35
 ```
 ```{r, echo = FALSE, eval = TRUE}
 
-knitr::include_graphics("../scdown/scvelo_full/35_paga_graph.png")
+knitr::include_graphics("../scdown/scvelo/35_stochastic_paga_graph.png")
 
 ```
 
 
 # Summary
 
-This document outlines a pipeline for incorporating spliced and unspliced RNA matrices from loom files into Seurat object, and analyzing RNA velocity using the original Python package `scVelo`. The pipeline begins by defining key variables, such as the working directory, Seurat object, species, and metadata for cell type annotations and generate h5ad files. It runs scVelo by fitting a model to each gene’s splicing dynamics and visualizes RNA velocity in stream plots, grid plots and arraw plots. It also identifies differential velocity genes via statistical testing and visualizes top-ranked genes in phase portraits, highlighting those influencing state transitions.  
+This document outlines a pipeline for incorporating spliced and unspliced RNA matrices from loom files into Seurat object, and analyzing RNA velocity using the original Python package `scVelo`. The pipeline begins by defining key variables, such as the working directory, Seurat object, species, and metadata for cell type annotations and generate h5ad files. It runs scVelo by fitting a model to each gene’s splicing dynamics and visualizes RNA velocity in stream plots, grid plots and arraw plots. It also identifies differential velocity genes via statistical testing and visualizes top-ranked genes in phase portraits, highlighting those influencing state transitions.
 
-Apart from that, it conducts Partition-based Graph Abstraction (PAGA) trajectory inference, which calculates transition probabilities and generates directed lineage graphs, providing a high-level overview of cell-state relationships, supporting lineage and trajectory inference. 
+Apart from that, it conducts Partition-based Graph Abstraction (PAGA) trajectory inference, which calculates transition probabilities and generates directed lineage graphs, providing a high-level overview of cell-state relationships, supporting lineage and trajectory inference.
 
-Additionally, the pipeline supports focused analysis by selecting specific time points  (e.g., age groups 12 and 35) or comparing user-defined groups. For each group of conditions or time points, the h5ad object is subsetted and velocity is computed. 
+Additionally, the pipeline supports focused analysis by selecting specific time points  (e.g., age groups 12 and 35) or comparing user-defined groups. For each group of conditions or time points, the h5ad object is subsetted and velocity is computed.
 
 This python-based workflow offers a comprehensive tool for incorporating spliced and unspliced matrices from loom file into the Seurat object and computing RNA velocity and PAGA trajectory, providing insights into cellular trajectories and transitions.
 
