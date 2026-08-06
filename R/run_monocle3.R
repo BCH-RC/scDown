@@ -59,6 +59,10 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
   {
     Seurat::Idents(seurat_obj) <- seurat_obj[[annotation_column]][,1]
   }
+  # Use the supplied annotation_column name as the legend title on cell-type plots;
+  # fall back to a generic label "Cell Type" when annotation_column isn't supplied.
+  annotation_label <- if (!is.null(annotation_column)) annotation_column else "Cell Type"
+  
   checkmate::expect_flag(transferUMAP,label="transferUMAP")
   checkmate::expect_choice(rootNode_method,c("potency","rootNodes"),label = "rootNode_method")
   ##Use all conditions for potency method
@@ -146,7 +150,7 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
   cds_by_group <- list()
 
   # Trajectory and pseudotime for the whole object
-  cds <- getTrajectory(X=seurat_obj, nDim=nDim, batch=batch_metadata, transferUMAP=transferUMAP, output_format = output_format,outputDir=output_dir)
+  cds <- getTrajectory(X=seurat_obj, nDim=nDim, batch=batch_metadata, transferUMAP=transferUMAP, output_format = output_format,outputDir=output_dir, annotation_label=annotation_label)
   cds <- orderCells(cds=cds, method=rootNode_method, rootNodes=rootNode, timePoint=timePoint, timePointCol=timePoint_metadata, species=species, output_format = output_format,outputDir=output_dir)
   cellTypeDistribution(cds=cds, colData_name=group_column, output_format = output_format,outputDir=output_dir)
   #cds_by_group <- c(cds_by_group, list(cds)) # add cds with completed trrajectory inference to list
@@ -157,7 +161,7 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
   {
     cell_group <- celltype_groups[[celltype_group]]
     # trajectory and pseudotime for selected cell types
-    cds.sub <- getTrajectory(X=seurat_obj, nDim=nDim, batch=batch_metadata, transferUMAP=transferUMAP, subset=unlist(cell_group), output_format = output_format,outputDir=output_dir)
+    cds.sub <- getTrajectory(X=seurat_obj, nDim=nDim, batch=batch_metadata, transferUMAP=transferUMAP, subset=unlist(cell_group), output_format = output_format,outputDir=output_dir, annotation_label=annotation_label)
     cds.sub <- orderCells(cds=cds.sub, method=rootNode_method, rootNodes=rootNode, timePoint=timePoint, timePointCol=timePoint_metadata, species=species, output_format = output_format, subset=unlist(cell_group),outputDir=output_dir)
     cellTypeDistribution(cds=cds.sub, colData_name=group_column, subset=unlist(cell_group), output_format = output_format,outputDir=output_dir)
     return(cds.sub)
@@ -199,13 +203,13 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
     cat("Regression analysis completed for cds object #",i," completed.\n", sep="")
 
     if (graph_test){
-      graphAutoCorrelation(cds=cds.current,conditions_all=conditions,colData_name=group_column, top_gene=top_genes, subset=cell_type_use,deg_method=deg_method,batch=batch_metadata, output_format = output_format,outputDir=output_dir,cores=cores)
+      graphAutoCorrelation(cds=cds.current,conditions_all=conditions,colData_name=group_column, top_gene=top_genes, subset=cell_type_use,deg_method=deg_method,batch=batch_metadata, output_format = output_format,outputDir=output_dir,cores=cores, annotation_label=annotation_label)
       cat("Graph autocorrelation analysis for cds object #",i," completed.\n", sep="")
     }
 
     if (conditions_to_compare){
-      runmonocle_percondition<-function(i){
-        condition <- passed_conditions[i]
+      runmonocle_percondition<-function(cond_i){
+        condition <- passed_conditions[cond_i]
         cds.condition <- cds.current[ ,cds.current[[group_column]] == condition]
         cds.condition <- monocle3::cluster_cells(cds.condition,cluster_method = "louvain")
         cds.condition <- monocle3::learn_graph(cds.condition, use_partition = FALSE)
@@ -215,10 +219,11 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
             png(filename = file.path(output_dir,"images","pseudotime",paste0("umap_celltypes_","transferUMAP_",transferUMAP,ifelse(!is.null(cell_type_use),paste0("_",paste(cell_type_use,collapse = '_')),""),"_",condition,".png",sep="")), width = 2000*1.4, height = 1500*1.5, res = 400)
         } else if (output_format == "pdf") {
             pdf(file.path(output_dir,"images","pseudotime",paste0("umap_celltypes_","transferUMAP_",transferUMAP,ifelse(!is.null(cell_type_use),paste0("_",paste(cell_type_use,collapse = '_')),""),"_",condition,".pdf",sep="")), width = 5*1.4, height = 3.75*1.5)
-        } 
+        }
 
         p4 <- monocle3::plot_cells(cds.condition, color_cells_by="cell.type", show_trajectory_graph=FALSE,label_groups_by_cluster=FALSE) +
           ggplot2::theme_void() +
+          ggplot2::guides(color = ggplot2::guide_legend(annotation_label, override.aes = list(size=5))) +
           ggplot2::ggtitle(paste0("UMAP by cell types","\n", "transferUMAP=",transferUMAP, sep=""))+
           ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
         print(p4)
@@ -229,10 +234,10 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
             png(filename = file.path(output_dir,"images","pseudotime",paste0("umap_trajectory_","transferUMAP_",transferUMAP,ifelse(!is.null(cell_type_use),paste0("_",paste(cell_type_use,collapse = '_')),""),"_",condition,".png",sep="")), width = 2000*1.4, height = 1500*1.5, res = 400)
         } else if (output_format == "pdf") {
             pdf(file.path(output_dir,"images","pseudotime",paste0("umap_trajectory_","transferUMAP_",transferUMAP,ifelse(!is.null(cell_type_use),paste0("_",paste(cell_type_use,collapse = '_')),""),"_",condition,".pdf",sep="")), width = 5*1.4, height = 3.75*1.5)
-        }         
+        }
         p5 <- monocle3::plot_cells(cds.condition, label_principal_points = TRUE,  color_cells_by = "cell.type", label_cell_groups=FALSE) +
           ggplot2::theme_void() +
-          ggplot2::guides(color= ggplot2::guide_legend("Cell Type", override.aes = list(size=5), ncol = 2)) +
+          ggplot2::guides(color= ggplot2::guide_legend(annotation_label, override.aes = list(size=5), ncol = 2)) +
           ggplot2::ggtitle(paste0("UMAP by trajectory","\n", "transferUMAP=",transferUMAP,sep=""))+
           ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
         print(p5)
@@ -244,12 +249,12 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
         # cell/cell type distribution
         cellTypeDistribution(cds=cds.condition, colData_name=group_column, subset=cell_type_use, cond=condition, output_format = output_format,outputDir=output_dir)
       }
-      
+
       cl <- parallel::makeCluster(cores)
-      cds_subset <- foreach::foreach(i=1:length(passed_conditions), .packages=c('monocle3','magrittr')) %dopar%
-        runmonocle_percondition(i=i)
+      cds_subset <- foreach::foreach(cond_i=1:length(passed_conditions), .packages=c('monocle3','magrittr')) %dopar%
+        runmonocle_percondition(cond_i=cond_i)
       parallel::stopCluster(cl)
-      
+
       cat("Trajectory and pseudotime for all conditions subsetted from cds object #",i," completed.\n", sep="")
     }
     #return(cds.current)

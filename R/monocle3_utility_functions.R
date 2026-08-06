@@ -19,6 +19,7 @@
 #' @param subset a character vector of cell types to subset
 #' @param cond a character string specifying a condition, for output naming purpose
 #' @param output_format Format of output figure: "png" or "pdf" (default: "png")
+#' @param annotation_label a character string used as the legend title on cell-type-colored plots (default: "Cell Type")
 #' @return cds, a cell_data_set object with trajectory
 #'
 #' @importFrom grDevices dev.off jpeg pdf png
@@ -31,7 +32,7 @@
 #'
 #' @noRd
 
-getTrajectory <- function(X, nDim=30, batch=NULL, transferUMAP=TRUE, subset=NULL, cond=NULL, output_format="png", outputDir="."){
+getTrajectory <- function(X, nDim=30, batch=NULL, transferUMAP=TRUE, subset=NULL, cond=NULL, output_format="png", outputDir=".", annotation_label="Cell Type"){
 
   # when idents = NULL, WhichCells() will simply return all cells, thus no subsetting
   selected_cells <- Seurat::WhichCells(X, idents = subset)
@@ -138,6 +139,7 @@ getTrajectory <- function(X, nDim=30, batch=NULL, transferUMAP=TRUE, subset=NULL
   }
   p4 <- monocle3::plot_cells(cds, color_cells_by="cell.type", show_trajectory_graph=FALSE,label_groups_by_cluster=FALSE) +
     ggplot2::theme_void() +
+    ggplot2::guides(color = ggplot2::guide_legend(annotation_label, override.aes = list(size=5))) +
     ggplot2::ggtitle(paste0("UMAP by cell types","\n", "transferUMAP=",transferUMAP, sep=""))+
     ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
   print(p4)
@@ -151,7 +153,7 @@ getTrajectory <- function(X, nDim=30, batch=NULL, transferUMAP=TRUE, subset=NULL
   }
   p5 <- monocle3::plot_cells(cds, label_principal_points = TRUE,  color_cells_by = "cell.type", label_cell_groups=FALSE) +
     ggplot2::theme_void() +
-    ggplot2::guides(color = ggplot2::guide_legend("Cell Type", override.aes = list(size=5))) +
+    ggplot2::guides(color = ggplot2::guide_legend(annotation_label, override.aes = list(size=5))) +
     ggplot2::ggtitle(paste0("UMAP by trajectory","\n", "transferUMAP=",transferUMAP,sep=""))+
     ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
   print(p5)
@@ -457,10 +459,11 @@ print_violinPlot<-function(O,filename,top_gene, output_format="png")
 #' @param output_format Format of output figure: "png" or "pdf" (default: "png")
 #' @param outputDir outputDir
 #' @param cores cores
+#' @param annotation_label a character string used as the legend title on cell-type-colored plots (default: "Cell Type")
 #'
 #' @noRd
 
-graphAutoCorrelation <- function(cds,conditions_all,colData_name, top_gene, subset=NULL,deg_method="quasipoisson",batch=NULL, output_format="png",outputDir=".",cores=6){
+graphAutoCorrelation <- function(cds,conditions_all,colData_name, top_gene, subset=NULL,deg_method="quasipoisson",batch=NULL, output_format="png",outputDir=".",cores=6, annotation_label="Cell Type"){
 
   # test whether cells at similar positions on the trajectory have correlated expression
   pr_graph_test_res <- monocle3::graph_test(cds, neighbor_graph = "principal_graph", cores = cores)
@@ -542,7 +545,8 @@ graphAutoCorrelation <- function(cds,conditions_all,colData_name, top_gene, subs
       pdf(file.path(outputDir,"images","DEG",paste0("significant_by_trajectory_genesInPseudotime",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""),".pdf",sep="")), width = 1000*sqrt(top_gene) / 300, height = 875*sqrt(top_gene) / 300)
   }
   #p3 <- plot_genes_in_pseudotime(cds[rowData(cds)$gene_short_name %in% DEG_ids , ], nrow = ceiling(top_gene/4), ncol = 4,color_cells_by="cell.type", min_expr=0.5)
-  p3 <- monocle3::plot_genes_in_pseudotime(cds[SummarizedExperiment::rowData(cds)$gene_short_name %in% DEG_ids , ], ncol = ceiling(sqrt(top_gene)),color_cells_by="cell.type", min_expr=0.5)
+  p3 <- monocle3::plot_genes_in_pseudotime(cds[SummarizedExperiment::rowData(cds)$gene_short_name %in% DEG_ids , ], ncol = ceiling(sqrt(top_gene)),color_cells_by="cell.type", min_expr=0.5) +
+    ggplot2::guides(color = ggplot2::guide_legend(annotation_label))
   print(p3)
   dev.off()
 
