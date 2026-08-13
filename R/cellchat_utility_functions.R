@@ -849,30 +849,76 @@ information_flow <- function(dir_cellchat, X, object_list,cond_in_compare, outpu
 #' 
 #' @noRd
 
-differential_ligand_receptor <- function(dir_cellchat, X, cond_in_compare){
-
+differential_ligand_receptor <- function(dir_cellchat, X, object_list, cond_in_compare, output_format = "png", logFC=0.2, top=30){
+  
   # DEG by communication probability: max.dataset = keep the communications with highest probability in max.dataset
   gg1 <- netVisual_bubble(X, comparison = c(1, 2), max.dataset = 2, title.name = paste0("Increased signaling in", cond_in_compare[2]), angle.x = 45, remove.isolate = TRUE)
   gg2 <- netVisual_bubble(X, comparison = c(1, 2), max.dataset = 1, title.name = paste0("Decreased signaling in", cond_in_compare[2]), angle.x = 45, remove.isolate = TRUE)
-  # write.csv(gg1$data, file=paste0(dir_cellchat, "/cellchat/csv/",cond_in_compare[2],"_increased_signalingLR_commProb.csv", sep=""))
-  # write.csv(gg2$data, file=paste0(dir_cellchat, "/cellchat/csv/",cond_in_compare[2],"_decreased_signalingLR_commProb.csv", sep=""))
+  write.csv(gg1$data, file=paste0(dir_cellchat, "/cellchat/csv/",cond_in_compare[2],"_increased_signalingLR_commProb.csv", sep=""))
+  write.csv(gg2$data, file=paste0(dir_cellchat, "/cellchat/csv/",cond_in_compare[2],"_decreased_signalingLR_commProb.csv", sep=""))
 
   # DEG by differential gene expression
   # define a positive dataset, i.e., the dataset with positive fold change against the other dataset
   pos.dataset = cond_in_compare[2]
   features.name = pos.dataset
-  # perform differential expression analysis
-  X <- identifyOverExpressedGenes(X, group.dataset = "datasets", pos.dataset = pos.dataset, features.name = features.name, only.pos = FALSE, thresh.pc = 0.1, thresh.fc = 0.1, thresh.p = 1)
-  # map the results of differential expression analysis onto the inferred cell-cell communications to easily manage/subset the ligand-receptor pairs of interest
-  net <- netMappingDEG(X, features.name = features.name)
-  # extract the ligand-receptor pairs with upregulated ligands in pos.dataset
-  net.up <- subsetCommunication(X, net = net, datasets = cond_in_compare[2], ligand.logFC = 0.2, receptor.logFC = NULL)
-  # extract the ligand-receptor pairs with upregulated ligands in the other dataset, i.e.,downregulated in pos.dataset
-  net.down <- subsetCommunication(X, net = net, datasets = cond_in_compare[1], ligand.logFC = -0.1, receptor.logFC = -0.1)
-  # write.csv(net.up, file=paste0(dir_cellchat, "/cellchat/csv/",cond_in_compare[2],"_increased_signalingLR_diffExpession.csv", sep=""))
-  # write.csv(net.down, file=paste0(dir_cellchat, "/cellchat/csv/",cond_in_compare[2],"_decreased_signalingLR_diffExpession.csv", sep=""))
 
-  return(X)
+  # Identify cells in clusters that are present in both groups
+  group_clusters <- apply(table(X@idents[[3]], X@meta$datasets),1,function(x)sum(x!=0))
+  valid_clusters <- names(group_clusters)[which(group_clusters == 2)]
+  if (length(valid_clusters) == 0) {
+    warning("No cell groups are present in both conditions. Skipping differential LR analysis.")
+    return(X)
+  }
+  # Subset your CellChat object to remove cells from the clusters not presenting in 2 groups
+  X_filtered <- subsetCellChat(X, idents.use = valid_clusters)
+
+  # perform differential expression analysis
+  X_filtered <- identifyOverExpressedGenes(X_filtered, group.dataset = "datasets", pos.dataset = pos.dataset, features.name = features.name, only.pos = FALSE, thresh.pc = 0.1, thresh.fc = 0.1, thresh.p = 0.05)
+  # map the results of differential expression analysis onto the inferred cell-cell communications to easily manage/subset the ligand-receptor pairs of interest
+  net <- netMappingDEG(X_filtered, features.name = features.name)
+  # extract the ligand-receptor pairs with upregulated ligands in pos.dataset
+  net.up   <- subsetCommunication(X_filtered, net = net, datasets = cond_in_compare[2], ligand.logFC = logFC,  receptor.logFC = NULL)
+  # extract the ligand-receptor pairs with upregulated ligands in the other dataset, i.e.,downregulated in pos.dataset
+  net.down <- subsetCommunication(X_filtered, net = net, datasets = cond_in_compare[1], ligand.logFC = -logFC, receptor.logFC = NULL)
+  write.csv(net.up, file=paste0(dir_cellchat, "/cellchat/csv/",cond_in_compare[2],"Vs",cond_in_compare[1],"_increased_signalingLR_diffExpession_",logFC,"logFC.csv", sep=""))
+  write.csv(net.down, file=paste0(dir_cellchat, "/cellchat/csv/",cond_in_compare[2],"Vs",cond_in_compare[1],"_decreased_signalingLR_diffExpession_",logFC,"logFC.csv", sep=""))
+
+  # visualize top differential LR in chord diagram
+  img_dir <- paste0(dir_cellchat, "/cellchat/images/differential/")
+  dir.create(img_dir, showWarnings = FALSE, recursive = TRUE)
+
+  net.up.plot   <- head(net.up[order(-net.up$prob), ],   top)
+  net.down.plot <- head(net.down[order(-net.down$prob), ], top)
+
+  if (nrow(net.up.plot) > 0) {
+    chord_up <- paste(img_dir, cond_in_compare[2],"Vs",cond_in_compare[1], "_LR_diffExpession_top",nrow(net.up.plot),"up",logFC,"logFC_chord", sep="")
+    if (output_format == "png") {
+      png(paste0(chord_up, ".png"), height = 800*2.5, width = 1000*3, res=300, pointsize = 10)
+    } else if (output_format == "pdf") {
+      pdf(paste0(chord_up, ".pdf"), height = 800*2.5/300, width = 1000*3/300, pointsize = 10)
+    }
+    par( mar=c(1,1,1,1), xpd=TRUE)
+    netVisual_chord_gene(object_list[[2]], slot.name = 'net', net = net.up.plot, lab.cex = 0.8, small.gap = 3.5, title.name = paste("Up-regulated signaling in", cond_in_compare[2],"Vs.",cond_in_compare[1],"top",nrow(net.up.plot)))
+    dev.off()
+  } else {
+    message("No up-regulated LR pairs at logFC >= ", logFC, ". Skipping chord diagram.")
+  }
+
+  if (nrow(net.down.plot) > 0) {
+    chord_down <- paste(img_dir, cond_in_compare[2],"Vs",cond_in_compare[1], "_LR_diffExpession_top",nrow(net.down.plot),"down-",logFC,"logFC_chord", sep="")
+    if (output_format == "png") {
+      png(paste0(chord_down, ".png"), height = 800*2.5, width = 1000*3, res=300, pointsize = 10)
+    } else if (output_format == "pdf") {
+      pdf(paste0(chord_down, ".pdf"), height = 800*2.5/300, width = 1000*3/300, pointsize = 10)
+    }
+    par( mar=c(1,1,1,1), xpd=TRUE)
+    netVisual_chord_gene(object_list[[1]], slot.name = 'net', net = net.down.plot, lab.cex = 0.8, small.gap = 3.5, title.name = paste("Down-regulated signaling in", cond_in_compare[2],"Vs.",cond_in_compare[1],"top",nrow(net.down.plot)))
+    dev.off()
+  } else {
+    message("No down-regulated LR pairs at logFC <= -", logFC, ". Skipping chord diagram.")
+  }
+
+  return(X_filtered)
 
 }
 
@@ -942,7 +988,7 @@ compareCellComVisu <- function(dir_cellchat, X, object_list, cond_in_compare, pa
   # compare information flow
   information_flow(dir_cellchat, X, object_list, cond_in_compare, output_format)
   # find differential ligand-rceptor pairs
-  X <- differential_ligand_receptor(dir_cellchat, X, cond_in_compare)
+  X <- differential_ligand_receptor(dir_cellchat, X, object_list, cond_in_compare, output_format)
   # graph specific pathways of interests side by side for visual comparison
   for (pathway in pathways_to_compare) {
     side_by_side_path_compr(dir_cellchat, X, object_list, cond_in_compare, pathway, output_format)

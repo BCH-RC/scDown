@@ -210,7 +210,7 @@ run_cellchatV2 <- function(output_dir, seurat_obj, sample_column = NULL, annotat
 #' 
 #' @return NULL
 
-cellchatV2_path_visu <- function(output_dir, species, pathway_to_show) {
+cellchatV2_path_visu <- function(output_dir, species, pathway_to_show, output_format="png") {
   # Identify the conditions
   rds_files <- list.files(paste0(output_dir, "/cellchat/rds/"), pattern = "\\.rds$", full.names = TRUE)
   rds_files <- rds_files[which(regexpr("seurat_obj", rds_files)>0)]
@@ -234,7 +234,7 @@ cellchatV2_path_visu <- function(output_dir, species, pathway_to_show) {
     pathways_sig <- cellchat_object@netP$pathways[!is.na(cellchat_object@netP$pathways)]
     
     if (pathway_to_show %in% pathways_sig) {
-      pathway_visu(X = cellchat_object, Y = seurat_obj, pathway_to_show, condition, dir_cellchat = output_dir, species)
+      pathway_visu(X = cellchat_object, Y = seurat_obj, pathway_to_show, condition, output_format, dir_cellchat = output_dir, species)
     } else {
       cat(pathway_to_show, "is not a significant pathway in the current CellChat Analysis for condition:", condition, "\n")
     }
