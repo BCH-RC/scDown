@@ -556,10 +556,10 @@ graphAutoCorrelation <- function(cds,conditions_all,colData_name, top_gene, subs
     for (i in 1:(seq-1)){
       for (j in (i+1):seq){
         # subset two conditions
-        cds_for_compare <- cds[pr_graph_test_sig$gene_short_name, cds[[colData_name]] == c(conditions_all[i], conditions_all[j])]
+        cds_for_compare <- cds[pr_graph_test_sig$gene_short_name, cds[[colData_name]] %in% c(conditions_all[i], conditions_all[j])]
 
         # run regression analysis
-        regressionAnalysis(cds=cds_for_compare , model=colData_name, batch=batch, distribution=deg_method, top_gene=top_gene, subset=subset, cond1=conditions_all[i], cond2=conditions_all[j],outputDir=outputDir,cores=cores)
+        regressionAnalysis(cds=cds_for_compare , model=colData_name, batch=batch, distribution=deg_method, top_gene=top_gene, subset=subset, cond1=conditions_all[i], cond2=conditions_all[j], output_format="png", outputDir=outputDir, cores=cores)
         # read in csv of significant differential gene along the trajectory AND between two conditions
         gene_csv <- read.csv(file=file.path(outputDir,"csv",paste0("monocleDEG_significant_by_",colData_name,ifelse(is.null(batch),"",paste0("+",batch)),"+trajectory",ifelse(!is.null(subset),paste0("_",paste(subset,collapse = '_')),""), "_",conditions_all[i],"_",conditions_all[j],".csv", sep="")))
         top_diff_genes <- dplyr::slice_min(gene_csv, q_value, n=top_gene)

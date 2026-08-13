@@ -130,7 +130,7 @@ run_monocle3 <- function(seurat_obj,species,nDim=30,conditions=NULL,annotation_c
   output_dir <- file.path(output_dir,"monocle")
 
   ################################################
-  subset <- ifelse(!is.null(celltype_groups) || length(celltype_groups) != 0, TRUE, FALSE)
+  subset <- ifelse(!is.null(celltype_groups) && length(celltype_groups) != 0, TRUE, FALSE)
   if(subset)
   {
     for (cell_group in celltype_groups){
