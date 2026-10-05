@@ -1,0 +1,108 @@
+---
+title: "scDown::run_clusterProfiler - Perform pathway enrichment analysis (KEGG, GO_BP, GO_CC, GO_MF) between conditions."
+author: |
+    | 
+#date: "`r format(Sys.Date(), '%m/%Y')`"
+output: 
+  rmarkdown::html_document:
+    highlight: pygments
+    toc: true
+    toc_depth: 3
+    df_print: paged
+    number_sections: true  ## if you want number sections at each table header
+    #theme: united  # many options for theme, this one is my favorite.
+#bibliography: library.bib
+fig_width: 8 
+fig_height: 5 
+vignette: >
+  %\VignetteIndexEntry{scDown_clusterProfiler}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width=8, 
+  fig.height=5
+)
+
+```
+
+##  Run clusterProfiler
+Run the test for all the pairwise comparison in group column for all the cell types in annotation column. The figures and statistical results with be saved in the `output_dir` 
+
+```{r,include=FALSE,message=F,eval=FALSE}
+start_time <- Sys.time()
+```
+
+
+```{r,eval=FALSE}
+# Metadata condition column to perform the comparison
+species <- "mouse"
+run_clusterProfiler(seurat_obj = seurat_obj,
+                    annotation_column = annotation_column,
+                    group_column = group_column, 
+                    output_dir = output_dir,
+                    species = species,
+                    n_jobs = 2)
+```
+
+```{r,include=FALSE,message=F,eval=FALSE}
+end_time <- Sys.time()
+duration <- round(end_time - start_time,digits = 1)
+print(duration)
+```
+
+## Test Results Figures 
+After running the clusterProfiler test, the following figures will be generated.
+
+### GO_BP on all significant DE genes (Barplot, using top terms by p.adjust)
+```{r, echo=FALSE,out.width="80%",out.height="80%"}
+knitr::include_graphics("../../scDown_test/test/clusterprofiler/plots/GO_BP/GO_BP_ALL_top_20_Granule mature_35_vs_12_barplot.png")
+
+```
+
+### GO_BP on all significant DE genes (Dotplot, using top terms by p.adjust, then sorted by gene ratio)
+```{r, echo=FALSE,out.width="80%",out.height="80%"}
+knitr::include_graphics("../../scDown_test/test/clusterprofiler/plots/GO_BP/GO_BP_ALL_top_20_Granule mature_35_vs_12_dotplot.png")
+
+```
+
+### GO_BP on up-regulated DE genes
+```{r, echo=FALSE,out.width="80%",out.height="80%"}
+knitr::include_graphics("../../scDown_test/test/clusterprofiler/plots/GO_BP/GO_BP_UP_top_20_Granule mature_35_vs_12_barplot.png")
+
+```
+
+### GO_CC on all significant DE genes
+```{r, echo=FALSE,out.width="80%",out.height="80%"}
+knitr::include_graphics("../../scDown_test/test/clusterprofiler/plots/GO_CC/GO_CC_ALL_top_20_Neuroblast_35_vs_12_barplot.png")
+
+```
+
+### GO_MF on all significant DE genes
+```{r, echo=FALSE,out.width="80%",out.height="80%"}
+knitr::include_graphics("../../scDown_test/test/clusterprofiler/plots/GO_MF/GO_MF_ALL_top_20_Astrocytes_35_vs_12_barplot.png")
+
+```
+
+### KEGG on down-regulated DE genes
+```{r, echo=FALSE,out.width="80%",out.height="80%"}
+knitr::include_graphics("../../scDown_test/test/clusterprofiler/plots/KEGG/KEGG_DOWN_top_20_Granule immature_35_vs_12_barplot.png")
+
+```
+
+
+The analysis was performed on a machine with the following specifications:
+
+- **Operating System**: Rocky Linux 8.9 (Green Obsidian)
+- **Product Name and Version**: RHEL
+- **Product Version**: 8.9
+- **CPU**: Intel(R) Xeon(R) Platinum 8358 CPU @ 2.60GHz
+- **Memory**: 10 GB
+

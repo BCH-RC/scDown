@@ -56,7 +56,7 @@ doTransferLabel <- function(X, Y, varToHarmonize = NULL, transferCoordinates = F
   cat("Mapping query...\n")
   set.seed(1)
   Q <- symphony::mapQuery(LayerData(Y, layer="counts", assay="RNA"),
-                          Y@meta.data, 
+                          Y@meta.data,
                           ref_obj = S)
 
   # Transfering Labels

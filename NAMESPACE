@@ -4,17 +4,22 @@ export(cleanSeuratMeta)
 export(doTransferLabel)
 export(h5adToSeurat)
 export(run_cellchatV2)
+export(run_clusterProfiler)
 export(run_monocle3)
+export(run_sccomp)
 export(run_scproportion)
-export(run_scvelo_full)
+export(seuratToH5ad)
 import(magrittr)
 importFrom(checkmate,expect_choice)
-importFrom(grDevices,dev.off)
-importFrom(grDevices,jpeg)
-importFrom(grDevices,pdf)
-importFrom(grDevices,png)
+importFrom(grDevices,
+  dev.off,
+  jpeg,
+  pdf,
+  png
+)
 importFrom(graphics,par)
 importFrom(stats,na.omit)
-importFrom(utils,read.csv)
-importFrom(utils,read.table)
-importFrom(utils,write.csv)
+importFrom(utils,
+  read.delim,
+  write.table
+)

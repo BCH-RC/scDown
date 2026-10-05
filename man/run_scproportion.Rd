@@ -10,10 +10,12 @@ run_scproportion(
   group_column,
   comparision1 = NULL,
   comparision2 = NULL,
+  fdr_threshold = NULL,
+  log2fd_threshold = NULL,
   output_dir = ".",
   output_format = "png",
   verbose = TRUE,
-  cores = 8
+  n_jobs = 2
 )
 }
 \arguments{
@@ -27,13 +29,17 @@ run_scproportion(
 
 \item{comparision2}{Optional: name of the second group for comparison (default NULL, which compares all pairs).}
 
+\item{fdr_threshold}{Threshold of significance for plotting purpose.}
+
+\item{log2fd_threshold}{Threshold of log2 fold difference for plotting purpose.}
+
 \item{output_dir}{Directory path where output figures will be saved.}
 
 \item{output_format}{Format of the output figure}
 
-\item{verbose}{Print the processing stept}
+\item{verbose}{Print the processing steps}
 
-\item{cores}{Numenr of the cores for parallel computation}
+\item{n_jobs}{A numeric variable to set the number of cores to be used}
 }
 \value{
 NULL Save comparison figures and results in the specified directory.
@@ -41,5 +47,5 @@ NULL Save comparison figures and results in the specified directory.
 \description{
 This function runs scProportionTest for all the pairwise comparision conditions
 in parallel and generate figures and table of results.
-The user can aslo chose specific conditions for comparsion rather than all the comparision.
+The user can also chose specific conditions for comparsion rather than all the comparision.
 }

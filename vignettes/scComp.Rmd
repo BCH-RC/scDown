@@ -1,0 +1,98 @@
+---
+title: "scDown::run_sccomp - Compositional and variability analysis across biological conditions with replicates"
+author: |
+    | 
+#date: "`r format(Sys.Date(), '%m/%Y')`"
+output: 
+  rmarkdown::html_document:
+    highlight: pygments
+    toc: true
+    toc_depth: 3
+    df_print: paged
+    number_sections: true  ## if you want number sections at each table header
+    #theme: united  # many options for theme, this one is my favorite.
+#bibliography: library.bib
+fig_width: 8 
+fig_height: 5 
+vignette: >
+  %\VignetteIndexEntry{scDown_scComp}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width=8, 
+  fig.height=5
+)
+
+```
+
+##  Run scComp
+Run the test for all the pairwise comparison in group column for all the cell types in annotation column. The figures and statistical results with be saved in the `output_dir` 
+
+```{r,include=FALSE,message=F,eval=FALSE}
+start_time <- Sys.time()
+```
+
+
+```{r,eval=FALSE}
+# Metadata condition column to perform the comparison
+sample_column <- "age.days."
+run_sccomp(seurat_obj = seurat_obj,
+           annotation_column = annotation_column,
+           sample_column = sample_column,
+           group_column = group_column, 
+           output_dir = output_dir,
+           n_jobs=1)
+```
+
+```{r,include=FALSE,message=F,eval=FALSE}
+end_time <- Sys.time()
+duration <- round(end_time - start_time,digits = 1)
+print(duration)
+```
+
+## Test Results Figures 
+After running the scComp test, the following figures will be generated.
+
+### Boxplot
+```{r, echo=FALSE,out.width="80%",out.height="80%"}
+knitr::include_graphics("../../scDown_test/results/sccomp/vs_12/plots/scComp_boxplot.all_vs_12.png")
+
+```
+
+### 1D interval plot
+```{r, echo=FALSE,out.width="80%",out.height="80%"}
+knitr::include_graphics("../../scDown_test/results/sccomp/vs_12/plots/scComp_1D_interval.all_vs_12.png")
+
+```
+
+### 2D scatter plot
+```{r, echo=FALSE,out.width="80%",out.height="80%"}
+knitr::include_graphics("../../scDown_test/results/sccomp/vs_12/plots/scComp_2D_scatter.all_vs_12.png")
+
+```
+
+### 2D interval plot
+```{r, echo=FALSE,out.width="80%",out.height="80%"}
+knitr::include_graphics("../../scDown_test/results/sccomp/vs_12/plots/scComp_2D_interval.all_vs_12.png")
+
+```
+
+**Note**: scComp relies on biological replicates for robust statistical modeling. Since this provided test dataset contains only one sample per condition, any resulting conclusions should be interpreted with caution.
+
+
+The analysis was performed on a machine with the following specifications:
+
+- **Operating System**: Rocky Linux 8.9 (Green Obsidian)
+- **Product Name and Version**: RHEL
+- **Product Version**: 8.9
+- **CPU**: Intel(R) Xeon(R) Platinum 8358 CPU @ 2.60GHz
+- **Memory**: 10 GB
+

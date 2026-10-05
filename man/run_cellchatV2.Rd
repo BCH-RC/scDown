@@ -5,48 +5,47 @@
 \title{Run CellChat}
 \usage{
 run_cellchatV2(
-  output_dir,
   seurat_obj,
-  sample_column = NULL,
+  species,
   annotation_column,
   annotation_selected = NULL,
-  species,
+  sample_column = NULL,
   group_column = NULL,
   group_cmp = NULL,
-  top_n = 10,
+  top_n_pathways = 10,
   output_format = "png",
-  cores = 4
+  n_jobs = 4,
+  output_dir = "."
 )
 }
 \arguments{
-\item{output_dir}{Path to the folder where CellChat results will be saved (figures, tables, and RDS files).}
-
 \item{seurat_obj}{Seurat object containing the UMI counts and metadata for the single-cell data.}
 
-\item{sample_column}{Name of the metadata column in the Seurat object that contains sample information.}
+\item{species}{The species of the data, either 'human' or 'mouse'.}
 
 \item{annotation_column}{Name of the metadata column in the Seurat object that contains cell annotations.}
 
 \item{annotation_selected}{A vector of cell annotations of interest for running the CellChat analysis. If not provided, all cell types will be considered.}
 
-\item{species}{The species of the data, either 'human' or 'mouse'.}
+\item{sample_column}{Name of the metadata column in the Seurat object that contains sample information.}
 
 \item{group_column}{Name of the metadata column in the Seurat object that defines conditions or groups.}
 
 \item{group_cmp}{A list of pairwise condition comparisons for differential CellChat analysis (e.g., comparing different groups or conditions).}
 
-\item{top_n}{The number of top signaling pathways to analyze and visualize.}
+\item{top_n_pathways}{The number of top signaling pathways to analyze and visualize.}
 
 \item{output_format}{Format of output figure: "png" or "pdf" (default: "png")}
 
-\item{cores}{A numeric variable to set the number of cores to be used}
+\item{n_jobs}{A numeric variable to set the number of cores to be used}
+
+\item{output_dir}{Path to the folder where CellChat results will be saved (figures, tables, and RDS files).}
 }
 \description{
-run CellChat analysis
-This function performs CellChat analysis on a Seurat object to investigate cell-to-cell communication. 
-It generates figures, tables, and RDS files as output. The function allows for the specification of 
-various parameters, including the directory for storing results, the metadata column for cell annotations, 
-and the cell annotations of interest. Additionally, users can provide species information, group metadata 
-for group comparisons, and define pairwise group for differential analysis. The function also supports 
+This function performs CellChat analysis on a Seurat object to investigate cell-to-cell communication.
+It generates figures, tables, and RDS files as output. The function allows for the specification of
+various parameters, including the directory for storing results, the metadata column for cell annotations,
+and the cell annotations of interest. Additionally, users can provide species information, group metadata
+for group comparisons, and define pairwise group for differential analysis. The function also supports
 specifying the number of top pathways to analyze and visualize.
 }

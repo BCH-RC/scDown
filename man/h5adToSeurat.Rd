@@ -18,6 +18,6 @@ a Seurat object.
 }
 \description{
 This function uses the library(anndataR) to convert the raw counts, metadata,
-lower dimensional embeddings (pca and umap), and spliced and unspliced counts if available from a h5ad 
+lower dimensional embeddings (pca and umap), and spliced and unspliced counts if available from a h5ad
 file to a Seurat object.
 }

@@ -14,9 +14,9 @@ cellchatV2_path_visu(output_dir, species, pathway_to_show)
 \item{pathway_to_show}{A specific pathways to visualize.}
 }
 \description{
-This function performs pathway visualization for the CellChatV2 analysis. 
-It generates various visualizations, including signaling strength plots, heatmaps, scatter plots, 
-LR gene expression violin plots, and communication probability bubble plots for specified pathways. 
-Users can define the number of top pathways to visualize and specify pathways of interest that may not 
-have been included in the top_n most significant pathways already visualized.
+This function performs pathway visualization for the CellChatV2 analysis.
+It generates various visualizations, including signaling strength plots, heatmaps, scatter plots,
+LR gene expression violin plots, and communication probability bubble plots for specified pathways.
+Users can define the number of top pathways to visualize and specify pathways of interest that may not
+have been included in the top n most significant pathways already visualized.
 }

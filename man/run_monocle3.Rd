@@ -8,7 +8,7 @@ run_monocle3(
   seurat_obj,
   species,
   nDim = 30,
-  conditions = NULL,
+  groups = NULL,
   annotation_column = NULL,
   group_column = NULL,
   transferUMAP = TRUE,
@@ -16,14 +16,14 @@ run_monocle3(
   rootNode = NULL,
   timePoint = NULL,
   timePoint_metadata = NULL,
-  batch_metadata = NULL,
+  sample_column = NULL,
   celltype_groups = NULL,
-  top_genes = 10,
+  n_top_genes = 10,
   deg_method = "quasipoisson",
   metadata_deg_model = NULL,
   graph_test = FALSE,
   output_format = "png",
-  cores = 8,
+  n_jobs = 4,
   output_dir = "."
 )
 }
@@ -34,7 +34,7 @@ run_monocle3(
 
 \item{nDim}{A numeric variable specifying the PCA dimensions to be used for processing}
 
-\item{conditions}{A character vector specifying the different conditions}
+\item{groups}{A character vector specifying the different conditions (groups)}
 
 \item{annotation_column}{A character variable specifying the metdata column name of annotations. (Default: uses Idents)}
 
@@ -50,11 +50,11 @@ run_monocle3(
 
 \item{timePoint_metadata}{A character variable specifying the metadata to be used to automatically decide the root node.}
 
-\item{batch_metadata}{A character vector specifying the name of metadata column name with batch information to perform batch correction}
+\item{sample_column}{A character vector specifying the name of metadata column name with batch information to perform batch correction}
 
 \item{celltype_groups}{A list of character vectors that represents a group of cell types to be subsetted and constructed trajectory by monocle}
 
-\item{top_genes}{A numeric variable to set the number of top significant genes to visualize from DEG results}
+\item{n_top_genes}{A numeric variable to set the number of top significant genes to visualize from DEG results}
 
 \item{deg_method}{A character vector specifying the distribution used for regression method}
 
@@ -64,7 +64,7 @@ run_monocle3(
 
 \item{output_format}{Format of output figure: "png" or "pdf" (default: "png")}
 
-\item{cores}{A numeric variable to set the number of cores to be used}
+\item{n_jobs}{A numeric variable to set the number of cores to be used}
 
 \item{output_dir}{A character vector specifying the output directory}
 }
