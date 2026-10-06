@@ -10,7 +10,6 @@ cd /path/to/your/working/directory
 singularity exec -B /path/to/your/input/data/directory:/input_dir -e /path/to/singularity/image/scdownv2.sif R --vanilla
 library(scDownV2)
 ```
-A local singularity image is at /lab-share/RC-DST-Bioinfo-e2/Public/DST_software/scdownv2/scdownv2.sif
 
 ### 2 Usage
 Each key function in **scDown** is a wrap-up function of a workflow. Below are the main categories of key functions:
@@ -20,7 +19,7 @@ Each key function in **scDown** is a wrap-up function of a workflow. Below are t
 4. Trajectory inference: Monocle3, scVelo and CellRank2
 5. Gene set enrichment analysis: GSEApy
 
-The test data used in the scDown vignettes is scRNA-seq data using 10X Genomics Chromium described in [Hochgerner et al. (2018)](https://www.nature.com/articles/s41593-017-0056-2). It is from dentate gyrus, a part of the hippocampus. The data consists of 25,919 genes across 2,930 cells with two time points. We converted the h5ad file of the dentate gyrus data (10X43_1.h5ad) to Seurat object (10X43_1_spliced_unspliced.rds) using our `h5adToSeurat` function in Preprocessing.  
+The test data used in the scDown vignettes is scRNA-seq data using 10X Genomics Chromium described in [Hochgerner et al. (2018)](https://www.nature.com/articles/s41593-017-0056-2). It is from dentate gyrus, a part of the hippocampus. The data consists of 25,919 genes across 2,930 cells with two time points. We converted the h5ad file of the dentate gyrus data (10X43_1.h5ad) to Seurat object (10X43_1_spliced_unspliced.rds) using our `h5adToSeurat` function in Preprocessing.
 
 #### 2.1 Preprocessing functions
 - `h5adToSeurat` - Convert h5ad to Seurat rds as input for R functions.
@@ -40,11 +39,11 @@ group_column <- "age.days."
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)  # Create result root folder
 ```
 
-- `run_scproportion`- Uses scProportionTest to statistically assess the significance of differences in cell type proportions between all condition pairs. 
+- `run_scproportion`- Uses scProportionTest to statistically assess the significance of differences in cell type proportions between all condition pairs.
 ```r
 run_scproportion(seurat_obj = seurat_obj,
                  annotation_column = annotation_column,
-                 group_column = group_column, 
+                 group_column = group_column,
                  output_dir = output_dir,
                  n_jobs=2)
 ```
@@ -55,11 +54,11 @@ sample_column <- "age.days."
 run_sccomp(seurat_obj = seurat_obj,
            annotation_column = annotation_column,
            sample_column = sample_column,
-           group_column = group_column, 
+           group_column = group_column,
            output_dir = output_dir,
            n_jobs=1)
 ```
-- `run_cellchatV2` - Uses CellChat V2 to perform comprehensive intercellular communications analysis based on ligand-recptor pair interactions across cell types. 
+- `run_cellchatV2` - Uses CellChat V2 to perform comprehensive intercellular communications analysis based on ligand-recptor pair interactions across cell types.
 ```r
 species <- "mouse"
 celltypes_of_interest <- c("Granule immature", "Radial Glia-like", "Granule mature", "Neuroblast", "Microglia", "Cajal Retzius", "OPC", "Cck-Tox")
@@ -69,16 +68,16 @@ run_cellchatV2(seurat_obj = seurat_obj,
                species = species,
                annotation_column = annotation_column,
                annotation_selected = celltypes_of_interest,
-               group_column = group_column, 
+               group_column = group_column,
                group_cmp = comparison_groups,
                output_dir = output_dir,
                n_jobs=8)
 ```
-- `run_monocle3` - Uses Monocle3 to construct pseudotime trajectories to model the progression of cellular differentiation. 
+- `run_monocle3` - Uses Monocle3 to construct pseudotime trajectories to model the progression of cellular differentiation.
 ```r
 species <- "mouse"
-nDim <- 30 
-groups <- c("12","35") 
+nDim <- 30
+groups <- c("12","35")
 
 run_monocle3(seurat_obj = seurat_obj,
              species = species,
@@ -91,14 +90,14 @@ run_monocle3(seurat_obj = seurat_obj,
              output_dir = output_dir,
              n_jobs = 8)
 ```
-- `run_clusterProfiler` - Uses clusterProfiler to perform pathway enrichment analysis (KEGG, GO_BP, GO_CC, GO_MF). 
+- `run_clusterProfiler` - Uses clusterProfiler to perform pathway enrichment analysis (KEGG, GO_BP, GO_CC, GO_MF).
 ```r
 species <- "mouse"
 
 run_clusterProfiler(seurat_obj = seurat_obj,
                     species = species,
                     annotation_column = annotation_column,
-                    group_column = group_column, 
+                    group_column = group_column,
                     output_dir = output_dir,
                     n_jobs = 2)
 ```
