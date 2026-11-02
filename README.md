@@ -3,6 +3,9 @@
 🎥 Watch the scDown Training Video:
 [![scDown Training Video](docs/images/video_thumbnail.png)](https://youtu.be/xGbnB88P41A)
 
+### scDown V2
+We recently updated scDown to version 2, which comes with many more popular functions and packages and bridges between R and python workflows. Please check it out in this [branch](https://github.com/BCH-RC/scDown/tree/scDown_V2).
+
 ### Table of Contents
 - [1 Installation](#1-installation)
   - [1.1 System requirement](#11-system-requirement)
