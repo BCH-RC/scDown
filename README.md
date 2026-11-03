@@ -5,6 +5,12 @@
 
 ### scDown V2
 We recently updated scDown to version 2, which comes with many more popular functions and packages and bridges between R and python workflows. Please check it out in this [branch](https://github.com/BCH-RC/scDown/tree/scDown_V2).
+Below are the main categories of key functions:
+1. Preprocessing: doTransferLabel, cleanSeuratMeta, seuratToH5ad, h5adToSeurat
+2. Compositional analysis: scProportionTest, scComp, scCODA
+3. Cell-cell communications: CellChat V2, CellPhoneDB
+4. Trajectory inference: Monocle3, scVelo and CellRank2
+5. Over-representation and gene set enrichment analysis: clusterProfiler, GSEApy
 
 ### Table of Contents
 - [1 Installation](#1-installation)
